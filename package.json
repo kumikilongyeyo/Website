@@ -1,10 +1,10 @@
 {
-  "name": "klyde-illustration-portfolio",
+  "name": "klyde-art-portfolio",
   "private": true,
   "version": "0.1.0",
   "scripts": {
     "dev": "wrangler pages dev public",
-    "deploy": "wrangler pages deploy public --project-name klyde-illustration-portfolio"
+    "deploy": "wrangler pages deploy public --project-name klyde-art-portfolio"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
