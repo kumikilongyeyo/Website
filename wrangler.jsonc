@@ -2,5 +2,11 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "klyde-art-portfolio",
   "pages_build_output_dir": "./public",
-  "compatibility_date": "2026-09-21"
+  "compatibility_date": "2026-09-21",
+  "kv_namespaces": [
+    {
+      "binding": "PORTFOLIO_CONFIG",
+      "id": "0d513248eb1641278e90510ed953fe4b"
+    }
+  ]
 }
