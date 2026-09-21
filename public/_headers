@@ -4,5 +4,17 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Frame-Options: SAMEORIGIN
 
+/app.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/editor.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/studio*
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/gallery*
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /assets/*
   Cache-Control: public, max-age=604800
