@@ -19,6 +19,9 @@
 /studio-editor.js
   Cache-Control: no-cache, no-store, must-revalidate
 
+/studio-model.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /gallery*
   Cache-Control: no-cache, must-revalidate
 
