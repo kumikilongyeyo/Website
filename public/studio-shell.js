@@ -892,8 +892,228 @@
     window.StudioShell.syncAltText();
   }
 
+
+  /* ------------------------------------------------------- effects panel
+   * §25. One reliable instance per effect type, each behind its own enable
+   * toggle so a disabled effect contributes nothing rather than a zero-value
+   * shadow that still costs a paint.
+   */
+  function buildEffectsPanel() {
+    const host = $('.tab-panel[data-tab="design"]');
+    if (!host || $('#effectsPanel')) return;
+    const p = document.createElement('div');
+    p.className = 'panel';
+    p.id = 'effectsPanel';
+    p.dataset.for = 'tile,text,hero,logo,button,shape,container,section';
+    p.innerHTML = `
+      <h4>Effects</h4>
+      <label class="check"><input id="fxShadowOn" type="checkbox">Drop shadow</label>
+      <div class="ctrl"><label>Offset Y</label><input id="fxShadowY" type="range" min="-40" max="60"></div>
+      <div class="ctrl"><label>Blur</label><input id="fxShadowBlur" type="range" min="0" max="90"></div>
+      <div class="ctrl"><label>Spread</label><input id="fxShadowSpread" type="range" min="-20" max="40"></div>
+      <div class="ctrl"><label>Colour</label><input id="fxShadowColor" type="color" value="#000000"></div>
+      <label class="check"><input id="fxInnerOn" type="checkbox">Inner shadow</label>
+      <div class="ctrl"><label>Inner blur</label><input id="fxInnerBlur" type="range" min="0" max="60"></div>
+      <label class="check"><input id="fxGlowOn" type="checkbox">Glow</label>
+      <div class="ctrl"><label>Glow size</label><input id="fxGlowSize" type="range" min="0" max="80"></div>
+      <div class="ctrl"><label>Glow colour</label><input id="fxGlowColor" type="color" value="#bdd657"></div>
+      <div class="ctrl"><label>Backdrop blur</label><input id="fxBackdrop" type="range" min="0" max="30" step="0.5"></div>
+      <div class="ctrl"><label>Blend mode</label><select id="fxBlend">
+        <option>normal</option><option>multiply</option><option>screen</option><option>overlay</option>
+        <option>soft-light</option><option>hard-light</option><option>difference</option><option>luminosity</option>
+      </select></div>
+      <p class="editor-note" id="fxNote">Effects apply to the state you are editing.</p>`;
+    host.appendChild(p);
+
+    const IDS = ['fxShadowOn','fxShadowY','fxShadowBlur','fxShadowSpread','fxShadowColor',
+                 'fxInnerOn','fxInnerBlur','fxGlowOn','fxGlowSize','fxGlowColor','fxBackdrop','fxBlend'];
+
+    function collect() {
+      return {
+        shadow: { enabled: $('#fxShadowOn').checked, x: 0, y: Number($('#fxShadowY').value),
+                  blur: Number($('#fxShadowBlur').value), spread: Number($('#fxShadowSpread').value),
+                  color: $('#fxShadowColor').value },
+        innerShadow: { enabled: $('#fxInnerOn').checked, x: 0, y: 4, blur: Number($('#fxInnerBlur').value), spread: 0, color: 'rgba(0,0,0,.5)' },
+        glow: { enabled: $('#fxGlowOn').checked, size: Number($('#fxGlowSize').value), spread: 0, color: $('#fxGlowColor').value },
+        backdropBlur: Number($('#fxBackdrop').value),
+        blend: $('#fxBlend').value,
+      };
+    }
+
+    function reflectDependencies() {
+      const dep = [['fxShadowOn', ['fxShadowY','fxShadowBlur','fxShadowSpread','fxShadowColor'], 'Enable Drop shadow first.'],
+                   ['fxInnerOn', ['fxInnerBlur'], 'Enable Inner shadow first.'],
+                   ['fxGlowOn', ['fxGlowSize','fxGlowColor'], 'Enable Glow first.']];
+      for (const [toggle, deps, why] of dep) {
+        const on = $('#' + toggle) && $('#' + toggle).checked;
+        for (const id of deps) {
+          const el = $('#' + id);
+          if (!el) continue;
+          el.disabled = !on;
+          const field = el.closest('.ctrl');
+          if (field) {
+            field.classList.toggle('is-disabled', !on);
+            const lbl = field.querySelector('label');
+            if (lbl) lbl.title = on ? '' : why;
+          }
+        }
+      }
+    }
+
+    function commit() {
+      const sel = ed.selected();
+      if (!sel) { $('#fxNote').textContent = 'Select an object first.'; return; }
+      const m = ed.model();
+      const t = window.StudioShell.writeTarget();
+      window.StudioModel.setProp(m, sel.dataset.id, 'effects', collect(), t.state, t.breakpoint);
+      window.StudioModel.writeCSS(window.StudioModel.emitCSS(m));
+      reflectDependencies();
+      ed.push();
+      $('#fxNote').textContent = `Effects applied to ${t.breakpoint || t.state} on ${sel.dataset.node || sel.dataset.id}.`;
+    }
+
+    IDS.forEach(id => {
+      const el = $('#' + id);
+      if (!el) return;
+      el.addEventListener(el.tagName === 'SELECT' || el.type === 'checkbox' ? 'change' : 'input', commit);
+    });
+
+    window.StudioShell.syncEffects = () => {
+      const sel = ed.selected();
+      if (!sel) return;
+      const m = ed.model();
+      const t = window.StudioShell.writeTarget();
+      const fx = window.StudioModel.getProp(m, sel.dataset.id, 'effects', t.state, t.breakpoint) || {};
+      $('#fxShadowOn').checked = !!(fx.shadow && fx.shadow.enabled);
+      $('#fxShadowY').value = (fx.shadow && fx.shadow.y) || 12;
+      $('#fxShadowBlur').value = (fx.shadow && fx.shadow.blur) || 30;
+      $('#fxShadowSpread').value = (fx.shadow && fx.shadow.spread) || 0;
+      if (fx.shadow && /^#/.test(fx.shadow.color || '')) $('#fxShadowColor').value = fx.shadow.color;
+      $('#fxInnerOn').checked = !!(fx.innerShadow && fx.innerShadow.enabled);
+      $('#fxInnerBlur').value = (fx.innerShadow && fx.innerShadow.blur) || 18;
+      $('#fxGlowOn').checked = !!(fx.glow && fx.glow.enabled);
+      $('#fxGlowSize').value = (fx.glow && fx.glow.size) || 28;
+      if (fx.glow && /^#/.test(fx.glow.color || '')) $('#fxGlowColor').value = fx.glow.color;
+      $('#fxBackdrop').value = fx.backdropBlur || 0;
+      $('#fxBlend').value = fx.blend || 'normal';
+      reflectDependencies();
+    };
+    reflectDependencies();
+  }
+
+  /* --------------------------------------------------- motion extra panel
+   * §21–§23: trigger, playback, text stagger modes and image animation.
+   */
+  function buildMotionPanel() {
+    const host = $('.tab-panel[data-tab="motion"]');
+    if (!host || $('#motionSystemPanel') || !window.StudioMotion) return;
+    const MO = window.StudioMotion;
+    const p = document.createElement('div');
+    p.className = 'panel';
+    p.id = 'motionSystemPanel';
+    p.innerHTML = `
+      <h4>Trigger &amp; playback</h4>
+      <div class="ctrl"><label>Trigger</label><select id="moTrigger">
+        ${Object.entries(MO.TRIGGERS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}
+      </select></div>
+      <label class="check"><input id="moReplay" type="checkbox">Replay each time it re-enters the viewport</label>
+      <h4>Text animation</h4>
+      <div class="ctrl"><label>Mode</label><select id="moTextMode">
+        ${Object.entries(MO.TEXT_MODES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}
+      </select></div>
+      <div class="ctrl"><label>Stagger</label><input id="moStagger" type="range" min="0" max="160" step="5"></div>
+      <h4>Image animation</h4>
+      <div class="ctrl"><label>Preset</label><select id="moImageAnim">
+        ${Object.entries(MO.IMAGE_PRESETS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}
+      </select></div>
+      <div class="action-row"><button type="button" id="moReplayNow">▶ Replay selected</button></div>
+      <p class="editor-note" id="moNote"></p>`;
+    host.appendChild(p);
+
+    const note = m => { const n = $('#moNote'); if (n) n.textContent = m || ''; };
+
+    function commit() {
+      const sel = ed.selected();
+      if (!sel) return note('Select an object first.');
+      const m = ed.model();
+      const n = m && m.nodes && m.nodes[sel.dataset.id];
+      if (!n) return note('That object is not in the model yet.');
+      n.motion = n.motion || {};
+      n.motion.trigger = $('#moTrigger').value;
+      n.motion.replay = $('#moReplay').checked;
+      n.motion.stagger = Number($('#moStagger').value);
+      n.motion.imageAnim = $('#moImageAnim').value;
+
+      const wantedText = $('#moTextMode').value;
+      const messages = [];
+      if (wantedText !== 'object') {
+        const res = window.StudioMotion.split(sel, wantedText, n.motion.stagger);
+        if (!res.ok) {
+          // Say why instead of leaving a control that appears to do nothing.
+          $('#moTextMode').value = n.motion.textMode || 'object';
+          messages.push(res.why);
+        } else {
+          n.motion.textMode = wantedText;
+          messages.push(`Split into ${res.parts} parts.`);
+        }
+      } else {
+        window.StudioMotion.restore(sel);
+        n.motion.textMode = 'object';
+      }
+
+      if (n.motion.imageAnim !== 'none' && !(sel.querySelector && sel.querySelector('img'))) {
+        messages.push('Image animation needs an image on this object; it will apply once one is set.');
+      }
+      if (window.StudioMotion.reducedMotion()) {
+        messages.push('This system prefers reduced motion, so the animation is held still here.');
+      }
+
+      window.StudioModel.apply(m, {});
+      window.StudioMotion.bindTrigger(sel, n.motion);
+      ed.push();
+      note(messages.join(' ') || `Trigger: ${window.StudioMotion.TRIGGERS[n.motion.trigger]}.`);
+    }
+
+    ['moTrigger', 'moReplay', 'moTextMode', 'moStagger', 'moImageAnim'].forEach(id => {
+      const el = $('#' + id);
+      if (!el) return;
+      el.addEventListener(el.tagName === 'SELECT' || el.type === 'checkbox' ? 'change' : 'input', commit);
+    });
+    $('#moReplayNow').addEventListener('click', () => {
+      const sel = ed.selected();
+      if (!sel) return note('Select an object first.');
+      if (window.StudioMotion.reducedMotion()) return note('Reduced motion is on, so there is nothing to replay.');
+      window.StudioMotion.replay(sel);
+      note('Replayed.');
+    });
+
+    window.StudioShell.syncMotionPanel = () => {
+      const sel = ed.selected();
+      if (!sel) return;
+      const m = ed.model();
+      const n = (m && m.nodes && m.nodes[sel.dataset.id]) || {};
+      const mo = n.motion || {};
+      $('#moTrigger').value = mo.trigger || 'viewport';
+      $('#moReplay').checked = !!mo.replay;
+      $('#moTextMode').value = mo.textMode || 'object';
+      $('#moStagger').value = mo.stagger !== undefined ? mo.stagger : 40;
+      $('#moImageAnim').value = mo.imageAnim || 'none';
+      const splittable = window.StudioMotion.canSplit(sel);
+      $('#moTextMode').disabled = !splittable.ok && (mo.textMode || 'object') === 'object';
+      const field = $('#moTextMode').closest('.ctrl');
+      if (field) {
+        field.classList.toggle('is-disabled', $('#moTextMode').disabled);
+        const lbl = field.querySelector('label');
+        if (lbl) lbl.title = splittable.ok ? '' : splittable.why;
+      }
+    };
+    window.StudioShell.syncMotionPanel();
+  }
+
   function init() {
     buildToolbar();
+    buildEffectsPanel();
+    buildMotionPanel();
     buildTexturePanel();
     buildBackgroundPanel();
     buildAltTextControl();
@@ -908,7 +1128,7 @@
   window.StudioShell = {
     shell, init, renderTree, setPreview, setView, setViewport, setEditState, writeTarget,
     addObject, duplicateObject, deleteObject, toggleHidden, toggleLocked, renameObject, reorder,
-    buildTexturePanel, buildBackgroundPanel, buildAltTextControl,
+    buildTexturePanel, buildBackgroundPanel, buildAltTextControl, buildEffectsPanel, buildMotionPanel,
     VIEWPORTS, VIEW_FLAGS,
   };
 })();

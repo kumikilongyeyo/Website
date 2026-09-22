@@ -184,6 +184,11 @@
       const fn = CSS_MAP[key];
       if (fn) out.push(fn(v));
     }
+    // Shadow, glow and blend are assembled by the motion module, which owns
+    // the effect stack because box-shadow and filter are each a single
+    // ordered value that separate rules would overwrite.
+    if (props.effects && window.StudioMotion) out.push(...window.StudioMotion.effectDecls(props.effects));
+
     // One combined filter declaration, only when something deviates.
     const active = Object.keys(FILTER_PROPS).filter(k => props[k] !== undefined && num(props[k]) !== FILTER_DEFAULTS[k]);
     if (active.length) {
@@ -450,7 +455,13 @@
           return p && p.dataset.id ? p.dataset.id : null;
         })(),
         content: clean({
-          html: el.dataset.type === 'text' ? el.innerHTML : undefined,
+          // When text is split for a staggered reveal, the spans are
+          // presentation. Reading innerHTML here would store them as content,
+          // and apply() would write them back — corrupting the text and
+          // publishing it pre-split.
+          html: el.dataset.type === 'text'
+            ? (el.dataset.splitOriginal !== undefined ? el.dataset.splitOriginal : el.innerHTML)
+            : undefined,
           title: q('.t-title'),
           sub: q('.t-sub'),
           tag: q('.tag'),
@@ -610,6 +621,8 @@
       if (n.name) el.dataset.node = n.name;
       if (n.type) el.dataset.type = n.type;
       if (n.motion && n.motion.preset) el.dataset.motion = n.motion.preset;
+      if (n.motion && n.motion.imageAnim && n.motion.imageAnim !== 'none') el.dataset.imgAnim = n.motion.imageAnim;
+      else delete el.dataset.imgAnim;
       if (n.motion && n.motion.replay) el.dataset.replay = '1'; else delete el.dataset.replay;
       if (n.interaction) {
         if (n.interaction.action) el.dataset.action = n.interaction.action;
@@ -633,7 +646,12 @@
       if (!el.dataset.locked) delete el.dataset.locked;
 
       const c = n.content || {};
-      if (c.html != null && el.dataset.type === 'text') el.innerHTML = c.html;
+      if (c.html != null && el.dataset.type === 'text') {
+        // Re-writing innerHTML on a split element would destroy the spans the
+        // stagger depends on; the motion module re-splits from the original.
+        if (el.dataset.splitMode) el.dataset.splitOriginal = c.html;
+        else if (el.innerHTML !== c.html) el.innerHTML = c.html;
+      }
       const set = (sel, val) => { const e = el.querySelector && el.querySelector(sel); if (e && val != null) e.textContent = val; };
       set('.t-title', c.title); set('.t-sub', c.sub); set('.tag', c.tag);
 
@@ -667,6 +685,7 @@
     // Texture overlays are real elements, not declarations, so they are built
     // after the stylesheet rather than emitted into it.
     if (window.StudioBackground) window.StudioBackground.applyFromModel(model);
+    if (window.StudioMotion) window.StudioMotion.applyFromModel(model);
     if (window.StudioTexture) window.StudioTexture.syncModel(model);
     return { missing, hydrated };
   }
