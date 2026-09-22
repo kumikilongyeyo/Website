@@ -25,44 +25,15 @@ const TYPES = {
   'video/webm': 'webm',
 };
 
-function safeEqual(a = '', b = '') {
-  if (a.length !== b.length) return false;
-  let out = 0;
-  for (let i = 0; i < a.length; i++) out |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return out === 0;
-}
+// Auth, JSON and the session/CSRF checks are shared with the rest of the admin
+// API so there is one place that decides who may write.
+import { json, gate as sharedGate } from './_lib.js';
 
-function auth(request, env) {
-  if (!env.EDITOR_USER || !env.EDITOR_PASS) return false;
-  const h = request.headers.get('Authorization') || '';
-  if (!h.startsWith('Basic ')) return false;
-  try {
-    const d = atob(h.slice(6)), i = d.indexOf(':');
-    return i > 0 && safeEqual(d.slice(0, i), env.EDITOR_USER) && safeEqual(d.slice(i + 1), env.EDITOR_PASS);
-  } catch { return false; }
-}
-
-const json = (x, s = 200) => new Response(JSON.stringify(x), {
-  status: s,
-  headers: {
-    'content-type': 'application/json; charset=utf-8',
-    'cache-control': 'no-store',
-    'x-content-type-options': 'nosniff',
-  },
-});
-
-// Distinguishes "you are not allowed" from "the server is not set up", so the
-// editor never tells someone to check their password over a missing binding.
-function gate(request, env) {
-  if (!env.EDITOR_USER || !env.EDITOR_PASS) {
-    return json({
-      error: 'Editor credentials are not configured on this Pages project. Set EDITOR_USER and EDITOR_PASS as secrets, then redeploy.',
-      code: 'no-credentials',
-    }, 501);
-  }
-  if (!auth(request, env)) {
-    return json({ error: 'Wrong username or password.', code: 'bad-credentials' }, 401);
-  }
+// Delegates identity to the shared gate, then adds the media-specific
+// requirement that somewhere to put the file actually exists.
+async function gate(request, env) {
+  const bad = await sharedGate(request, env);
+  if (bad) return bad;
   if (!backend(env)) {
     return json({
       error: 'No media storage is available. Bind an R2 bucket as PORTFOLIO_MEDIA for the best results, or a KV namespace as PORTFOLIO_CONFIG, then redeploy.',
@@ -107,7 +78,7 @@ function keyFor(name, mime) {
 }
 
 export async function onRequestGet({ request, env }) {
-  const bad = gate(request, env);
+  const bad = await gate(request, env);
   if (bad) return bad;
   const store = backend(env);
   try {
@@ -160,7 +131,7 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestPost({ request, env }) {
-  const bad = gate(request, env);
+  const bad = await gate(request, env);
   if (bad) return bad;
 
   let form;
@@ -277,7 +248,7 @@ async function referencesTo(env, key) {
 }
 
 export async function onRequestDelete({ request, env }) {
-  const bad = gate(request, env);
+  const bad = await gate(request, env);
   if (bad) return bad;
 
   const key = new URL(request.url).searchParams.get('key');

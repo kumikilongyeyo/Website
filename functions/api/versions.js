@@ -6,7 +6,7 @@
 import { VERSION_KEY, VERSIONS, json, gate, readIndex, CURRENT_KEY } from './_lib.js';
 
 export async function onRequestGet({ request, env }) {
-  const bad = gate(request, env);
+  const bad = await gate(request, env, { readOnly: true });
   if (bad) return bad;
 
   const url = new URL(request.url);

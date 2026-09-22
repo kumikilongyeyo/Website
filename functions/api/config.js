@@ -30,7 +30,7 @@ export async function onRequestPost({ request, env }) {
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON', code: 'bad-json' }, 400); }
 
-  const bad = gate(request, env);
+  const bad = await gate(request, env);
   if (body && body._authCheck) {
     // Probe: report only whether the credentials are accepted.
     return bad && bad.status === 401 ? bad : json({ ok: true });

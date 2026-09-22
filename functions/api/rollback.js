@@ -7,7 +7,7 @@
 import { CURRENT_KEY, VERSION_KEY, VERSIONS, json, gate, readIndex, writeIndex } from './_lib.js';
 
 export async function onRequestPost({ request, env }) {
-  const bad = gate(request, env);
+  const bad = await gate(request, env);
   if (bad) return bad;
 
   let body;

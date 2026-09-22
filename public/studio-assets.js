@@ -17,11 +17,14 @@
   const listeners = new Set();
   const notify = () => listeners.forEach(fn => { try { fn(state); } catch (e) { console.error(e); } });
 
-  function credentials() {
-    // The editor owns the session; assets never prompt separately.
+  // Identity travels as the session cookie now, so nothing here handles a
+  // password. This only reports whether a session exists, to give a useful
+  // message instead of a bare 401.
+  function signedIn() {
     const a = (typeof window.auth === 'object' && window.auth) || (typeof auth !== 'undefined' ? auth : null);
-    return a && a.user ? 'Basic ' + btoa(a.user + ':' + a.pass) : null;
+    return !!(a && a.signedIn);
   }
+  const SEND = { credentials: 'same-origin' };
 
   async function readError(response, fallback) {
     let body = null;
@@ -33,12 +36,11 @@
   async function list({ force = false } = {}) {
     if (state.loading) return state.assets;
     if (state.loaded && !force) return state.assets;
-    const cred = credentials();
-    if (!cred) { state.error = 'Sign in to the editor to use the media library.'; notify(); return []; }
+    if (!signedIn()) { state.error = 'Sign in to the editor to use the media library.'; notify(); return []; }
 
     state.loading = true; state.error = null; notify();
     try {
-      const r = await fetch('/api/media', { headers: { Authorization: cred } });
+      const r = await fetch('/api/media', SEND);
       if (!r.ok) {
         const e = await readError(r, 'Could not load the media library');
         state.error = e.message; state.code = e.code; state.assets = []; state.loaded = false;
@@ -73,8 +75,7 @@
   }
 
   async function upload(file, { onProgress } = {}) {
-    const cred = credentials();
-    if (!cred) return { ok: false, error: 'Sign in to the editor before uploading.' };
+    if (!signedIn()) return { ok: false, error: 'Sign in to the editor before uploading.' };
     if (!file) return { ok: false, error: 'No file was chosen.' };
 
     const dims = await measure(file);
@@ -84,7 +85,7 @@
 
     if (onProgress) onProgress({ phase: 'uploading', name: file.name });
     try {
-      const r = await fetch('/api/media', { method: 'POST', headers: { Authorization: cred }, body: form });
+      const r = await fetch('/api/media', { method: 'POST', credentials: 'same-origin', body: form });
       if (!r.ok) {
         const e = await readError(r, 'Upload failed');
         return { ok: false, error: e.message, code: e.code };
@@ -101,11 +102,10 @@
   }
 
   async function remove(key, { force = false } = {}) {
-    const cred = credentials();
-    if (!cred) return { ok: false, error: 'Sign in to the editor before deleting assets.' };
+    if (!signedIn()) return { ok: false, error: 'Sign in to the editor before deleting assets.' };
     try {
       const r = await fetch(`/api/media?key=${encodeURIComponent(key)}${force ? '&force=1' : ''}`, {
-        method: 'DELETE', headers: { Authorization: cred },
+        method: 'DELETE', credentials: 'same-origin',
       });
       if (!r.ok) {
         const e = await readError(r, 'Delete failed');

@@ -1465,7 +1465,8 @@
     host.appendChild(p);
 
     const note = (m, err) => { const n = $('#versionsNote'); if (n) { n.textContent = m || ''; n.classList.toggle('is-error', !!err); } };
-    const cred = () => (typeof auth === 'object' && auth && auth.user) ? 'Basic ' + btoa(auth.user + ':' + auth.pass) : null;
+    // Identity is the session cookie; this only reports whether one exists.
+    const cred = () => (typeof auth === 'object' && auth && auth.signedIn) ? true : null;
 
     async function load() {
       const c = cred();
@@ -1473,7 +1474,7 @@
       const btn = $('#versionsRefresh');
       btn.disabled = true; btn.textContent = 'Loading…';
       try {
-        const r = await fetch('/api/versions', { headers: { Authorization: c } });
+        const r = await fetch('/api/versions', { credentials: 'same-origin' });
         if (!r.ok) {
           let body = null; try { body = await r.json(); } catch { /* not JSON */ }
           return note((body && body.error) || `Could not load history (server returned ${r.status}).`, true);
@@ -1528,7 +1529,8 @@
       try {
         const r = await fetch('/api/rollback', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: c },
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ version: 'studio', id: v.id }),
         });
         let body = null; try { body = await r.json(); } catch { /* not JSON */ }
