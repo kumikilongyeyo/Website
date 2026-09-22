@@ -133,6 +133,10 @@ inline styles. That is what makes hover/pressed states and per-breakpoint overri
 expressible, and it keeps the editor's selection outline strictly separate from an
 object's real border.
 
-`public/studio-patch.js` is **dead code** — nothing loads it, and it would throw on
-load because it references `syncSelection`, which does not exist (the function is
-`syncSelected`). It is kept only to avoid deleting work that may be wanted later.
+`public/studio-patch.js` was removed. Nothing loaded it, and it would have thrown on
+load twice over: it referenced `syncSelection` (the function is `syncSelected`) and
+`resizeImage` (it is `compressImage`). Every behaviour it intended is already in the
+live code, which was verified control by control before deleting it — Site tab control
+syncing, edge checkbox state, the Site-tab hero URL and brand controls, restoring
+published images into placeholder tiles, and bare-domain normalisation for external
+links. It is recoverable from git history if any of it is ever wanted.
