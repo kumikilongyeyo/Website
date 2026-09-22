@@ -550,9 +550,70 @@
   function enhanceAllResize() { $$('.grid .tile').forEach(enhanceResize); }
 
   /* -------------------------------------------------------------- toolbar */
+  /* Rebuilds the toolbar into three zones: history on the left, one line of
+   * status in the middle, view controls on the right.
+   *
+   * The original markup was two flex groups plus an appended third, so
+   * space-between put the status in the middle of the right-hand controls. The
+   * status span had no styling at all, inheriting the page's body size, which
+   * meant "Published live at 12:37:23 PM" rendered at heading size and wrapped
+   * onto two lines, shoving every button around it.
+   */
+  function layoutToolbar(bar) {
+    if (bar.dataset.zoned === '1') return;
+    const left = document.createElement('div');
+    const center = document.createElement('div');
+    const right = document.createElement('div');
+    left.className = 'bar-zone bar-left';
+    center.className = 'bar-zone bar-center';
+    right.className = 'bar-zone bar-right';
+
+    const undo = bar.querySelector('[data-undo]');
+    const redo = bar.querySelector('[data-redo]');
+    const chip = bar.querySelector('.section-chip');
+    const statusEl = bar.querySelector('.status');
+    const theme = bar.querySelector('[data-theme]');
+    const exitBtn = bar.querySelector('[data-exit]');
+
+    if (undo) { undo.textContent = '↶'; undo.title = 'Undo'; undo.setAttribute('aria-label', 'Undo'); undo.classList.add('icon-only'); left.appendChild(undo); }
+    if (redo) { redo.textContent = '↷'; redo.title = 'Redo'; redo.setAttribute('aria-label', 'Redo'); redo.classList.add('icon-only'); left.appendChild(redo); }
+    if (chip) left.appendChild(chip);
+    if (statusEl) center.appendChild(statusEl);
+    if (theme) { theme.textContent = '◐'; theme.title = 'Toggle light / dark'; theme.setAttribute('aria-label', 'Toggle light or dark theme'); theme.classList.add('icon-only'); }
+
+    bar.textContent = '';
+    bar.append(left, center, right);
+    bar.dataset.zoned = '1';
+    // Theme and Exit belong with the other view controls, not beside the status.
+    return { left, center, right, theme, exitBtn };
+  }
+
+  /* Colours and marks the status line by what it says. Reading the element
+   * rather than wrapping the editor's status() avoids assigning a function to
+   * window.status, which is a legacy string property and does not reliably
+   * hold one.
+   */
+  function watchStatus(el) {
+    if (!el || el.dataset.watched === '1') return;
+    el.dataset.watched = '1';
+    const classify = () => {
+      const t = (el.textContent || '').toLowerCase();
+      const state = /fail|could not|too large|error|not signed in|locked|refus|unavailable|cannot/.test(t) ? 'error'
+        : /publish(ed)? live|published|uploaded|saved/.test(t) ? 'ok'
+        : /unsaved|publishing|uploading|loading/.test(t) ? 'busy'
+        : 'idle';
+      el.dataset.state = state;
+      el.title = el.textContent || '';
+    };
+    new MutationObserver(classify).observe(el, { childList: true, characterData: true, subtree: true });
+    classify();
+  }
+
   function buildToolbar() {
     const bar = $('.devbar');
     if (!bar || $('#shellTools')) return;
+    const zones = layoutToolbar(bar) || {};
+    watchStatus(bar.querySelector('.status'));
 
     const wrap = document.createElement('div');
     wrap.id = 'shellTools';
@@ -571,7 +632,14 @@
           <p class="editor-note">These affect the editor canvas only. They are never saved to the site.</p>
         </div>
       </details>`;
-    bar.appendChild(wrap);
+    (bar.querySelector('.bar-right') || bar).appendChild(wrap);
+    if (zones.theme || zones.exitBtn) {
+      const tail = document.createElement('div');
+      tail.className = 'bar-tail';
+      if (zones.theme) tail.appendChild(zones.theme);
+      if (zones.exitBtn) tail.appendChild(zones.exitBtn);
+      (bar.querySelector('.bar-right') || bar).appendChild(tail);
+    }
 
     wrap.querySelector('[data-preview]').onclick = () => setPreview(!shell.previewing);
     $$('[data-viewport-btn]', wrap).forEach(b => { b.onclick = () => setViewport(b.dataset.viewportBtn); });
@@ -1309,7 +1377,7 @@
     shell, init, renderTree, setPreview, setView, setViewport, setEditState, writeTarget,
     addObject, duplicateObject, deleteObject, toggleHidden, toggleLocked, renameObject, reorder,
     buildTexturePanel, buildBackgroundPanel, buildAltTextControl, buildEffectsPanel, buildMotionPanel,
-    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE, buildLinkControls,
+    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE, buildLinkControls, layoutToolbar, watchStatus,
     VIEWPORTS, VIEW_FLAGS,
   };
 })();
