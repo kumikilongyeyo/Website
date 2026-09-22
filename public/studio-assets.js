@@ -356,11 +356,17 @@
     if (ph) ph.remove();
     if (typeof window.push === 'function') window.push();
     else if (typeof push === 'function') push();
-    // Missing alt text is a real accessibility gap on an artwork site, so it is
-    // named at the moment it matters rather than silently accepted.
-    say(a.alt
-      ? `Placed ${a.label || a.filename || a.key}.`
-      : `Placed ${a.label || a.filename || a.key}. Add alt text so screen readers and search engines can describe it.`, !a.alt);
+    /* Two things are worth saying the moment artwork lands, because both are
+     * invisible afterwards: whether it is described, and whether it is sharp.
+     * Both are measured from what the library already knows about the file, so
+     * neither has to wait for the image to decode. */
+    const name = a.label || a.filename || a.key;
+    const notes = [];
+    if (!a.alt) notes.push('Add alt text so screen readers and search engines can describe it.');
+    const q = window.StudioShell && window.StudioShell.imageQuality
+      ? window.StudioShell.imageQuality(im, a) : null;
+    if (q && q.soft) notes.push(window.StudioShell.qualityMessage(q));
+    say(`Placed ${name}.` + (notes.length ? ' ' + notes.join(' ') : ''), notes.length > 0);
   }
 
   async function trashAsset(a) {

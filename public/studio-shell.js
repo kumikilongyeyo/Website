@@ -1078,6 +1078,49 @@
     window.StudioShell.reloadBackgroundPanel = loadInto;
   }
 
+  /* How sharp will this artwork actually be?
+   *
+   * The single measurement that matters on an illustration portfolio, and the
+   * one nothing in the browser tells you: an image is only as sharp as its own
+   * pixels, and a CSS box on a 2x display needs twice its CSS size in real
+   * ones. The sample hero shipped at 480x274 into a box asking for 3024x2036 —
+   * six times short, and visibly soft, with nothing anywhere saying so.
+   *
+   * Reported, never enforced: a deliberately low-res piece is a legitimate
+   * choice, and the owner is the one who decides.
+   */
+  function imageQuality(img, known) {
+    if (!img) return null;
+    // The library already knows the file's real size, so the check does not
+    // have to wait for a decode — which never happens at all in a background
+    // tab, where the frame callback it used to wait on does not run.
+    const nw = (known && known.width) || img.naturalWidth || +img.getAttribute('width') || 0;
+    const nh = (known && known.height) || img.naturalHeight || +img.getAttribute('height') || 0;
+    if (!nw || !nh) return null;
+    const r = img.getBoundingClientRect();
+    if (!r.width) return null;
+    const dpr = window.devicePixelRatio || 1;
+    const wantW = Math.round(r.width * dpr);
+    const wantH = Math.round(r.height * dpr);
+    const factor = wantW / nw;
+    return {
+      native: nw + '×' + nh,
+      displayed: Math.round(r.width) + '×' + Math.round(r.height),
+      needs: wantW + '×' + wantH,
+      factor: Math.round(factor * 10) / 10,
+      // Under 1.15x is within the noise of rounding and responsive reflow.
+      soft: factor > 1.15,
+    };
+  }
+
+  function qualityMessage(q) {
+    if (!q) return '';
+    if (!q.soft) return `Sharp: ${q.native} covers this ${q.displayed} slot.`;
+    return `Soft: this file is ${q.native} but fills ${q.displayed}. `
+      + `A ${window.devicePixelRatio > 1 ? Math.round(window.devicePixelRatio) + '×' : 'high-density'} display needs about ${q.needs}. `
+      + `Upload a larger version to keep the linework crisp.`;
+  }
+
   /* Alt text for meaningful portfolio images (§16/§34). */
   function buildAltTextControl() {
     const host = $('#projectMediaPanel') || $('.tab-panel[data-tab="design"]');
@@ -1086,6 +1129,10 @@
     wrap.className = 'ctrl stack';
     wrap.innerHTML = '<label for="imgAlt">Image alt text</label><input id="imgAlt" type="text" placeholder="Describe the artwork for screen readers">';
     host.appendChild(wrap);
+    const quality = document.createElement('p');
+    quality.className = 'editor-note';
+    quality.id = 'imgQuality';
+    host.appendChild(quality);
     const input = $('#imgAlt');
     input.addEventListener('input', () => {
       const sel = ed.selected();
@@ -1112,8 +1159,16 @@
       input.disabled = !img;
       input.placeholder = img ? 'Describe the artwork for screen readers' : 'Add an image first';
       input.classList.toggle('needs-alt', !!img && !input.value.trim());
+      const note = $('#imgQuality');
+      if (note) {
+        const q = imageQuality(img);
+        note.textContent = qualityMessage(q);
+        note.classList.toggle('is-error', !!(q && q.soft));
+      }
     };
     window.StudioShell.syncAltText();
+    window.StudioShell.imageQuality = imageQuality;
+    window.StudioShell.qualityMessage = qualityMessage;
   }
 
 
