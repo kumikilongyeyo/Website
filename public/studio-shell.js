@@ -1445,8 +1445,113 @@
     });
   }
 
+
+  /* ------------------------------------------------------ version history
+   * Publishing used to overwrite one key with no way back. Every publish now
+   * leaves an immutable snapshot, and this panel restores one.
+   */
+  function buildVersionsPanel() {
+    const host = $('.tab-panel[data-tab="site"]');
+    if (!host || $('#versionsPanel')) return;
+    const p = document.createElement('div');
+    p.className = 'panel';
+    p.id = 'versionsPanel';
+    p.innerHTML = `
+      <h4>Published history</h4>
+      <p class="editor-note">Every publish saves a snapshot. Restoring one puts it back live without deleting anything, so you can always return.</p>
+      <div class="action-row"><button type="button" id="versionsRefresh">Load history</button></div>
+      <div id="versionList" class="version-list"></div>
+      <p class="editor-note" id="versionsNote"></p>`;
+    host.appendChild(p);
+
+    const note = (m, err) => { const n = $('#versionsNote'); if (n) { n.textContent = m || ''; n.classList.toggle('is-error', !!err); } };
+    const cred = () => (typeof auth === 'object' && auth && auth.user) ? 'Basic ' + btoa(auth.user + ':' + auth.pass) : null;
+
+    async function load() {
+      const c = cred();
+      if (!c) return note('Sign in to the editor to see the history.', true);
+      const btn = $('#versionsRefresh');
+      btn.disabled = true; btn.textContent = 'Loading…';
+      try {
+        const r = await fetch('/api/versions', { headers: { Authorization: c } });
+        if (!r.ok) {
+          let body = null; try { body = await r.json(); } catch { /* not JSON */ }
+          return note((body && body.error) || `Could not load history (server returned ${r.status}).`, true);
+        }
+        const data = await r.json();
+        render(data);
+        note(`${data.versions.length} snapshot${data.versions.length === 1 ? '' : 's'} kept.`);
+      } catch {
+        note('Could not reach the server. The history was not loaded.', true);
+      } finally {
+        btn.disabled = false; btn.textContent = 'Load history';
+      }
+    }
+
+    function when(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      return d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    }
+
+    function render(data) {
+      const box = $('#versionList');
+      box.innerHTML = '';
+      if (!data.versions.length) {
+        box.innerHTML = '<div class="asset-empty">No snapshots yet — they start with your next publish.</div>';
+        return;
+      }
+      for (const v of data.versions) {
+        const isCurrent = v.id === data.currentId;
+        const row = document.createElement('div');
+        row.className = 'version-row' + (isCurrent ? ' is-current' : '');
+        row.innerHTML = `
+          <div class="version-meta">
+            <strong>${when(v.publishedAt)}${isCurrent ? ' · live now' : ''}</strong>
+            <span>${(v.label || 'No label').replace(/</g, '&lt;')} · ${Math.max(1, Math.round((v.bytes || 0) / 1024))}KB</span>
+          </div>
+          <button type="button" ${isCurrent ? 'disabled title="This is the version currently live"' : ''}>Restore</button>`;
+        const btn = row.querySelector('button');
+        if (!isCurrent) btn.onclick = () => restore(v);
+        box.appendChild(row);
+      }
+    }
+
+    async function restore(v) {
+      // Restoring changes the public site, so it is confirmed rather than
+      // being a single misclick away.
+      if (!window.confirm(`Put the version from ${when(v.publishedAt)} back live?\n\nNothing is deleted — the current version stays in the history, so you can switch back.`)) return;
+      const c = cred();
+      if (!c) return note('Sign in first.', true);
+      note('Restoring…');
+      try {
+        const r = await fetch('/api/rollback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: c },
+          body: JSON.stringify({ version: 'studio', id: v.id }),
+        });
+        let body = null; try { body = await r.json(); } catch { /* not JSON */ }
+        if (!r.ok || !body || !body.ok) {
+          return note((body && body.error) || `Restore failed (server returned ${r.status}).`, true);
+        }
+        // Refresh first: load() ends by writing the snapshot count, which was
+        // wiping the confirmation before it could be read.
+        await load();
+        note(`Restored the version from ${when(v.publishedAt)}. Reload the page to see it in the editor.`);
+        ed.status(`Restored the published version from ${when(v.publishedAt)}.`);
+      } catch {
+        note('Could not reach the server. Nothing was restored.', true);
+      }
+    }
+
+    $('#versionsRefresh').addEventListener('click', load);
+    window.StudioShell.loadVersions = load;
+  }
+
   function init() {
     buildToolbar();
+    buildVersionsPanel();
     buildInlineLinkControls();
     buildHeroControls();
     buildLinkControls();
@@ -1468,7 +1573,7 @@
     shell, init, renderTree, setPreview, setView, setViewport, setEditState, writeTarget,
     addObject, duplicateObject, deleteObject, toggleHidden, toggleLocked, renameObject, reorder,
     buildTexturePanel, buildBackgroundPanel, buildAltTextControl, buildEffectsPanel, buildMotionPanel,
-    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE, buildLinkControls, layoutToolbar, watchStatus, buildHeroControls, buildInlineLinkControls,
+    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE, buildLinkControls, layoutToolbar, watchStatus, buildHeroControls, buildInlineLinkControls, buildVersionsPanel,
     VIEWPORTS, VIEW_FLAGS,
   };
 })();

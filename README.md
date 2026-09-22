@@ -120,6 +120,31 @@ Endpoints (all require the editor credentials):
   config and names the exact reference; add `&force=1` to delete anyway
 - `GET /media/<key>` — public, immutable, etag-revalidated
 
+## Publishing, history and rollback
+
+Publishing is reversible. Every publish writes an immutable snapshot **before** swapping the
+live pointer, so a failure at any earlier step leaves the site serving exactly what it served
+before — a failed publish cannot half-update or blank the portfolio.
+
+```
+site-config:<v>          the live snapshot (what visitors get)
+version:<v>:<id>         immutable snapshots, newest 20 kept
+version-index:<v>        small list: id, publishedAt, label, bytes
+```
+
+- `GET  /api/versions`  list history (auth); `?id=` returns one snapshot
+- `POST /api/rollback`  `{version, id}` puts a snapshot back live (auth)
+
+Rollback republishes; it never deletes. The version being rolled back *from* stays in the
+list, so a rollback is itself reversible. The version id is validated against a strict pattern
+rather than trusted, because it is used to build a storage key.
+
+Cost: three KV writes per publish against a 1,000/day allowance, and twenty ~10–30KB
+snapshots against 1GB. Retention prunes only outside the keep window and never the live one.
+
+The first publish after this shipped also archives whatever was already live, so the state
+predating version history is recoverable too.
+
 ## Presets
 
 Three preset families, all in the Site tab, all persisted with the published config:

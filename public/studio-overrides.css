@@ -452,3 +452,15 @@ body:not(.editing) #objFrame,body.previewing #objFrame{display:none!important}
 /* Shapes should start small and be freely sized rather than stuck at a minimum. */
 .shape{min-height:0;min-width:0;height:80px}
 .spacer{min-height:0;height:40px}
+
+/* Published history (§10) */
+.version-list{display:grid;gap:5px;margin:6px 0}
+.version-row{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border:1px solid var(--line);border-radius:6px;padding:7px 8px;min-width:0}
+.version-row.is-current{border-color:var(--accent);background:rgba(189,214,87,.1)}
+.version-meta{display:grid;gap:1px;min-width:0}
+.version-meta strong{font-size:9px;font-weight:600;white-space:nowrap}
+.version-meta span{font-size:8px;opacity:.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.version-row button{flex:0 0 auto;height:24px;padding:0 9px;font-size:9px;border-radius:4px;
+  border:1px solid var(--line);background:#1b1f1b;color:inherit;cursor:pointer}
+.version-row button[disabled]{opacity:.45;cursor:not-allowed}
