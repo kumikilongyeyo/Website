@@ -120,6 +120,21 @@ Endpoints (all require the editor credentials):
   config and names the exact reference; add `&force=1` to delete anyway
 - `GET /media/<key>` — public, immutable, etag-revalidated
 
+## Presets
+
+Three preset families, all in the Site tab, all persisted with the published config:
+
+- **Showcase layouts** (10) — rearrange the work grid and the page metrics that carry its
+  feel. Each preset holds a `pattern` of spans and heights applied cyclically down the tile
+  order, so it works with four tiles or forty, and a `diagram` drawn on the card. Below 980px
+  every tile is already full width, so a 12-column pattern collapses safely on a phone.
+- **Font pairings** (12) — open-source families from google/fonts; only the pairing in use is
+  downloaded. See SOURCES.md.
+- **Colour schemes** (12) — each validated against a 4.5:1 floor for body text on both its
+  background and its surface, with the ratio printed on the card.
+
+Applying a layout deliberately replaces per-tile sizes, and lands as one undo step.
+
 ## Studio architecture
 
 `public/studio.html` loads, in order:

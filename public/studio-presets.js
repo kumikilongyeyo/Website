@@ -172,7 +172,12 @@
     if (!p) { ed.status(`"${key}" is not a font pairing in this build.`); return false; }
     register(p.display); register(p.body);
     loadFamilies([p.display, p.body]);
-    if (typeof G !== 'undefined') { G.display = p.display; G.body = p.body; }
+    // The key must be written to G as well as the model. applyState() merges
+    // the whole published `site` bag into G, so G ends up holding fontPair /
+    // scheme / layout too — and fromDOM spreads G LAST over the previous site,
+    // so G wins. Writing only the model left these frozen at whatever was
+    // published, which showed as the wrong preset card marked on reload.
+    if (typeof G !== 'undefined') { G.display = p.display; G.body = p.body; G.fontPair = key; }
     const m = ed.model();
     if (m) { m.site = m.site || {}; m.site.display = p.display; m.site.body = p.body; m.site.fontPair = key; }
     ed.applyGlobals();
@@ -185,6 +190,139 @@
     return true;
   }
 
+
+
+  /* ------------------------------------------------------ layout presets
+   * A showcase layout is a recipe for the work grid plus the page metrics that
+   * carry its feel. `pattern` is applied cyclically down the tile order, so a
+   * preset works whether there are four tiles or forty. `diagram` is the same
+   * information drawn as rows of spans for the preview card.
+   *
+   * Below 980px every tile already goes full width, so a 12-column pattern
+   * collapses safely on a phone without any per-layout handling.
+   */
+  const LAYOUTS = [
+    {
+      key: 'editorial', name: 'Editorial Grid',
+      note: 'Mixed spans with a deliberate rhythm. The current arrangement.',
+      site: { pageWidth: 1500, gap: 16, radius: 8, sectionSpace: 84 }, heroHeight: 76,
+      pattern: [{ span: 8, h: 540 }, { span: 4, h: 540 }, { span: 5, h: 390 }, { span: 7, h: 390 }, { span: 6, h: 320 }, { span: 6, h: 320 }],
+      diagram: [[8, 4], [5, 7], [6, 6]],
+    },
+    {
+      key: 'thirds', name: 'Uniform Thirds',
+      note: 'Three even columns. Quiet and catalogue-like; every piece reads equally.',
+      site: { pageWidth: 1440, gap: 18, radius: 8, sectionSpace: 80 }, heroHeight: 70,
+      pattern: [{ span: 4, h: 420 }],
+      diagram: [[4, 4, 4], [4, 4, 4]],
+    },
+    {
+      key: 'twoup', name: 'Two Up',
+      note: 'Two large tiles per row. Good when each image needs room.',
+      site: { pageWidth: 1400, gap: 20, radius: 10, sectionSpace: 92 }, heroHeight: 74,
+      pattern: [{ span: 6, h: 520 }],
+      diagram: [[6, 6], [6, 6]],
+    },
+    {
+      key: 'fullbleed', name: 'Full Bleed',
+      note: 'One piece per row at full width. The most cinematic option; best with few, strong images.',
+      site: { pageWidth: 1600, gap: 28, radius: 0, sectionSpace: 110 }, heroHeight: 88,
+      pattern: [{ span: 12, h: 720 }],
+      diagram: [[12], [12]],
+    },
+    {
+      key: 'feature', name: 'Feature + Strip',
+      note: 'One hero piece, then a strip of smaller work beneath it.',
+      site: { pageWidth: 1500, gap: 14, radius: 8, sectionSpace: 84 }, heroHeight: 78,
+      pattern: [{ span: 12, h: 620 }, { span: 3, h: 260 }, { span: 3, h: 260 }, { span: 3, h: 260 }, { span: 3, h: 260 }],
+      diagram: [[12], [3, 3, 3, 3]],
+    },
+    {
+      key: 'contact', name: 'Contact Sheet',
+      note: 'Dense four-across thumbnails. Shows breadth rather than individual pieces.',
+      site: { pageWidth: 1560, gap: 10, radius: 4, sectionSpace: 64 }, heroHeight: 58,
+      pattern: [{ span: 3, h: 250 }],
+      diagram: [[3, 3, 3, 3], [3, 3, 3, 3]],
+    },
+    {
+      key: 'masonry', name: 'Masonry Rhythm',
+      note: 'Alternating tall and short pairs, for an uneven, gallery-hung feel.',
+      site: { pageWidth: 1460, gap: 16, radius: 8, sectionSpace: 88 }, heroHeight: 72,
+      pattern: [{ span: 6, h: 600 }, { span: 6, h: 380 }, { span: 6, h: 380 }, { span: 6, h: 600 }],
+      diagram: [[6, 6], [6, 6]],
+    },
+    {
+      key: 'cinematic', name: 'Cinematic Strip',
+      note: 'Wide letterbox bands. Suits environment and key-art work.',
+      site: { pageWidth: 1620, gap: 30, radius: 6, sectionSpace: 104 }, heroHeight: 84,
+      pattern: [{ span: 12, h: 400 }],
+      diagram: [[12], [12], [12]],
+    },
+    {
+      key: 'featureleft', name: 'Feature Left',
+      note: 'A large piece paired with a narrower one, repeating down the page.',
+      site: { pageWidth: 1480, gap: 16, radius: 8, sectionSpace: 86 }, heroHeight: 74,
+      pattern: [{ span: 8, h: 520 }, { span: 4, h: 520 }],
+      diagram: [[8, 4], [8, 4]],
+    },
+    {
+      key: 'salon', name: 'Salon',
+      note: 'Deliberately irregular, like a salon wall. Least predictable of the set.',
+      site: { pageWidth: 1520, gap: 14, radius: 6, sectionSpace: 80 }, heroHeight: 68,
+      pattern: [{ span: 4, h: 470 }, { span: 8, h: 470 }, { span: 7, h: 340 }, { span: 5, h: 340 }, { span: 3, h: 300 }, { span: 9, h: 300 }],
+      diagram: [[4, 8], [7, 5], [3, 9]],
+    },
+  ];
+
+  /* Applies the metrics, then walks the tile order writing span and height.
+   * This intentionally overwrites per-tile sizes — that is what choosing a
+   * layout means — and it lands as one undo step.
+   */
+  function applyLayout(key) {
+    const L = LAYOUTS.find(x => x.key === key);
+    if (!L) { ed.status(`"${key}" is not a layout in this build.`); return false; }
+    const m = ed.model();
+    if (!m) { ed.status('No model yet — open the editor first.'); return false; }
+
+    if (typeof G !== 'undefined') Object.assign(G, L.site, { layout: key });
+    m.site = m.site || {};
+    Object.assign(m.site, L.site, { layout: key });
+
+    if (L.heroHeight !== undefined && typeof HERO !== 'undefined') {
+      HERO.height = L.heroHeight;
+      m.hero = m.hero || {};
+      m.hero.height = L.heroHeight;
+    }
+
+    // Tile order comes from the model so the pattern follows the page, not the
+    // order the nodes happen to be listed in.
+    const order = (m.order && m.order.length)
+      ? m.order
+      : [...document.querySelectorAll('.grid .tile')].map(t => t.dataset.id);
+    let applied = 0;
+    order.forEach((id, i) => {
+      if (!m.nodes || !m.nodes[id]) return;
+      const step = L.pattern[i % L.pattern.length];
+      window.StudioModel.setProp(m, id, 'span', step.span, 'base');
+      window.StudioModel.setProp(m, id, 'tileHeight', step.h, 'base');
+      applied++;
+    });
+
+    ed.applyGlobals();
+    if (typeof applyHero === 'function') applyHero();
+    window.StudioModel.writeCSS(window.StudioModel.emitCSS(m));
+    markActive('[data-layout]', key);
+    if (window.StudioInspector) window.StudioInspector.syncFromModel();
+    ed.push();
+    ed.status(`Layout: ${L.name} — ${applied} tile${applied === 1 ? '' : 's'} resized`);
+    return true;
+  }
+
+  function layoutDiagram(L) {
+    return L.diagram.map(row =>
+      `<span class="lay-row">${row.map(sp => `<i style="flex:${sp}"></i>`).join('')}</span>`
+    ).join('');
+  }
 
   /* ------------------------------------------------- exact colour handling
    * applyGlobals() hard-codes light mode to #ffffff / #f4f5f3 / #111111 and
@@ -263,6 +401,11 @@
         const m = ed.model();
         if (m) { m.site = m.site || {}; Object.assign(m.site, d, { mode: mode.value, exactColors: true }); }
         applyGlobals();
+        // Emptied on both, not deleted. fromDOM spreads G over the previous
+        // site, so a key merely absent from G lets the old value win; an empty
+        // string overwrites it.
+        if (typeof G !== 'undefined') G.scheme = '';
+        if (m) m.site.scheme = '';
         markActive('[data-scheme]', '');
         ed.push();
         ed.status(`${mode.value === 'light' ? 'Light' : 'Dark'} mode defaults loaded.`);
@@ -278,6 +421,8 @@
       G.mode = s.mode; G.bg = s.bg; G.surface = s.surface; G.text = s.text; G.accent = s.accent;
       // A scheme states its palette outright, so it is honoured verbatim.
       G.exactColors = true;
+      // See the note in applyFontPair: G wins in fromDOM, so the key goes here too.
+      G.scheme = key;
     }
     const m = ed.model();
     if (m) {
@@ -298,7 +443,9 @@
 
   function markActive(sel, key) {
     $$(sel).forEach(b => {
-      const on = (b.dataset.pair || b.dataset.scheme) === key;
+      // Must include layout: reading only pair/scheme meant a layout card could
+      // never match its own key and never showed as selected.
+      const on = (b.dataset.pair || b.dataset.scheme || b.dataset.layout) === key;
       b.classList.toggle('active', on);
       b.setAttribute('aria-pressed', String(on));
     });
@@ -333,7 +480,16 @@
         <span class="preset-meta"><strong>${s.name}</strong><span>${s.mode} · ${contrast(s.text, s.bg)}:1</span></span>
       </button>`).join('');
 
+    const layoutCards = LAYOUTS.map(L => `
+      <button type="button" class="preset-card layout-card" data-layout="${L.key}" aria-pressed="false" title="${L.note}">
+        <span class="lay-diagram" aria-hidden="true">${layoutDiagram(L)}</span>
+        <span class="preset-meta"><strong>${L.name}</strong><span>${L.diagram[0].join(' / ')} columns</span></span>
+      </button>`).join('');
+
     p.innerHTML = `
+      <h4>Showcase layouts</h4>
+      <p class="editor-note">Rearranges the work grid and the page metrics that go with it. This replaces the size of each tile, so it is one undo away if you change your mind.</p>
+      <div class="preset-grid layout-grid">${layoutCards}</div>
       <h4>Font pairings</h4>
       <p class="editor-note">Open-source families from google/fonts. Only the pairing you pick is downloaded.</p>
       <div class="preset-grid">${pairCards}</div>
@@ -345,6 +501,7 @@
 
     $$('[data-pair]', p).forEach(b => { b.onclick = () => applyFontPair(b.dataset.pair); });
     $$('[data-scheme]', p).forEach(b => { b.onclick = () => applyScheme(b.dataset.scheme); });
+    $$('[data-layout]', p).forEach(b => { b.onclick = () => applyLayout(b.dataset.layout); });
 
     // The three pre-existing font-pair buttons had no handler at all. Wire them
     // to the same library rather than leaving controls that do nothing (§1).
@@ -357,6 +514,7 @@
     if (m && m.site) {
       if (m.site.fontPair) markActive('[data-pair]', m.site.fontPair);
       if (m.site.scheme) markActive('[data-scheme]', m.site.scheme);
+      if (m.site.layout) markActive('[data-layout]', m.site.layout);
     }
   }
 
@@ -384,8 +542,8 @@
   }
 
   window.StudioPresets = {
-    FAMILIES, FONT_PAIRS, COLOR_SCHEMES,
-    applyFontPair, applyScheme, buildPanel, hydrate,
+    FAMILIES, FONT_PAIRS, COLOR_SCHEMES, LAYOUTS,
+    applyFontPair, applyScheme, applyLayout, buildPanel, hydrate,
     contrast, auditSchemes, loadFamilies, register, installExactColors, MODE_DEFAULTS, applyPalette,
   };
 })();

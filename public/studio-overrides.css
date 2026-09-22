@@ -383,3 +383,11 @@ body.move-mode [data-node]{user-select:none}
    scrollbar. `clip` rather than `hidden` so no scroll container is created and
    sticky positioning keeps working. */
 .site{overflow-x:clip}
+
+/* Showcase layout cards: the diagram is the preset's own span pattern drawn to
+   scale, so the card shows the arrangement rather than describing it. */
+.layout-grid{grid-template-columns:1fr 1fr}
+.lay-diagram{flex:0 0 auto;width:30px;display:grid;gap:2px}
+.lay-row{display:flex;gap:2px}
+.lay-row i{display:block;height:5px;border-radius:1px;background:currentColor;opacity:.42}
+.layout-card.active .lay-row i{opacity:.9;background:var(--accent)}
