@@ -254,13 +254,19 @@ body:not(.editing) #snapGuides,body.previewing #snapGuides{display:none}
    1024px screen it had 396px for eight controls and the status column
    collapsed to 0px. Both panels already reserve empty space at their tops for
    a bar, so spanning the window costs nothing and gives the row room. */
-.devbar{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;
+/* Scoped to .editing. An unscoped display:grid!important here overrode the
+   base `.devbar{display:none}` rule, so the dev toolbar was on show to every
+   visitor even after Exit. The public page is artwork only; the editor chrome
+   exists solely while editing. */
+.devbar{display:none!important}
+body.editing .devbar{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;
   height:52px!important;padding:0 12px!important;
   left:0!important;right:0!important;background:#0d0f0d!important;
   border-bottom:1px solid rgba(255,255,255,.1)!important;z-index:96!important}
-/* Keep the panel headings clear of the bar. */
-.layers{padding-top:64px!important}
-.inspect-head{margin-top:52px}
+body.previewing .devbar{display:none!important}
+/* Keep the panel headings clear of the bar, while editing only. */
+body.editing .layers{padding-top:64px!important}
+body.editing .inspect-head{margin-top:52px}
 .bar-zone{display:flex;align-items:center;gap:6px;min-width:0}
 .bar-center{justify-content:center}
 .bar-right{justify-content:flex-end}
@@ -305,3 +311,29 @@ body:not(.editing) #snapGuides,body.previewing #snapGuides{display:none}
 @media(max-width:860px){.devbar .section-chip{display:none}}
 @media(max-width:700px){.devbar .status{display:none}}
 @media(max-width:620px){.seg button{padding:0 7px}.devbar{padding:0 8px!important;gap:8px}}
+
+/* ------------------------------------------------- chrome-visibility guard
+   A single place that decides the public page shows artwork and nothing else.
+   Each of these was hidden by its own rule elsewhere, which is how one stray
+   `display:…!important` in the toolbar work put the dev bar in front of every
+   visitor. Stating it once, last, means a future layout tweak cannot leak the
+   editor again. */
+body:not(.editing) .devbar,
+body:not(.editing) .layers,
+body:not(.editing) .inspector,
+body:not(.editing) .savebar,
+body:not(.editing) .resize,
+body:not(.editing) #snapGuides,
+body.previewing .devbar,
+body.previewing .layers,
+body.previewing .inspector,
+body.previewing .savebar,
+body.previewing .resize,
+body.previewing #snapGuides{display:none!important}
+/* The footer gear is the only way in, and it hides itself while editing. */
+body.editing .gear,body.previewing .gear{display:none!important}
+
+/* The landing hero carried a hard-coded 1px border, which reads as an outline
+   around the artwork. Off by default now, and driven by a variable so the
+   Site tab can switch it on for anyone who wants the frame. */
+.hero-stage{border-width:var(--hero-border,0px)!important}

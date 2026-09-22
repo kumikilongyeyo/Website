@@ -213,6 +213,8 @@
 
     // The page wrapper has no data-id, so its own background is emitted here.
     if (model.site && model.site.background) rule('.site', backgroundDecls(model.site.background));
+    // Hero frame: absent means no frame, which is the default look.
+    if (model.site && model.site.heroBorder) rule('.site', ['--hero-border:1px']);
 
     for (const id in model.nodes) {
       const n = model.nodes[id];
@@ -416,14 +418,12 @@
     const root = o.root || document;
     const prev = o.prev && o.prev.nodes ? o.prev.nodes : {};
     const model = blank();
-    model.site = { ...(o.G || {}) };
-    // Carried explicitly: these live in the model, not in the editor's G
-    // globals, so rebuilding site from G alone would drop them on the next
-    // round trip and they would never reach publish.
-    if (o.prev && o.prev.site) {
-      if (o.prev.site.texture) model.site.texture = clone(o.prev.site.texture);
-      if (o.prev.site.background) model.site.background = clone(o.prev.site.background);
-    }
+    // Previous site settings first, then the editor's G globals over the top.
+    // Rebuilding site from G alone dropped every model-only setting — texture,
+    // background, the hero frame — on the next read, so they never reached
+    // publish. Listing them one by one meant each new setting repeated the
+    // bug, so the whole bag is carried and G simply wins for its own keys.
+    model.site = { ...clone((o.prev && o.prev.site) || {}), ...(o.G || {}) };
     model.brand = { ...(o.BRAND || {}) };
     model.hero = { ...(o.HERO || {}) };
     model.links = clone(o.LINKS || {});

@@ -1356,8 +1356,38 @@
     };
   }
 
+
+  /* Hero frame toggle (§7: a real border is a design choice, separate from any
+   * editor outline). Off by default — the artwork should not look boxed.
+   */
+  function buildHeroControls() {
+    const host = $('.tab-panel[data-tab="site"]');
+    if (!host || $('#heroBorderOn')) return;
+    const p = document.createElement('div');
+    p.className = 'panel';
+    p.id = 'heroFramePanel';
+    p.innerHTML = `
+      <h4>Landing image</h4>
+      <label class="check"><input id="heroBorderOn" type="checkbox">Thin frame around the hero image</label>
+      <p class="editor-note">Off by default so the artwork sits on the page without an outline around it.</p>`;
+    host.prepend(p);
+    const box = $('#heroBorderOn');
+    const m0 = ed.model();
+    box.checked = !!(m0 && m0.site && m0.site.heroBorder);
+    box.addEventListener('change', () => {
+      const m = ed.model();
+      if (!m) return;
+      m.site = m.site || {};
+      m.site.heroBorder = box.checked;
+      window.StudioModel.writeCSS(window.StudioModel.emitCSS(m));
+      ed.push();
+      ed.status(box.checked ? 'Hero frame on.' : 'Hero frame off.');
+    });
+  }
+
   function init() {
     buildToolbar();
+    buildHeroControls();
     buildLinkControls();
     buildEffectsPanel();
     buildMotionPanel();
@@ -1377,7 +1407,7 @@
     shell, init, renderTree, setPreview, setView, setViewport, setEditState, writeTarget,
     addObject, duplicateObject, deleteObject, toggleHidden, toggleLocked, renameObject, reorder,
     buildTexturePanel, buildBackgroundPanel, buildAltTextControl, buildEffectsPanel, buildMotionPanel,
-    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE, buildLinkControls, layoutToolbar, watchStatus,
+    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE, buildLinkControls, layoutToolbar, watchStatus, buildHeroControls,
     VIEWPORTS, VIEW_FLAGS,
   };
 })();
