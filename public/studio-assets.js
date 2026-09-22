@@ -46,6 +46,8 @@
       }
       const data = await r.json();
       state.assets = Array.isArray(data.assets) ? data.assets : [];
+      state.storage = data.storage || null;
+      state.limitBytes = data.limitBytes || null;
       state.loaded = true; state.error = null; state.code = null;
       return state.assets;
     } catch {
@@ -153,7 +155,16 @@
       statusEl.classList.add('is-error');
     } else if (statusEl) {
       statusEl.classList.remove('is-error');
-      if (!state.loading) statusEl.textContent = state.loaded ? `${state.assets.length} asset${state.assets.length === 1 ? '' : 's'}` : '';
+      if (!state.loading) {
+        // Say which store is in use and what it costs, so the smaller KV limit
+        // is never a mystery when an upload is refused.
+        const where = state.storage === 'kv'
+          ? ' · stored in KV, 2MB per file'
+          : state.storage === 'r2' ? ' · stored in R2, 15MB per file' : '';
+        statusEl.textContent = state.loaded
+          ? `${state.assets.length} asset${state.assets.length === 1 ? '' : 's'}${where}`
+          : '';
+      }
     }
 
     if (state.loading) { grid.innerHTML = '<div class="asset-empty">Loading library…</div>'; return; }

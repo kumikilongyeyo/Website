@@ -1,0 +1,7 @@
+# /studio was the portfolio's address while the root held a chooser between two
+# editor directions. The gallery direction is retired and the portfolio now
+# lives at the root, so the old address keeps working instead of 404ing.
+/studio      /  301
+/studio.html /  301
+/gallery     /  301
+/gallery.html /  301

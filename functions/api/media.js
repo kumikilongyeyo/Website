@@ -63,13 +63,32 @@ function gate(request, env) {
   if (!auth(request, env)) {
     return json({ error: 'Wrong username or password.', code: 'bad-credentials' }, 401);
   }
-  if (!env.PORTFOLIO_MEDIA) {
+  if (!backend(env)) {
     return json({
-      error: 'The media library needs an R2 bucket. Create one in the Cloudflare dashboard and bind it to this Pages project as PORTFOLIO_MEDIA, then redeploy.',
-      code: 'r2-unbound',
+      error: 'No media storage is available. Bind an R2 bucket as PORTFOLIO_MEDIA for the best results, or a KV namespace as PORTFOLIO_CONFIG, then redeploy.',
+      code: 'no-storage',
     }, 503);
   }
   return null;
+}
+
+/* Which store to use. R2 is the right tool for binary media and is preferred
+ * whenever it is bound. KV is the fallback because this project already has a
+ * KV namespace bound, so the media library works with no additional setup —
+ * uploads still get a durable /media/<key> URL and still stay out of the
+ * config. KV is not built for large blobs, hence the smaller cap below.
+ */
+function backend(env) {
+  if (env.PORTFOLIO_MEDIA) return 'r2';
+  if (env.PORTFOLIO_CONFIG) return 'kv';
+  return null;
+}
+
+const KV_PREFIX = 'media:';
+const KV_MAX_BYTES = 2 * 1024 * 1024;
+
+function capFor(env) {
+  return backend(env) === 'r2' ? MAX_BYTES : KV_MAX_BYTES;
 }
 
 function keyFor(name, mime) {
@@ -90,30 +109,53 @@ function keyFor(name, mime) {
 export async function onRequestGet({ request, env }) {
   const bad = gate(request, env);
   if (bad) return bad;
+  const store = backend(env);
   try {
     const out = [];
-    let cursor;
-    do {
-      const page = await env.PORTFOLIO_MEDIA.list({ limit: 1000, cursor, include: ['customMetadata'] });
-      for (const o of page.objects) {
-        const meta = o.customMetadata || {};
-        out.push({
-          key: o.key,
-          url: '/media/' + o.key,
-          size: o.size,
-          uploaded: o.uploaded,
-          mime: meta.mime || '',
-          filename: meta.filename || o.key.split('/').pop(),
-          width: meta.width ? Number(meta.width) : null,
-          height: meta.height ? Number(meta.height) : null,
-        });
-      }
-      cursor = page.truncated ? page.cursor : null;
-    } while (cursor);
+    if (store === 'r2') {
+      let cursor;
+      do {
+        const page = await env.PORTFOLIO_MEDIA.list({ limit: 1000, cursor, include: ['customMetadata'] });
+        for (const o of page.objects) {
+          const meta = o.customMetadata || {};
+          out.push({
+            key: o.key,
+            url: '/media/' + o.key,
+            size: o.size,
+            uploaded: o.uploaded,
+            mime: meta.mime || '',
+            filename: meta.filename || o.key.split('/').pop(),
+            width: meta.width ? Number(meta.width) : null,
+            height: meta.height ? Number(meta.height) : null,
+          });
+        }
+        cursor = page.truncated ? page.cursor : null;
+      } while (cursor);
+    } else {
+      let cursor;
+      do {
+        const page = await env.PORTFOLIO_CONFIG.list({ prefix: KV_PREFIX, cursor });
+        for (const k of page.keys) {
+          const meta = k.metadata || {};
+          const key = k.name.slice(KV_PREFIX.length);
+          out.push({
+            key,
+            url: '/media/' + key,
+            size: meta.size || 0,
+            uploaded: meta.uploaded || '',
+            mime: meta.mime || '',
+            filename: meta.filename || key.split('/').pop(),
+            width: meta.width ? Number(meta.width) : null,
+            height: meta.height ? Number(meta.height) : null,
+          });
+        }
+        cursor = page.list_complete ? null : page.cursor;
+      } while (cursor);
+    }
     out.sort((a, b) => String(b.uploaded).localeCompare(String(a.uploaded)));
-    return json({ assets: out, count: out.length });
+    return json({ assets: out, count: out.length, storage: store, limitBytes: capFor(env) });
   } catch (e) {
-    return json({ error: 'Could not list the media bucket: ' + (e && e.message ? e.message : 'unknown R2 error'), code: 'r2-list-failed' }, 502);
+    return json({ error: `Could not list media from ${store.toUpperCase()}: ` + (e && e.message ? e.message : 'unknown error'), code: 'list-failed' }, 502);
   }
 }
 
@@ -139,9 +181,13 @@ export async function onRequestPost({ request, env }) {
       code: 'bad-type',
     }, 415);
   }
-  if (file.size > MAX_BYTES) {
+  const cap = capFor(env);
+  if (file.size > cap) {
+    // Name the store, because the limit differs and the fix differs with it.
     return json({
-      error: `That file is ${Math.round(file.size / 1048576)}MB, over the ${Math.round(MAX_BYTES / 1048576)}MB limit.`,
+      error: backend(env) === 'kv'
+        ? `That file is ${(file.size / 1048576).toFixed(1)}MB, over the ${Math.round(cap / 1048576)}MB limit for KV-backed storage. Save it smaller, or add an R2 bucket to raise the limit to ${Math.round(MAX_BYTES / 1048576)}MB.`
+        : `That file is ${(file.size / 1048576).toFixed(1)}MB, over the ${Math.round(cap / 1048576)}MB limit.`,
       code: 'too-large',
     }, 413);
   }
@@ -151,18 +197,38 @@ export async function onRequestPost({ request, env }) {
 
   const key = keyFor(file.name, mime);
   const width = form.get('width'), height = form.get('height');
+  const store = backend(env);
+  const uploaded = new Date().toISOString();
   try {
-    await env.PORTFOLIO_MEDIA.put(key, file.stream(), {
-      httpMetadata: { contentType: mime, cacheControl: 'public, max-age=31536000, immutable' },
-      customMetadata: {
-        mime,
-        filename: String(file.name || '').slice(0, 200),
-        ...(width ? { width: String(width) } : {}),
-        ...(height ? { height: String(height) } : {}),
-      },
-    });
+    if (store === 'r2') {
+      await env.PORTFOLIO_MEDIA.put(key, file.stream(), {
+        httpMetadata: { contentType: mime, cacheControl: 'public, max-age=31536000, immutable' },
+        customMetadata: {
+          mime,
+          filename: String(file.name || '').slice(0, 200),
+          ...(width ? { width: String(width) } : {}),
+          ...(height ? { height: String(height) } : {}),
+        },
+      });
+    } else {
+      // KV values take an ArrayBuffer directly, so bytes stay bytes — no base64
+      // inflation. Metadata has a 1KB ceiling, hence the trimmed filename.
+      await env.PORTFOLIO_CONFIG.put(KV_PREFIX + key, await file.arrayBuffer(), {
+        metadata: {
+          mime,
+          filename: String(file.name || '').slice(0, 120),
+          size: file.size,
+          uploaded,
+          ...(width ? { width: String(width) } : {}),
+          ...(height ? { height: String(height) } : {}),
+        },
+      });
+    }
   } catch (e) {
-    return json({ error: 'R2 rejected the upload: ' + (e && e.message ? e.message : 'unknown error'), code: 'r2-put-failed' }, 502);
+    return json({
+      error: `${store.toUpperCase()} rejected the upload: ` + (e && e.message ? e.message : 'unknown error'),
+      code: store + '-put-failed',
+    }, 502);
   }
 
   return json({
@@ -175,8 +241,9 @@ export async function onRequestPost({ request, env }) {
       filename: file.name,
       width: width ? Number(width) : null,
       height: height ? Number(height) : null,
-      uploaded: new Date().toISOString(),
+      uploaded,
     },
+    storage: store,
   });
 }
 
@@ -190,6 +257,8 @@ async function referencesTo(env, key) {
   const used = [];
   for (const version of ['studio', 'gallery']) {
     let raw;
+    // Only the config keys: the KV fallback also stores media blobs in this
+    // namespace under media:, and those are not JSON.
     try { raw = await env.PORTFOLIO_CONFIG.get('site-config:' + version); } catch { continue; }
     if (!raw) continue;
     let parsed;
@@ -214,8 +283,11 @@ export async function onRequestDelete({ request, env }) {
   const key = new URL(request.url).searchParams.get('key');
   if (!key) return json({ error: 'No asset key was given to delete.', code: 'no-key' }, 400);
 
-  const head = await env.PORTFOLIO_MEDIA.head(key).catch(() => null);
-  if (!head) return json({ error: 'That asset is not in the media bucket. It may already be deleted.', code: 'not-found' }, 404);
+  const store = backend(env);
+  const exists = store === 'r2'
+    ? await env.PORTFOLIO_MEDIA.head(key).catch(() => null)
+    : await env.PORTFOLIO_CONFIG.get(KV_PREFIX + key, 'stream').catch(() => null);
+  if (!exists) return json({ error: 'That asset is not in media storage. It may already be deleted.', code: 'not-found' }, 404);
 
   const force = new URL(request.url).searchParams.get('force') === '1';
   const used = await referencesTo(env, key);
@@ -229,9 +301,13 @@ export async function onRequestDelete({ request, env }) {
   }
 
   try {
-    await env.PORTFOLIO_MEDIA.delete(key);
+    if (store === 'r2') await env.PORTFOLIO_MEDIA.delete(key);
+    else await env.PORTFOLIO_CONFIG.delete(KV_PREFIX + key);
   } catch (e) {
-    return json({ error: 'R2 rejected the delete: ' + (e && e.message ? e.message : 'unknown error'), code: 'r2-delete-failed' }, 502);
+    return json({
+      error: `${store.toUpperCase()} rejected the delete: ` + (e && e.message ? e.message : 'unknown error'),
+      code: store + '-delete-failed',
+    }, 502);
   }
   return json({ ok: true, key, forced: force && used.length > 0, brokenReferences: force ? used : [] });
 }

@@ -1,9 +1,13 @@
-# Illustration Portfolio Editor V4
+# Illustration Portfolio + Studio
 
-Two interactive portfolio directions sharing one editor engine:
+One portfolio site with a visual editor built into it.
 
-- `public/studio.html` — **Studio Inspector**: layers left, toolbar top, inspector right.
-- `public/gallery.html` — **Gallery Rail**: inspector left, layers as a bottom rail, true-white gallery presentation.
+- `public/index.html` — the portfolio, served at `/`. The footer gear opens the editor.
+- The old `/studio` and `/gallery` addresses 301 to `/` via `public/_redirects`.
+
+The second "Gallery Rail" direction and its older engine (`gallery.html`, `editor.js`,
+`app.css`) were retired, along with the root chooser that existed only to pick between the
+two. §39 of the handoff locks scope to a single portfolio site.
 
 ## Editor controls
 
@@ -85,31 +89,32 @@ Then run:
 
 You can also connect this GitHub repository directly in the Cloudflare Pages dashboard and deploy `public/`.
 
-## Image uploads (R2)
+## Image uploads
 
-Uploads go to Cloudflare R2 and the page stores a durable `/media/<key>` URL.
-Nothing image-shaped is written into KV any more.
+Uploads get a durable `/media/<key>` URL and are never written into the config.
 
-**One-time setup — the media library stays disabled until this is done:**
+**No setup is required.** The endpoints use whichever store is available:
 
-1. Cloudflare dashboard → **R2** → *Create bucket*, named `klyde-art-portfolio-media`.
-2. Pages project `klyde-art-portfolio` → **Settings → Bindings → Add R2 bucket**,
-   with the variable name **`PORTFOLIO_MEDIA`** pointing at that bucket.
-   Add it to both Production and Preview.
-3. Redeploy (or push any commit).
+| Store | Per-file limit | Setup |
+| --- | --- | --- |
+| R2 (`PORTFOLIO_MEDIA`) | 15MB | bind a bucket in the dashboard |
+| KV (`PORTFOLIO_CONFIG`) | 2MB | **already bound — this is the current default** |
 
-Until that binding exists, `/api/media` answers `503` with code `r2-unbound` and a
-message naming the binding to create, and a tile upload falls back to inlining the
-image into the config while telling you that is what happened. Nothing else on the
-site is affected.
+KV is not designed for binary blobs, so the per-file cap is lower and the free tier allows
+1000 writes a day. For a portfolio that is a lot of uploads, and it costs nothing to set up.
+Uploads are stored under a `media:` key prefix, so they never collide with the
+`site-config:` keys. An oversized upload says which store refused it and how to raise the
+limit, rather than just failing.
 
-Do not declare the bucket in `wrangler.jsonc` before it exists — a binding pointing
-at a missing bucket fails the Pages build, which is why it is commented out there.
-Once the bucket exists you may uncomment it to keep the config declarative.
+To switch to R2 later: create an R2 bucket, bind it to the Pages project as
+`PORTFOLIO_MEDIA`, redeploy. The code prefers R2 automatically, and anything already in KV
+keeps serving because the media route falls back to KV when a key is not in the bucket.
+Do not declare the bucket in `wrangler.jsonc` before it exists — a binding pointing at a
+missing bucket fails the Pages build.
 
 Endpoints (all require the editor credentials):
 
-- `GET /api/media` — list assets
+- `GET /api/media` — list assets; reports the active `storage` and `limitBytes`
 - `POST /api/media` — upload (multipart, field `file`); validates type and size
 - `DELETE /api/media?key=...` — refuses while the asset is referenced by a published
   config and names the exact reference; add `&force=1` to delete anyway

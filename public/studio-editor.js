@@ -82,12 +82,12 @@ async function place(file,apply,label){
   status('Uploading '+file.name+'…');
   const res=await StudioAssets.upload(file);
   if(res.ok){apply(res.asset.url,res.asset);push();return status('Uploaded '+file.name+' and placed it on '+label+'.')}
-  if(res.code==='r2-unbound'){
+  if(res.code==='no-storage'){
     // Be explicit that this is a one-time setup step, not a broken upload.
     const data=await compressImage(file,1600,.76,360000);
-    if(!data)return status('No media bucket is bound yet, and this file is too large to inline as a fallback. '+res.error);
+    if(!data)return status('No media storage is available, and this file is too large to inline as a fallback. '+res.error);
     apply(data,null);push();
-    return status('No media bucket is bound yet, so this image was inlined into the config as a temporary fallback. '+res.error);
+    return status('No media storage is available, so this image was inlined into the config as a temporary fallback. '+res.error);
   }
   status('Upload failed: '+res.error);
 }

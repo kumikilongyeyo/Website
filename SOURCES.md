@@ -3,9 +3,8 @@
 ## Font pairings
 This project uses free/open-source typefaces from the Google Fonts repository:
 
-- Studio Inspector: Instrument Serif + Manrope
-- Gallery Rail: DM Serif Display + DM Sans
-- Alternate preset: Space Grotesk
+- Default pairing: Instrument Serif + Manrope
+- Alternate pairings: DM Serif Display + DM Sans, Space Grotesk
 
 Source: https://github.com/google/fonts
 
@@ -18,3 +17,5 @@ The current prototype keeps its core editor dependency-light, but these mature o
 - Motion — richer animation primitives: https://github.com/motiondivision/motion
 
 The visual systems and editor UI in this repository are custom for this portfolio rather than copied from a portfolio template.
+
+The second "Gallery Rail" direction was retired; the repository now holds one portfolio site.

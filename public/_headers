@@ -4,10 +4,10 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Frame-Options: SAMEORIGIN
 
-/studio
+/
   Cache-Control: no-cache, no-store, must-revalidate
 
-/studio.html
+/index.html
   Cache-Control: no-cache, no-store, must-revalidate
 
 /studio.css
@@ -42,15 +42,6 @@
 
 /studio-links.js
   Cache-Control: no-cache, no-store, must-revalidate
-
-/gallery*
-  Cache-Control: no-cache, must-revalidate
-
-/app.css
-  Cache-Control: public, max-age=3600, must-revalidate
-
-/editor.js
-  Cache-Control: public, max-age=3600, must-revalidate
 
 /assets/*
   Cache-Control: public, max-age=604800
