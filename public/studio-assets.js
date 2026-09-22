@@ -338,7 +338,9 @@
     if (!target.classList.contains('tile')) {
       return say(`Images can only be placed on project tiles. "${target.dataset.node || target.dataset.id}" is a ${target.dataset.type || 'text'} object.`, true);
     }
-    let im = target.querySelector('img');
+    let im = (window.StudioModel && window.StudioModel.contentImage)
+      ? window.StudioModel.contentImage(target)
+      : target.querySelector('img');
     if (!im) {
       im = document.createElement('img');
       im.loading = 'lazy'; im.decoding = 'async';

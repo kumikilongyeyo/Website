@@ -45,6 +45,18 @@
   // therefore resolve to a tree row instead of the real object, so every
   // lookup here skips the chrome explicitly.
   const CHROME = '.layerbox, .layers, .inspector, .devbar, .savebar, .login, #assetGrid';
+  /* An object can hold more than one <img>: the hero pairs a blurred full-bleed
+   * backdrop with the artwork itself. Everything that reads or writes "the
+   * image" means the content one. Selecting the first <img> instead put new
+   * artwork on the blur layer, and gave a decorative, aria-hidden element the
+   * node's name as its alt text.
+   */
+  const DECORATIVE_IMG = 'img[aria-hidden="true"], .hero-bleed';
+  function contentImage(el) {
+    if (!el || !el.querySelector) return null;
+    return el.querySelector('img:not([aria-hidden="true"]):not(.hero-bleed)') || el.querySelector('img');
+  }
+
   function findNode(root, id) {
     const els = root.querySelectorAll(`[data-id="${cssEscape(id)}"]`);
     for (const el of els) {
@@ -441,7 +453,7 @@
       if (!id) continue;
       const before = prev[id] || {};
       const inline = parseInlineStyle(el.getAttribute('style'));
-      const img = el.querySelector && el.querySelector('img');
+      const img = contentImage(el);
       const q = sel => { const e = el.querySelector && el.querySelector(sel); return e ? e.textContent : undefined; };
 
       model.nodes[id] = {
@@ -470,6 +482,10 @@
         media: clean({
           src: img ? img.getAttribute('src') : (before.media && before.media.src),
           assetId: before.media && before.media.assetId,
+          // Kept so a republished page can reserve the artwork's space before
+          // the file arrives instead of reflowing as each image lands.
+          width: img ? (img.getAttribute('width') || img.naturalWidth || undefined) : (before.media && before.media.width),
+          height: img ? (img.getAttribute('height') || img.naturalHeight || undefined) : (before.media && before.media.height),
         }),
         // Base merges what the model already knew with anything the old
         // inline-style controls just wrote, so both paths work mid-migration.
@@ -656,7 +672,15 @@
       set('.t-title', c.title); set('.t-sub', c.sub); set('.tag', c.tag);
 
       if (n.media && n.media.src) {
-        let im = el.querySelector && el.querySelector('img');
+        /* The hero has two images: the blurred full-bleed backdrop and the
+         * artwork itself. A plain querySelector('img') returns the backdrop,
+         * so a newly chosen hero image used to land on the blur layer while the
+         * real hero kept the old picture — and the backdrop, which is
+         * aria-hidden decoration, was given the node's name as alt text.
+         * Pick the content image, and mirror the source onto any decorative
+         * layer without ever giving it a description.
+         */
+        let im = contentImage(el);
         if (!im && el.classList.contains('tile')) {
           im = document.createElement('img');
           im.loading = 'lazy'; im.decoding = 'async';
@@ -664,10 +688,26 @@
         }
         if (im) {
           if (im.getAttribute('src') !== n.media.src) im.src = n.media.src;
-          im.alt = c.alt || n.name || 'Portfolio artwork';
+          /* Never let a tooling identifier become alt text. The old
+           * first-<img> bug stored the node id as the hero's alt, so a screen
+           * reader announced "hero-media". An id or a layer name is not a
+           * description, so it is treated as no description at all. */
+          const authored = c.alt && c.alt !== n.id && c.alt !== n.name ? c.alt : '';
+          im.alt = authored || 'Portfolio artwork';
+          if (n.media.width && n.media.height) {
+            // Reserve the space before the file arrives, so loading artwork
+            // does not push the page around under the reader.
+            im.setAttribute('width', n.media.width);
+            im.setAttribute('height', n.media.height);
+          }
           el.classList.remove('placeholder');
           const ph = el.querySelector('.ph'); if (ph) ph.remove();
         }
+        if (el.querySelectorAll) el.querySelectorAll(DECORATIVE_IMG).forEach(d => {
+          if (d === im) return;
+          if (d.getAttribute('src') !== n.media.src) d.src = n.media.src;
+          d.alt = '';
+        });
       } else if (n.placeholder && el.classList.contains('tile')) {
         el.classList.add('placeholder');
       }
@@ -778,6 +818,6 @@
     CURRENT_SCHEMA, STATES, BREAKPOINTS, NODE_TYPES, CSS_MAP, FILTER_PROPS,
     blank, migrate, fromDOM, apply, emitCSS, writeCSS, previewState,
     getProp, setProp, propOrigin, parseInlineStyle, gradientCSS, declsFor, EPHEMERAL, adoptInline,
-    createElementFor, restoreStructure, findNode,
+    createElementFor, restoreStructure, findNode, contentImage, DECORATIVE_IMG,
   };
 })();

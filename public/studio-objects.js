@@ -488,4 +488,44 @@
    * before the config fetch resolves.
    */
   promote();
+
+  /* A control with no accessible name is a broken control.
+   *
+   * The editor can create a button or link object before any text is typed
+   * into it, and publishing then ships an <a href="#"> that is invisible, does
+   * nothing, and still takes a place in the tab order — a screen reader
+   * announces it as an unlabelled link. Six of these appeared in a test config,
+   * six dead stops between the footer and the end of the page.
+   *
+   * For a visitor an empty control is removed from the tab order and hidden
+   * from assistive technology; it keeps its box, so nothing in the layout
+   * moves. In the editor it stays fully interactive, because that is where it
+   * is meant to be selected and given its label.
+   */
+  function hideEmptyControls() {
+    const editing = document.body.classList.contains('editing');
+    for (const el of $$('.site [data-type="button"], .site [data-type="link"]')) {
+      const named = el.textContent.trim()
+        || el.getAttribute('aria-label')
+        || el.title
+        || el.querySelector('img[alt]:not([alt=""])');
+      // Reversible, and only ever undoes its own marks: an aria-hidden the
+      // author set stays. Without this the flags survived into the editor and
+      // the owner could no longer select the very button that needed a label.
+      if (editing || named) {
+        if (el.dataset.emptyControl) {
+          el.removeAttribute('aria-hidden');
+          el.removeAttribute('tabindex');
+          delete el.dataset.emptyControl;
+        }
+        continue;
+      }
+      el.dataset.emptyControl = '1';
+      el.setAttribute('aria-hidden', 'true');
+      el.setAttribute('tabindex', '-1');
+    }
+  }
+  hideEmptyControls();
+  // Hydration can create these after load, so applyState() calls it again.
+  window.StudioObjects.hideEmptyControls = hideEmptyControls;
 })();

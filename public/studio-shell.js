@@ -11,6 +11,13 @@
 (() => {
   'use strict';
 
+  /* The hero holds a decorative blurred backdrop as well as the artwork, so
+     "the image" always means the content one. StudioModel owns the rule; this
+     falls back only if the model has not loaded. */
+  const pickImage = el => (window.StudioModel && window.StudioModel.contentImage)
+    ? window.StudioModel.contentImage(el)
+    : (el && el.querySelector ? el.querySelector('img') : null);
+
   const $ = (s, p = document) => p.querySelector(s);
   const $$ = (s, p = document) => [...p.querySelectorAll(s)];
 
@@ -1083,7 +1090,7 @@
     input.addEventListener('input', () => {
       const sel = ed.selected();
       if (!sel) return ed.status('Select a tile to set its alt text.');
-      const img = sel.querySelector && sel.querySelector('img');
+      const img = pickImage(sel);
       if (!img) return ed.status('That object has no image yet, so alt text would describe nothing.');
       img.alt = input.value;
       const m = ed.model();
@@ -1091,12 +1098,20 @@
       if (n) { n.content = n.content || {}; n.content.alt = input.value; }
       ed.push();
     });
+    /* The generic fallback and any leaked tooling identifier are shown as
+     * empty, so an image that still needs a real description looks like it
+     * does rather than looking already done. */
+    const PLACEHOLDER_ALT = ['Portfolio artwork', 'Project media'];
     window.StudioShell.syncAltText = () => {
       const sel = ed.selected();
-      const img = sel && sel.querySelector && sel.querySelector('img');
-      input.value = img ? (img.getAttribute('alt') || '') : '';
+      const img = pickImage(sel);
+      const raw = img ? (img.getAttribute('alt') || '') : '';
+      const isStub = PLACEHOLDER_ALT.includes(raw)
+        || (sel && (raw === sel.dataset.id || raw === sel.dataset.node));
+      input.value = isStub ? '' : raw;
       input.disabled = !img;
       input.placeholder = img ? 'Describe the artwork for screen readers' : 'Add an image first';
+      input.classList.toggle('needs-alt', !!img && !input.value.trim());
     };
     window.StudioShell.syncAltText();
   }
@@ -1270,7 +1285,7 @@
         n.motion.textMode = 'object';
       }
 
-      if (n.motion.imageAnim !== 'none' && !(sel.querySelector && sel.querySelector('img'))) {
+      if (n.motion.imageAnim !== 'none' && !pickImage(sel)) {
         messages.push('Image animation needs an image on this object; it will apply once one is set.');
       }
       if (window.StudioMotion.reducedMotion()) {
