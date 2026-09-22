@@ -8,5 +8,15 @@
       "binding": "PORTFOLIO_CONFIG",
       "id": "0d513248eb1641278e90510ed953fe4b"
     }
+  ],
+  // Durable storage for uploaded portfolio media. Create the bucket in the
+  // Cloudflare dashboard and bind it to the Pages project under this name;
+  // until then the media endpoints answer 503 with 'r2-unbound' rather than
+  // failing anonymously.
+  "r2_buckets": [
+    {
+      "binding": "PORTFOLIO_MEDIA",
+      "bucket_name": "klyde-art-portfolio-media"
+    }
   ]
 }

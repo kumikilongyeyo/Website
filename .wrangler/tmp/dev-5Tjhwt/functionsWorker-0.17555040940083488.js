@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// .wrangler/tmp/pages-hTjhwd/functionsWorker-0.6464812466803249.mjs
+// .wrangler/tmp/pages-DkahVA/functionsWorker-0.17555040940083488.mjs
 import { Writable } from "node:stream";
 import { EventEmitter } from "node:events";
 var __defProp2 = Object.defineProperty;
@@ -982,6 +982,266 @@ async function onRequestPost({ request, env: env2 }) {
 }
 __name(onRequestPost, "onRequestPost");
 __name2(onRequestPost, "onRequestPost");
+var MAX_BYTES = 15 * 1024 * 1024;
+var TYPES = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/avif": "avif",
+  "image/gif": "gif",
+  "image/svg+xml": "svg",
+  "video/mp4": "mp4",
+  "video/webm": "webm"
+};
+function safeEqual2(a = "", b = "") {
+  if (a.length !== b.length) return false;
+  let out = 0;
+  for (let i = 0; i < a.length; i++) out |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return out === 0;
+}
+__name(safeEqual2, "safeEqual2");
+__name2(safeEqual2, "safeEqual");
+function auth2(request, env2) {
+  if (!env2.EDITOR_USER || !env2.EDITOR_PASS) return false;
+  const h = request.headers.get("Authorization") || "";
+  if (!h.startsWith("Basic ")) return false;
+  try {
+    const d = atob(h.slice(6)), i = d.indexOf(":");
+    return i > 0 && safeEqual2(d.slice(0, i), env2.EDITOR_USER) && safeEqual2(d.slice(i + 1), env2.EDITOR_PASS);
+  } catch {
+    return false;
+  }
+}
+__name(auth2, "auth2");
+__name2(auth2, "auth");
+var json2 = /* @__PURE__ */ __name2((x, s = 200) => new Response(JSON.stringify(x), {
+  status: s,
+  headers: {
+    "content-type": "application/json; charset=utf-8",
+    "cache-control": "no-store",
+    "x-content-type-options": "nosniff"
+  }
+}), "json");
+function gate(request, env2) {
+  if (!env2.EDITOR_USER || !env2.EDITOR_PASS) {
+    return json2({
+      error: "Editor credentials are not configured on this Pages project. Set EDITOR_USER and EDITOR_PASS as secrets, then redeploy.",
+      code: "no-credentials"
+    }, 501);
+  }
+  if (!auth2(request, env2)) {
+    return json2({ error: "Wrong username or password.", code: "bad-credentials" }, 401);
+  }
+  if (!env2.PORTFOLIO_MEDIA) {
+    return json2({
+      error: "The media library needs an R2 bucket. Create one in the Cloudflare dashboard and bind it to this Pages project as PORTFOLIO_MEDIA, then redeploy.",
+      code: "r2-unbound"
+    }, 503);
+  }
+  return null;
+}
+__name(gate, "gate");
+__name2(gate, "gate");
+function keyFor(name, mime) {
+  const ext = TYPES[mime] || "bin";
+  const stem = (name || "asset").replace(/\.[^.]*$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "asset";
+  const d = /* @__PURE__ */ new Date();
+  const rand = crypto.randomUUID().split("-")[0];
+  return `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${stem}-${rand}.${ext}`;
+}
+__name(keyFor, "keyFor");
+__name2(keyFor, "keyFor");
+async function onRequestGet2({ request, env: env2 }) {
+  const bad = gate(request, env2);
+  if (bad) return bad;
+  try {
+    const out = [];
+    let cursor;
+    do {
+      const page = await env2.PORTFOLIO_MEDIA.list({ limit: 1e3, cursor, include: ["customMetadata"] });
+      for (const o of page.objects) {
+        const meta = o.customMetadata || {};
+        out.push({
+          key: o.key,
+          url: "/media/" + o.key,
+          size: o.size,
+          uploaded: o.uploaded,
+          mime: meta.mime || "",
+          filename: meta.filename || o.key.split("/").pop(),
+          width: meta.width ? Number(meta.width) : null,
+          height: meta.height ? Number(meta.height) : null
+        });
+      }
+      cursor = page.truncated ? page.cursor : null;
+    } while (cursor);
+    out.sort((a, b) => String(b.uploaded).localeCompare(String(a.uploaded)));
+    return json2({ assets: out, count: out.length });
+  } catch (e) {
+    return json2({ error: "Could not list the media bucket: " + (e && e.message ? e.message : "unknown R2 error"), code: "r2-list-failed" }, 502);
+  }
+}
+__name(onRequestGet2, "onRequestGet2");
+__name2(onRequestGet2, "onRequestGet");
+async function onRequestPost2({ request, env: env2 }) {
+  const bad = gate(request, env2);
+  if (bad) return bad;
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return json2({ error: "Upload body was not valid multipart form data.", code: "bad-body" }, 400);
+  }
+  const file = form.get("file");
+  if (!file || typeof file === "string") {
+    return json2({ error: "No file was attached to the upload.", code: "no-file" }, 400);
+  }
+  const mime = file.type || "";
+  if (!TYPES[mime]) {
+    return json2({
+      error: `${mime || "That file type"} is not allowed. Upload JPEG, PNG, WebP, AVIF, GIF, SVG, MP4 or WebM.`,
+      code: "bad-type"
+    }, 415);
+  }
+  if (file.size > MAX_BYTES) {
+    return json2({
+      error: `That file is ${Math.round(file.size / 1048576)}MB, over the ${Math.round(MAX_BYTES / 1048576)}MB limit.`,
+      code: "too-large"
+    }, 413);
+  }
+  if (!file.size) {
+    return json2({ error: "That file is empty.", code: "empty" }, 400);
+  }
+  const key = keyFor(file.name, mime);
+  const width = form.get("width"), height = form.get("height");
+  try {
+    await env2.PORTFOLIO_MEDIA.put(key, file.stream(), {
+      httpMetadata: { contentType: mime, cacheControl: "public, max-age=31536000, immutable" },
+      customMetadata: {
+        mime,
+        filename: String(file.name || "").slice(0, 200),
+        ...width ? { width: String(width) } : {},
+        ...height ? { height: String(height) } : {}
+      }
+    });
+  } catch (e) {
+    return json2({ error: "R2 rejected the upload: " + (e && e.message ? e.message : "unknown error"), code: "r2-put-failed" }, 502);
+  }
+  return json2({
+    ok: true,
+    asset: {
+      key,
+      url: "/media/" + key,
+      size: file.size,
+      mime,
+      filename: file.name,
+      width: width ? Number(width) : null,
+      height: height ? Number(height) : null,
+      uploaded: (/* @__PURE__ */ new Date()).toISOString()
+    }
+  });
+}
+__name(onRequestPost2, "onRequestPost2");
+__name2(onRequestPost2, "onRequestPost");
+async function referencesTo(env2, key) {
+  if (!env2.PORTFOLIO_CONFIG) return [];
+  const url = "/media/" + key;
+  const used = [];
+  for (const version2 of ["studio", "gallery"]) {
+    let raw;
+    try {
+      raw = await env2.PORTFOLIO_CONFIG.get("site-config:" + version2);
+    } catch {
+      continue;
+    }
+    if (!raw) continue;
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      continue;
+    }
+    const state = parsed && parsed.state;
+    if (!state) continue;
+    const scan = /* @__PURE__ */ __name2((obj, path) => {
+      if (obj === null || obj === void 0) return;
+      if (typeof obj === "string") {
+        if (obj.includes(url)) used.push({ version: version2, path });
+        return;
+      }
+      if (Array.isArray(obj)) {
+        obj.forEach((v, i) => scan(v, `${path}[${i}]`));
+        return;
+      }
+      if (typeof obj === "object") {
+        for (const k in obj) scan(obj[k], path ? `${path}.${k}` : k);
+      }
+    }, "scan");
+    scan(state, "");
+  }
+  return used;
+}
+__name(referencesTo, "referencesTo");
+__name2(referencesTo, "referencesTo");
+async function onRequestDelete({ request, env: env2 }) {
+  const bad = gate(request, env2);
+  if (bad) return bad;
+  const key = new URL(request.url).searchParams.get("key");
+  if (!key) return json2({ error: "No asset key was given to delete.", code: "no-key" }, 400);
+  const head = await env2.PORTFOLIO_MEDIA.head(key).catch(() => null);
+  if (!head) return json2({ error: "That asset is not in the media bucket. It may already be deleted.", code: "not-found" }, 404);
+  const force = new URL(request.url).searchParams.get("force") === "1";
+  const used = await referencesTo(env2, key);
+  if (used.length && !force) {
+    const where = used.map((u) => `${u.version}: ${u.path}`).slice(0, 6).join(", ");
+    return json2({
+      error: `That asset is still used by ${used.length} published reference${used.length === 1 ? "" : "s"} (${where}). Replace or remove those first, or delete anyway to leave them broken.`,
+      code: "in-use",
+      references: used
+    }, 409);
+  }
+  try {
+    await env2.PORTFOLIO_MEDIA.delete(key);
+  } catch (e) {
+    return json2({ error: "R2 rejected the delete: " + (e && e.message ? e.message : "unknown error"), code: "r2-delete-failed" }, 502);
+  }
+  return json2({ ok: true, key, forced: force && used.length > 0, brokenReferences: force ? used : [] });
+}
+__name(onRequestDelete, "onRequestDelete");
+__name2(onRequestDelete, "onRequestDelete");
+async function onRequestHead(ctx) {
+  const res = await onRequestGet3(ctx);
+  return new Response(null, { status: res.status, headers: res.headers });
+}
+__name(onRequestHead, "onRequestHead");
+__name2(onRequestHead, "onRequestHead");
+async function onRequestGet3({ params, env: env2, request }) {
+  if (!env2.PORTFOLIO_MEDIA) {
+    return new Response("Media bucket is not bound to this Pages project (expected PORTFOLIO_MEDIA).", {
+      status: 503,
+      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" }
+    });
+  }
+  const key = Array.isArray(params.path) ? params.path.join("/") : String(params.path || "");
+  if (!key) return new Response("No asset key.", { status: 400 });
+  const object = await env2.PORTFOLIO_MEDIA.get(key).catch(() => null);
+  if (!object) {
+    return new Response("No such asset.", {
+      status: 404,
+      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" }
+    });
+  }
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set("etag", object.httpEtag);
+  headers.set("cache-control", "public, max-age=31536000, immutable");
+  headers.set("x-content-type-options", "nosniff");
+  if (request.headers.get("if-none-match") === object.httpEtag) {
+    return new Response(null, { status: 304, headers });
+  }
+  return new Response(object.body, { headers });
+}
+__name(onRequestGet3, "onRequestGet3");
+__name2(onRequestGet3, "onRequestGet");
 var routes = [
   {
     routePath: "/api/config",
@@ -996,6 +1256,41 @@ var routes = [
     method: "POST",
     middlewares: [],
     modules: [onRequestPost]
+  },
+  {
+    routePath: "/api/media",
+    mountPath: "/api",
+    method: "DELETE",
+    middlewares: [],
+    modules: [onRequestDelete]
+  },
+  {
+    routePath: "/api/media",
+    mountPath: "/api",
+    method: "GET",
+    middlewares: [],
+    modules: [onRequestGet2]
+  },
+  {
+    routePath: "/api/media",
+    mountPath: "/api",
+    method: "POST",
+    middlewares: [],
+    modules: [onRequestPost2]
+  },
+  {
+    routePath: "/media/:path*",
+    mountPath: "/media",
+    method: "GET",
+    middlewares: [],
+    modules: [onRequestGet3]
+  },
+  {
+    routePath: "/media/:path*",
+    mountPath: "/media",
+    method: "HEAD",
+    middlewares: [],
+    modules: [onRequestHead]
   }
 ];
 function lexer(str) {
@@ -1677,7 +1972,7 @@ var jsonError2 = /* @__PURE__ */ __name(async (request, env2, _ctx, middlewareCt
 }, "jsonError");
 var middleware_miniflare3_json_error_default2 = jsonError2;
 
-// .wrangler/tmp/bundle-xJESzk/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-MT1EJs/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__2 = [
   middleware_ensure_req_body_drained_default2,
   middleware_miniflare3_json_error_default2
@@ -1709,7 +2004,7 @@ function __facade_invoke__2(request, env2, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__2, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-xJESzk/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-MT1EJs/middleware-loader.entry.ts
 var __Facade_ScheduledController__2 = class ___Facade_ScheduledController__2 {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
@@ -1811,4 +2106,4 @@ export {
   __INTERNAL_WRANGLER_MIDDLEWARE__2 as __INTERNAL_WRANGLER_MIDDLEWARE__,
   middleware_loader_entry_default2 as default
 };
-//# sourceMappingURL=functionsWorker-0.6464812466803249.js.map
+//# sourceMappingURL=functionsWorker-0.17555040940083488.js.map
