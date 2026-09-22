@@ -363,6 +363,8 @@
       if (data.hover && data.hover !== 'tilt' && data.hover !== 'none') node.motion.hoverPreset = data.hover;
       if (data.strength !== undefined) node.effects.strength = num(data.strength, 9);
 
+      if (old.texture) node.texture = clone(old.texture);
+      if (old.background) node.background = clone(old.background);
       if (Object.keys(unmapped).length) {
         node.unmapped = unmapped;
         report.unmappedProps.push({ id, props: Object.keys(unmapped) });
@@ -389,6 +391,13 @@
     const prev = o.prev && o.prev.nodes ? o.prev.nodes : {};
     const model = blank();
     model.site = { ...(o.G || {}) };
+    // Carried explicitly: these live in the model, not in the editor's G
+    // globals, so rebuilding site from G alone would drop them on the next
+    // round trip and they would never reach publish.
+    if (o.prev && o.prev.site) {
+      if (o.prev.site.texture) model.site.texture = clone(o.prev.site.texture);
+      if (o.prev.site.background) model.site.background = clone(o.prev.site.background);
+    }
     model.brand = { ...(o.BRAND || {}) };
     model.hero = { ...(o.HERO || {}) };
     model.links = clone(o.LINKS || {});
@@ -458,6 +467,8 @@
         placeholder: el.classList.contains('placeholder'),
       };
       if (before.unmapped) model.nodes[id].unmapped = before.unmapped;
+      if (before.texture) model.nodes[id].texture = clone(before.texture);
+      if (before.background) model.nodes[id].background = clone(before.background);
     }
     return model;
   }
@@ -543,6 +554,9 @@
     }
 
     writeCSS(emitCSS(model));
+    // Texture overlays are real elements, not declarations, so they are built
+    // after the stylesheet rather than emitted into it.
+    if (window.StudioTexture) window.StudioTexture.syncModel(model);
     return { missing };
   }
 

@@ -31,6 +31,9 @@
 /studio-inspector.js
   Cache-Control: no-cache, no-store, must-revalidate
 
+/studio-texture.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /gallery*
   Cache-Control: no-cache, must-revalidate
 

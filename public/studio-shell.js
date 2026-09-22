@@ -476,8 +476,126 @@
     });
   }
 
+
+  /* ------------------------------------------------------- texture panel
+   * Texture is available on the page background and on a selected object, and
+   * every control here maps to a real property in the model (§24).
+   */
+  function buildTexturePanel() {
+    const host = $('.tab-panel[data-tab="motion"]');
+    if (!host || $('#texturePanel') || !window.StudioTexture) return;
+    const T = window.StudioTexture;
+    const p = document.createElement('div');
+    p.className = 'panel';
+    p.id = 'texturePanel';
+    p.innerHTML = `
+      <h4>Texture / grain</h4>
+      <div class="seg" role="group" aria-label="Texture target">
+        <button type="button" data-tex-target="site" class="active" aria-pressed="true">Page</button>
+        <button type="button" data-tex-target="object" aria-pressed="false">Selected object</button>
+      </div>
+      <label class="check"><input id="texEnabled" type="checkbox">Enable texture</label>
+      <div class="ctrl"><label>Source</label><select id="texPreset">${Object.entries(T.PRESETS).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('')}</select></div>
+      <div class="ctrl"><label>Motion</label><select id="texMode">${Object.entries(T.MODES).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('')}</select></div>
+      <div class="ctrl"><label>Strength</label><input id="texOpacity" type="range" min="0" max="42" step="1"></div>
+      <div class="ctrl"><label>Scale</label><input id="texScale" type="range" min="40" max="600" step="10"></div>
+      <div class="ctrl"><label>Speed</label><input id="texSpeed" type="range" min="0.1" max="4" step="0.1"></div>
+      <div class="ctrl"><label>Angle</label><input id="texAngle" type="range" min="0" max="360" step="5"></div>
+      <div class="ctrl"><label>Distance</label><input id="texAmp" type="range" min="2" max="60" step="1"></div>
+      <div class="ctrl"><label>Blend</label><select id="texBlend">
+        <option>overlay</option><option>soft-light</option><option>multiply</option><option>screen</option><option>normal</option></select></div>
+      <label class="check"><input id="texAlternate" type="checkbox">Reverse on alternate loops</label>
+      <p class="editor-note" id="texNote"></p>`;
+    host.appendChild(p);
+
+    let texTarget = 'site';
+    const readCfg = () => ({
+      enabled: $('#texEnabled').checked,
+      preset: $('#texPreset').value,
+      mode: $('#texMode').value,
+      opacity: Number($('#texOpacity').value) / 100,
+      scale: Number($('#texScale').value),
+      speed: Number($('#texSpeed').value),
+      angle: Number($('#texAngle').value),
+      amplitude: Number($('#texAmp').value),
+      blend: $('#texBlend').value,
+      alternate: $('#texAlternate').checked,
+    });
+
+    function note(msg) { const n = $('#texNote'); if (n) n.textContent = msg; }
+
+    function commit() {
+      const m = ed.model();
+      if (!m) return;
+      const cfg = readCfg();
+      if (texTarget === 'site') {
+        m.site = m.site || {};
+        m.site.texture = cfg;
+        window.StudioTexture.apply($('.site'), cfg);
+      } else {
+        const sel = ed.selected();
+        if (!sel) return note('Select an object first, or switch the target back to Page.');
+        const n = m.nodes && m.nodes[sel.dataset.id];
+        if (!n) return note('That object is not in the model yet.');
+        n.texture = cfg;
+        window.StudioTexture.apply(sel, cfg);
+      }
+      window.StudioTexture.syncModel(m);
+      ed.push();
+      // Say plainly when the OS is suppressing the motion, so a "broken"
+      // animation is never a mystery (§29).
+      note(cfg.enabled && cfg.mode !== 'static' && window.StudioTexture.reducedMotion()
+        ? 'Texture applied. Motion is paused because this system prefers reduced motion.'
+        : cfg.enabled ? 'Texture applied.' : 'Texture off.');
+    }
+
+    function loadInto() {
+      const m = ed.model();
+      const T2 = window.StudioTexture.DEFAULTS;
+      let cfg = T2;
+      if (texTarget === 'site') cfg = { ...T2, ...((m && m.site && m.site.texture) || {}) };
+      else {
+        const sel = ed.selected();
+        const n = sel && m && m.nodes && m.nodes[sel.dataset.id];
+        cfg = { ...T2, ...((n && n.texture) || {}) };
+      }
+      $('#texEnabled').checked = !!cfg.enabled;
+      $('#texPreset').value = cfg.preset;
+      $('#texMode').value = cfg.mode;
+      $('#texOpacity').value = Math.round((cfg.opacity || 0) * 100);
+      $('#texScale').value = cfg.scale;
+      $('#texSpeed').value = cfg.speed;
+      $('#texAngle').value = cfg.angle;
+      $('#texAmp').value = cfg.amplitude;
+      $('#texBlend').value = cfg.blend;
+      $('#texAlternate').checked = !!cfg.alternate;
+    }
+
+    $$('[data-tex-target]', p).forEach(b => {
+      b.onclick = () => {
+        texTarget = b.dataset.texTarget;
+        $$('[data-tex-target]', p).forEach(x => {
+          const on = x === b;
+          x.classList.toggle('active', on);
+          x.setAttribute('aria-pressed', String(on));
+        });
+        loadInto();
+        note(texTarget === 'object' && !ed.selected() ? 'No object selected yet.' : '');
+      };
+    });
+    ['texEnabled', 'texPreset', 'texMode', 'texOpacity', 'texScale', 'texSpeed', 'texAngle', 'texAmp', 'texBlend', 'texAlternate']
+      .forEach(id => {
+        const el = $('#' + id);
+        if (!el) return;
+        el.addEventListener(el.tagName === 'SELECT' || el.type === 'checkbox' ? 'change' : 'input', commit);
+      });
+    loadInto();
+    window.StudioShell.reloadTexturePanel = loadInto;
+  }
+
   function init() {
     buildToolbar();
+    buildTexturePanel();
     buildStateBar();
     applyView();
     setViewport(shell.viewport);
@@ -489,6 +607,7 @@
   window.StudioShell = {
     shell, init, renderTree, setPreview, setView, setViewport, setEditState, writeTarget,
     addObject, duplicateObject, deleteObject, toggleHidden, toggleLocked, renameObject, reorder,
+    buildTexturePanel,
     VIEWPORTS, VIEW_FLAGS,
   };
 })();

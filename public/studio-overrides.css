@@ -137,3 +137,40 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,[c
 .ctrl.is-inherited>label::after{content:' \25CB';opacity:.5}
 .ctrl.is-disabled{opacity:.5}
 .ctrl.is-disabled>label::after{content:' (needs Border enabled)';font-size:8px;opacity:.8;text-transform:none;letter-spacing:0}
+
+/* Animated texture / grain (§24). The overlay is its own layer so texture
+   motion never shares `transform` with 3D tilt or the editor's drag. */
+[data-tex-positioned="1"]{position:relative}
+.tex-layer{position:absolute;inset:calc(var(--tex-amp,14px) * -2);z-index:3;pointer-events:none;
+  background-repeat:repeat;will-change:transform,opacity;transform:translate3d(0,0,0);
+  animation-play-state:running}
+.tile .tex-layer{inset:0}
+
+@keyframes tex-drift{
+  0%{transform:translate3d(0,0,0)}
+  50%{transform:translate3d(var(--tex-amp,14px),calc(var(--tex-amp,14px) * .6),0)}
+  100%{transform:translate3d(0,0,0)}}
+@keyframes tex-crawl{
+  0%{transform:translate3d(0,0,0)}
+  100%{transform:translate3d(0,calc(var(--tex-amp,14px) * -4),0)}}
+@keyframes tex-jitter{
+  0%{transform:translate3d(0,0,0)}
+  25%{transform:translate3d(1px,-1px,0)}
+  50%{transform:translate3d(-1px,1px,0)}
+  75%{transform:translate3d(1px,1px,0)}
+  100%{transform:translate3d(0,0,0)}}
+@keyframes tex-breathe{
+  0%,100%{opacity:.35}
+  50%{opacity:1}}
+@keyframes tex-flow{
+  0%{transform:rotate(var(--tex-angle,0deg)) translate3d(0,0,0)}
+  100%{transform:rotate(var(--tex-angle,0deg)) translate3d(calc(var(--tex-amp,14px) * -6),0,0)}}
+
+/* Reduced motion keeps the texture and stops the movement, rather than
+   removing a design element the page was built around (§34). */
+@media(prefers-reduced-motion:reduce){
+  .tex-layer{animation:none!important}
+  [data-motion]{transition-duration:1ms!important}
+  [data-motion]:not(.in){opacity:1!important;transform:none!important;filter:none!important;
+    -webkit-mask-size:100% 100%!important;mask-size:100% 100%!important;clip-path:none!important}
+}
