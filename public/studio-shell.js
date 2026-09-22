@@ -397,6 +397,7 @@
     };
 
     treeRoots().forEach(el => row(el, 0));
+    enhanceAllResize();
   }
 
   let dragId = null;
@@ -415,6 +416,138 @@
     ed.push();                                   // one atomic history entry (§27)
     ed.status(`Moved ${a.dataset.node || fromId}.`);
   }
+
+
+  /* ------------------------------------------------- resize, snap, guides
+   * Takes over the resize handle for three reasons.
+   *
+   * 1. The original handle wrote --h and --span as inline styles and left them
+   *    there. Inline props are read back by fromDOM ahead of the model, so a
+   *    later height change in the inspector was not merely shadowed — it was
+   *    overwritten on the next read and lost. Values are now committed to the
+   *    model and the inline props cleared.
+   * 2. Snap was a toggle with nothing behind it. It now snaps height to a step
+   *    and to nearby sibling edges, and does nothing at all when off.
+   * 3. Guides were static decoration. They now appear only while dragging,
+   *    where an edge actually lines up with a neighbour.
+   */
+  const SNAP_STEP = 8;
+  const SNAP_TOLERANCE = 6;
+
+  function guideLayer() {
+    let g = $('#snapGuides');
+    if (!g) {
+      g = document.createElement('div');
+      g.id = 'snapGuides';
+      g.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(g);
+    }
+    return g;
+  }
+  function showGuides(lines) {
+    const g = guideLayer();
+    if (!shell.view.guides || !lines.length) { g.innerHTML = ''; return; }
+    g.innerHTML = lines.map(l => l.axis === 'y'
+      ? `<i class="snap-guide snap-h" style="top:${l.at}px"></i>`
+      : `<i class="snap-guide snap-v" style="left:${l.at}px"></i>`).join('');
+  }
+  function hideGuides() { const g = $('#snapGuides'); if (g) g.innerHTML = ''; }
+
+  // Candidate edges from the other tiles, in viewport coordinates.
+  function siblingEdges(tile) {
+    const out = { y: [], x: [] };
+    for (const other of $$('.grid .tile')) {
+      if (other === tile) continue;
+      const r = other.getBoundingClientRect();
+      out.y.push(r.top, r.bottom);
+      out.x.push(r.left, r.right);
+    }
+    return out;
+  }
+
+  function enhanceResize(tile) {
+    const old = tile.querySelector(':scope > .resize');
+    if (!old || old.dataset.shellBound === '1') return;
+    // Replacing the node drops the original listener, which cannot be detached.
+    const h = old.cloneNode(true);
+    old.replaceWith(h);
+    h.dataset.shellBound = '1';
+
+    h.addEventListener('pointerdown', e => {
+      if (!ed.editing() || shell.previewing) return;
+      if (tile.dataset.locked === '1') { ed.status(`"${tile.dataset.node || tile.dataset.id}" is locked. Unlock it in Layers to resize it.`); return; }
+      e.stopPropagation();
+      e.preventDefault();
+
+      const startY = e.clientY, startX = e.clientX;
+      const rect = tile.getBoundingClientRect();
+      const grid = tile.parentElement.getBoundingClientRect();
+      const col = grid.width / 12;
+      const edges = siblingEdges(tile);
+      let height = rect.height, span = Math.round(rect.width / col);
+
+      try { h.setPointerCapture(e.pointerId); } catch { /* capture is best effort */ }
+
+      const move = q => {
+        let raw = rect.height + (q.clientY - startY);
+        const lines = [];
+
+        if (shell.view.snap) {
+          // Prefer a sibling edge when one is close, else fall back to the step.
+          const bottom = rect.top + raw;
+          let snapped = null;
+          for (const y of edges.y) {
+            if (Math.abs(bottom - y) <= SNAP_TOLERANCE) { snapped = y; break; }
+          }
+          if (snapped !== null) { raw = snapped - rect.top; lines.push({ axis: 'y', at: snapped }); }
+          else raw = Math.round(raw / SNAP_STEP) * SNAP_STEP;
+        }
+
+        height = Math.max(120, Math.min(1200, Math.round(raw)));
+        span = Math.max(1, Math.min(12, Math.round((rect.width + (q.clientX - startX)) / col)));
+
+        // Live feedback stays inline: this is ephemera, rewritten every frame,
+        // and it is cleared on commit.
+        tile.style.setProperty('--h', height + 'px');
+        tile.style.setProperty('--span', String(span));
+
+        if (shell.view.guides) {
+          const now = tile.getBoundingClientRect();
+          for (const x of edges.x) if (Math.abs(now.right - x) <= SNAP_TOLERANCE) lines.push({ axis: 'x', at: x });
+          showGuides(lines);
+        }
+      };
+
+      const up = () => {
+        h.removeEventListener('pointermove', move);
+        h.removeEventListener('pointerup', up);
+        h.removeEventListener('pointercancel', up);
+        hideGuides();
+
+        // Commit to the model, then clear the inline props so the generated
+        // stylesheet is authoritative again.
+        const m = ed.model();
+        const t = writeTarget();
+        if (m && m.nodes && m.nodes[tile.dataset.id] && window.StudioModel) {
+          window.StudioModel.setProp(m, tile.dataset.id, 'tileHeight', height, t.state, t.breakpoint);
+          window.StudioModel.setProp(m, tile.dataset.id, 'span', span, t.state, t.breakpoint);
+          tile.style.removeProperty('--h');
+          tile.style.removeProperty('--span');
+          if (!tile.getAttribute('style')) tile.removeAttribute('style');
+          window.StudioModel.writeCSS(window.StudioModel.emitCSS(m));
+        }
+        if (window.StudioInspector) window.StudioInspector.syncFromModel();
+        ed.push();
+        ed.status(`${tile.dataset.node || tile.dataset.id}: ${span}/12 columns, ${height}px${shell.view.snap ? ' (snapped)' : ''}`);
+      };
+
+      h.addEventListener('pointermove', move);
+      h.addEventListener('pointerup', up);
+      h.addEventListener('pointercancel', up);
+    });
+  }
+
+  function enhanceAllResize() { $$('.grid .tile').forEach(enhanceResize); }
 
   /* -------------------------------------------------------------- toolbar */
   function buildToolbar() {
@@ -1123,12 +1256,14 @@
     setEditState('base');
     bindKeys();
     renderTree();
+    enhanceAllResize();
   }
 
   window.StudioShell = {
     shell, init, renderTree, setPreview, setView, setViewport, setEditState, writeTarget,
     addObject, duplicateObject, deleteObject, toggleHidden, toggleLocked, renameObject, reorder,
     buildTexturePanel, buildBackgroundPanel, buildAltTextControl, buildEffectsPanel, buildMotionPanel,
+    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE,
     VIEWPORTS, VIEW_FLAGS,
   };
 })();

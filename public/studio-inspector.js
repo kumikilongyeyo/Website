@@ -56,21 +56,23 @@
 
   const target = () => (window.StudioShell ? window.StudioShell.writeTarget() : { state: 'base', breakpoint: null });
 
-  let model = null;
   let coalesce = null;
 
   function currentModel() {
-    // One model instance per edit burst: rebuilding it on every slider tick
-    // would discard the override we just wrote.
-    if (!model) model = ed.model();
-    return model;
+    // Always the live model, never a cached copy. Caching one per edit burst
+    // looked like a sensible optimisation and silently lost edits: anything
+    // else that calls state() — a resize commit, push(), the shell — replaces
+    // the editor's MODEL, leaving this module writing to an orphaned object
+    // whose values never reach the next read. fromDOM carries typed props
+    // forward from the previous model, so a fresh read loses nothing.
+    return ed.model();
   }
 
   function flush() {
     // Debounced so dragging a slider is one history entry, not one per pixel
     // (§27), matching the editor's own 180ms coalescing.
     clearTimeout(coalesce);
-    coalesce = setTimeout(() => { ed.push(); model = null; }, 200);
+    coalesce = setTimeout(() => ed.push(), 200);
   }
 
   function write(prop, value) {
