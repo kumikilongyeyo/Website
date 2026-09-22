@@ -45,3 +45,9 @@ body::after{content:'';position:fixed;inset:0;z-index:-3;background:var(--bg);po
 body:not(.editing) [data-node]{outline:none!important}
 @keyframes imageShimmer{0%{background-position:120% 0}100%{background-position:-120% 0}}
 @media(max-width:980px){.footer{gap:25px;align-items:flex-end}.links{flex-wrap:wrap;justify-content:flex-end}.hero-caption{font-size:8px}.project-modal .stream{width:calc(100vw - 28px);padding:66px 0 90px}.project-prev{left:8px}.project-next{right:8px}.project-nav{width:38px;height:54px;font-size:28px}}
+
+/* Tile captions are white so they read over artwork. In light mode the scrim mixed toward --surface, landing on ~rgb(190,191,190) and dropping white text to 1.9:1. Darken the scrim in light mode so the captions stay legible over pale artwork and on placeholder tiles. Dark mode is unchanged. */
+body.light .tile-info{background:linear-gradient(180deg,transparent,color-mix(in srgb,#000 68%,var(--tile,var(--surface))))}
+
+/* Publish and other async controls need a visible disabled state. */
+button[disabled]{opacity:.55;cursor:not-allowed}
