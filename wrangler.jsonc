@@ -9,12 +9,26 @@
       "id": "0d513248eb1641278e90510ed953fe4b"
     }
   ]
-  // Media library storage. Declaring an r2_buckets binding here fails the
-  // Pages build until the bucket actually exists, so the binding is added in
-  // the dashboard instead (Settings -> Bindings -> R2, name PORTFOLIO_MEDIA).
-  // Until it is bound the media endpoints answer 503 'r2-unbound' naming the
-  // binding to create, and nothing else on the site is affected. Once the
-  // bucket exists this can be uncommented to keep the config declarative:
+  // Media library storage.
+  //
+  // The library works with no R2 at all: uploads go into the KV namespace
+  // above, capped at 2MB per file. R2 is optional and raises that to 15MB.
+  //
+  // To add it:
+  //   1. Cloudflare dashboard -> R2 -> create bucket "klyde-art-portfolio-media".
+  //      Enabling R2 on an account requires a payment method, even though the
+  //      free tier (10GB, 1M writes, 10M reads per month) costs nothing.
+  //   2. Pages project -> Settings -> Bindings -> add R2 binding
+  //      PORTFOLIO_MEDIA -> that bucket. Do it for Production AND Preview.
+  //   3. Redeploy. No code change: /api/media prefers R2 whenever it is bound.
+  //   4. Optionally uncomment the block below to keep the config declarative.
+  //      Do NOT uncomment it before the bucket exists — a binding to a missing
+  //      resource fails the Pages build, and the failure is invisible from
+  //      outside because Pages then serves index.html for every missing file.
+  //
+  // Nothing has to be migrated. Assets already in KV stay listed, labelled,
+  // editable and served; only new uploads go to R2. The two stores coexist
+  // indefinitely, and each asset records which one holds it.
   //
   // "r2_buckets": [
   //   { "binding": "PORTFOLIO_MEDIA", "bucket_name": "klyde-art-portfolio-media" }

@@ -5,3 +5,7 @@
 node_modules/
 package-lock.json
 .DS_Store
+
+# Local dev launch config: carries placeholder editor credentials for
+# wrangler pages dev, never anything real.
+.claude/

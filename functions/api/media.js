@@ -186,10 +186,17 @@ async function historyReferencesTo(env, key) {
   return hits;
 }
 
+/* Lists EVERY store that holds media, not just the preferred one.
+ *
+ * Binding R2 to a project that already uploaded to KV used to make those
+ * earlier assets vanish from the library: the public /media/ route still
+ * served them, so the published page looked fine, but the owner could no
+ * longer see, rename or delete artwork they had uploaded. Reading both stores
+ * means adding R2 is additive — nothing to migrate, nothing lost.
+ */
 async function listRaw(env) {
-  const store = backend(env);
   const out = [];
-  if (store === 'r2') {
+  if (env.PORTFOLIO_MEDIA) {
     let cursor;
     do {
       const page = await env.PORTFOLIO_MEDIA.list({ limit: 1000, cursor, include: ['customMetadata'] });
@@ -197,6 +204,7 @@ async function listRaw(env) {
         const meta = o.customMetadata || {};
         out.push({
           key: o.key,
+          store: 'r2',
           size: o.size,
           uploaded: o.uploaded instanceof Date ? o.uploaded.toISOString() : String(o.uploaded || ''),
           mime: meta.mime || '',
@@ -208,15 +216,19 @@ async function listRaw(env) {
       }
       cursor = page.truncated ? page.cursor : null;
     } while (cursor);
-  } else {
+  }
+  if (env.PORTFOLIO_CONFIG) {
+    const seen = new Set(out.map(a => a.key));
     let cursor;
     do {
       const page = await env.PORTFOLIO_CONFIG.list({ prefix: KV_PREFIX, cursor });
       for (const k of page.keys) {
         const meta = k.metadata || {};
         const key = k.name.slice(KV_PREFIX.length);
+        if (seen.has(key)) continue;
         out.push({
           key,
+          store: 'kv',
           size: meta.size || 0,
           uploaded: meta.uploaded || '',
           mime: meta.mime || '',
@@ -230,6 +242,21 @@ async function listRaw(env) {
     } while (cursor);
   }
   return out;
+}
+
+/* Which store actually holds a key, rather than which one we would write to
+ * now. Delete and dedupe both need this once two stores are live.
+ */
+async function locate(env, key) {
+  if (env.PORTFOLIO_MEDIA) {
+    const head = await env.PORTFOLIO_MEDIA.head(key).catch(() => null);
+    if (head) return { store: 'r2', head };
+  }
+  if (env.PORTFOLIO_CONFIG) {
+    const found = await env.PORTFOLIO_CONFIG.getWithMetadata(KV_PREFIX + key, 'stream').catch(() => null);
+    if (found && found.value) return { store: 'kv', meta: found.metadata || {} };
+  }
+  return null;
 }
 
 export async function onRequestGet({ request, env }) {
@@ -332,10 +359,8 @@ export async function onRequestPost({ request, env }) {
   const meta = await readMeta(env);
   const dupKey = Object.keys(meta).find(k => meta[k] && meta[k].sha === sha);
   if (dupKey) {
-    const stillThere = store === 'r2'
-      ? await env.PORTFOLIO_MEDIA.head(dupKey).catch(() => null)
-      : await env.PORTFOLIO_CONFIG.getWithMetadata(KV_PREFIX + dupKey, 'stream').then(r => r && r.value, () => null);
-    if (stillThere) {
+    const found = await locate(env, dupKey);
+    if (found) {
       // A duplicate of something in the trash is a change of mind, not a new
       // file: bring it back rather than refusing or storing a second copy.
       const wasTrashed = meta[dupKey].status === 'trashed';
@@ -343,7 +368,7 @@ export async function onRequestPost({ request, env }) {
         meta[dupKey] = { ...meta[dupKey], status: 'active', trashedAt: null };
         await writeMeta(env, meta);
       }
-      const size = store === 'r2' ? stillThere.size : (meta[dupKey].size || file.size);
+      const size = found.store === 'r2' ? found.head.size : (meta[dupKey].size || file.size);
       return json({
         ok: true,
         deduped: true,
@@ -518,10 +543,8 @@ export async function onRequestDelete({ request, env }) {
   if (!key) return json({ error: 'No asset key was given to delete.', code: 'no-key' }, 400);
 
   const store = backend(env);
-  const exists = store === 'r2'
-    ? await env.PORTFOLIO_MEDIA.head(key).catch(() => null)
-    : await env.PORTFOLIO_CONFIG.get(KV_PREFIX + key, 'stream').catch(() => null);
-  if (!exists) return json({ error: 'That asset is not in media storage. It may already be deleted.', code: 'not-found' }, 404);
+  const held = await locate(env, key);
+  if (!held) return json({ error: 'That asset is not in media storage. It may already be deleted.', code: 'not-found' }, 404);
 
   const purge = params.get('purge') === '1';
   const force = params.get('force') === '1';
@@ -559,10 +582,14 @@ export async function onRequestDelete({ request, env }) {
 
   try {
     // A variant has no life of its own, so it goes with its parent rather than
-    // being left behind as bytes nothing can reach.
+    // being left behind as bytes nothing can reach. Each is removed from the
+    // store that actually holds it: after R2 is added, a parent and its
+    // variants can legitimately live in different ones.
     const doomed = [key, ...((meta[key] && meta[key].variants) || []).map(v => v.key)];
     for (const k of doomed) {
-      if (store === 'r2') await env.PORTFOLIO_MEDIA.delete(k);
+      const where = k === key ? held : await locate(env, k);
+      if (!where) continue;
+      if (where.store === 'r2') await env.PORTFOLIO_MEDIA.delete(k);
       else await env.PORTFOLIO_CONFIG.delete(KV_PREFIX + k);
     }
   } catch (e) {
