@@ -5,19 +5,19 @@
   X-Frame-Options: SAMEORIGIN
 
 /studio
-  Cache-Control: no-cache, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate
 
 /studio.html
-  Cache-Control: no-cache, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate
 
 /studio.css
-  Cache-Control: public, max-age=3600, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate
 
 /studio-overrides.css
-  Cache-Control: public, max-age=3600, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate
 
 /studio-editor.js
-  Cache-Control: public, max-age=3600, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate
 
 /gallery*
   Cache-Control: no-cache, must-revalidate
