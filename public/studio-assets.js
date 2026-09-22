@@ -137,7 +137,7 @@
     el.id = 'assetsPanel';
     el.innerHTML = `
       <h4>Image library</h4>
-      <p class="editor-note">Uploads are stored in Cloudflare R2 and referenced by a durable URL, so artwork survives reload and never inflates the config.</p>
+      <p class="editor-note">Uploads get a durable URL and never go into the config, so artwork survives reload. The line below says which store is active and its size limit.</p>
       <label class="file-btn">Upload image / video<input id="assetUpload" type="file" accept="image/*,video/mp4,video/webm" multiple></label>
       <div id="assetStatus" class="editor-note" role="status" aria-live="polite"></div>
       <div id="assetGrid" class="asset-grid"></div>

@@ -309,16 +309,173 @@
     });
   }
 
+
+  /* --------------------------------------------------- selection frame
+   * A floating frame over the selected object carrying a move grip and resize
+   * handles, so anything can be repositioned and resized directly instead of
+   * only through the inspector or a mode toggle.
+   *
+   * The frame lives in <body> and is positioned over the object, never
+   * injected into it. fromDOM serialises a text object's innerHTML as its
+   * content, so handles placed inside one would be saved into the published
+   * text and reappear as stray markup.
+   */
+  const RESIZABLE = ['text', 'button', 'shape', 'divider', 'spacer', 'container', 'section', 'link', 'logo', 'tile'];
+  let frameRaf = null;
+
+  function frameEl() {
+    let f = $('#objFrame');
+    if (f) return f;
+    f = document.createElement('div');
+    f.id = 'objFrame';
+    f.setAttribute('aria-hidden', 'true');
+    f.innerHTML = `
+      <button type="button" class="of-grip" data-of="move" title="Drag to move (or hold Alt and drag the object)">✥</button>
+      <span class="of-handle" data-of="e" title="Drag to change width"></span>
+      <span class="of-handle" data-of="s" title="Drag to change height"></span>
+      <span class="of-handle" data-of="se" title="Drag to resize"></span>`;
+    document.body.appendChild(f);
+    bindFrameHandles(f);
+    return f;
+  }
+
+  function positionFrame() {
+    const f = $('#objFrame');
+    const el = ed.selected();
+    const live = el && el.isConnected && ed.editing() &&
+      !(window.StudioShell && window.StudioShell.shell.previewing) &&
+      RESIZABLE.includes(el.dataset.type);
+    if (!f) return;
+    if (!live) { f.classList.remove('on'); return; }
+    const r = el.getBoundingClientRect();
+    // Off-screen objects need no frame, and drawing one would leave a stray
+    // control floating at the viewport edge.
+    if (r.bottom < 0 || r.top > window.innerHeight) { f.classList.remove('on'); return; }
+    f.style.left = Math.round(r.left) + 'px';
+    f.style.top = Math.round(r.top) + 'px';
+    f.style.width = Math.round(r.width) + 'px';
+    f.style.height = Math.round(r.height) + 'px';
+    f.dataset.locked = el.dataset.locked === '1' ? '1' : '';
+    f.classList.add('on');
+  }
+
+  function trackFrame() {
+    if (frameRaf !== null) return;
+    frameRaf = requestAnimationFrame(() => { frameRaf = null; positionFrame(); });
+  }
+
+  function bindFrameHandles(f) {
+    for (const h of f.querySelectorAll('[data-of]')) {
+      h.addEventListener('pointerdown', e => {
+        const el = ed.selected();
+        if (!el) return;
+        if (el.dataset.locked === '1') {
+          ed.status(`"${el.dataset.node || el.dataset.id}" is locked. Unlock it in Layers first.`);
+          return;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        const mode = h.dataset.of;
+        const rect = el.getBoundingClientRect();
+        const startX = e.clientX, startY = e.clientY;
+        const t = window.StudioShell ? window.StudioShell.writeTarget() : { state: 'base', breakpoint: null };
+        const M = window.StudioModel;
+        const snap = window.StudioShell ? window.StudioShell.shell.view.snap : false;
+        const step = 8;
+        const isTile = el.classList.contains('tile');
+        const grid = isTile && el.parentElement ? el.parentElement.getBoundingClientRect() : null;
+        const col = grid ? grid.width / 12 : 0;
+
+        const m0 = ed.model();
+        const baseX = Number(M.getProp(m0, el.dataset.id, 'offsetX', t.state, t.breakpoint)) || 0;
+        const baseY = Number(M.getProp(m0, el.dataset.id, 'offsetY', t.state, t.breakpoint)) || 0;
+        let x = baseX, y = baseY, w = rect.width, hgt = rect.height, span = isTile ? Math.round(rect.width / col) : 0;
+
+        try { h.setPointerCapture(e.pointerId); } catch { /* best effort */ }
+        f.classList.add('dragging');
+
+        const move = q => {
+          const dx = q.clientX - startX, dy = q.clientY - startY;
+          if (mode === 'move') {
+            x = baseX + dx; y = baseY + dy;
+            if (snap) { x = Math.round(x / step) * step; y = Math.round(y / step) * step; }
+            el.style.setProperty('--x', Math.round(x) + 'px');
+            el.style.setProperty('--y', Math.round(y) + 'px');
+          } else {
+            if (mode === 'e' || mode === 'se') {
+              w = Math.max(24, rect.width + dx);
+              if (snap) w = Math.round(w / step) * step;
+              if (isTile) span = Math.max(1, Math.min(12, Math.round(w / col)));
+              else el.style.width = Math.round(w) + 'px';
+              if (isTile) el.style.setProperty('--span', String(span));
+            }
+            if (mode === 's' || mode === 'se') {
+              hgt = Math.max(16, rect.height + dy);
+              if (snap) hgt = Math.round(hgt / step) * step;
+              if (isTile) el.style.setProperty('--h', Math.round(hgt) + 'px');
+              else el.style.height = Math.round(hgt) + 'px';
+            }
+          }
+          positionFrame();
+        };
+
+        const up = () => {
+          document.removeEventListener('pointermove', move);
+          document.removeEventListener('pointerup', up);
+          document.removeEventListener('pointercancel', up);
+          f.classList.remove('dragging');
+          const m = ed.model();
+          if (mode === 'move') {
+            M.setProp(m, el.dataset.id, 'offsetX', Math.round(x), t.state, t.breakpoint);
+            M.setProp(m, el.dataset.id, 'offsetY', Math.round(y), t.state, t.breakpoint);
+            el.style.removeProperty('--x');
+            el.style.removeProperty('--y');
+          } else {
+            if (mode === 'e' || mode === 'se') {
+              if (isTile) { M.setProp(m, el.dataset.id, 'span', span, t.state, t.breakpoint); el.style.removeProperty('--span'); }
+              else { M.setProp(m, el.dataset.id, 'width', Math.round(w) + 'px', t.state, t.breakpoint); el.style.removeProperty('width'); }
+            }
+            if (mode === 's' || mode === 'se') {
+              if (isTile) { M.setProp(m, el.dataset.id, 'tileHeight', Math.round(hgt), t.state, t.breakpoint); el.style.removeProperty('--h'); }
+              else { M.setProp(m, el.dataset.id, 'height', Math.round(hgt) + 'px', t.state, t.breakpoint); el.style.removeProperty('height'); }
+            }
+          }
+          // Live feedback was inline ephemera; the model owns it from here.
+          if (!el.getAttribute('style')) el.removeAttribute('style');
+          M.writeCSS(M.emitCSS(m));
+          if (window.StudioInspector) window.StudioInspector.syncFromModel();
+          ed.push();
+          positionFrame();
+          ed.status(mode === 'move'
+            ? `${el.dataset.node || el.dataset.id} moved to ${Math.round(x)}, ${Math.round(y)}${snap ? ' (snapped)' : ''}`
+            : `${el.dataset.node || el.dataset.id} resized to ${isTile ? span + '/12 cols' : Math.round(w) + 'px'} × ${Math.round(hgt)}px${snap ? ' (snapped)' : ''}`);
+        };
+
+        document.addEventListener('pointermove', move);
+        document.addEventListener('pointerup', up);
+        document.addEventListener('pointercancel', up);
+      });
+    }
+  }
+
+  function initFrame() {
+    frameEl();
+    positionFrame();
+    window.addEventListener('scroll', trackFrame, { passive: true });
+    window.addEventListener('resize', trackFrame, { passive: true });
+  }
+
   function init() {
     const promoted = promote();
     enhanceLinkFields();
     buildDividerPanel();
     bindDrag();
+    initFrame();
     ed.layers();
     if (promoted) console.info('[studio] promoted', promoted, 'links/dividers to editable objects');
   }
 
-  window.StudioObjects = { init, promote, enhanceLinkFields, setMoveMode, isMoveMode: () => moveMode, LINK_KEYS, MOVABLE };
+  window.StudioObjects = { init, promote, enhanceLinkFields, setMoveMode, positionFrame, initFrame, RESIZABLE, isMoveMode: () => moveMode, LINK_KEYS, MOVABLE };
 
   /* Promote on load, not only when the editor opens.
    *

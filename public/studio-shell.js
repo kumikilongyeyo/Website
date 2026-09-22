@@ -268,6 +268,7 @@
     if (window.StudioModel) window.StudioModel.writeCSS(window.StudioModel.emitCSS(m));
     sel.classList.toggle('is-hidden', n.visibility.hidden);
     ed.layers();
+    if (window.StudioObjects && window.StudioObjects.positionFrame) window.StudioObjects.positionFrame();
     ed.push();
     ed.status(`${n.visibility.hidden ? 'Hidden' : 'Shown'}: ${n.name || sel.dataset.id}`);
   }
@@ -281,6 +282,9 @@
     const n = m && m.nodes && m.nodes[sel.dataset.id];
     if (n) { n.visibility = n.visibility || {}; n.visibility.locked = !locked; }
     ed.layers();
+    // The frame shows lock state, and locking does not change the selection,
+    // so it has to be told to refresh.
+    if (window.StudioObjects && window.StudioObjects.positionFrame) window.StudioObjects.positionFrame();
     ed.push();
     ed.status(`${!locked ? 'Locked' : 'Unlocked'}: ${sel.dataset.node || sel.dataset.id}`);
   }
