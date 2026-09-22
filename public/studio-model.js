@@ -157,29 +157,18 @@
       : `linear-gradient(${num(g.angle, 180)}deg,${list})`;
   }
 
+  /* Only the solid case becomes a declaration, so a hover or breakpoint can
+   * override a background colour like any other property. Gradient, image and
+   * texture backgrounds are composited by studio-background.js on a dedicated
+   * child layer instead, because overall opacity, blur, zoom and parallax
+   * cannot be expressed on an element's own background without faking them —
+   * and a control that only looks like it works is worse than none (§1).
+   */
   function backgroundDecls(bg) {
-    if (!bg || !bg.mode || bg.mode === 'none') return bg && bg.mode === 'none' ? ['background:transparent'] : [];
-    const out = [];
-    if (bg.mode === 'solid' && bg.color) out.push(`background:${bg.color}`);
-    if (bg.mode === 'gradient') {
-      const g = gradientCSS(bg.gradient);
-      if (g) out.push(`background-image:${g}`);
-      if (bg.gradient && bg.gradient.opacity !== undefined) out.push(`--bgOpacity:${bg.gradient.opacity}`);
-    }
-    if (bg.mode === 'image' && bg.image && bg.image.src) {
-      const im = bg.image;
-      out.push(`background-image:url("${cssEscape(im.src)}")`);
-      out.push(`background-size:${im.fit || 'cover'}`);
-      out.push(`background-position:${num(im.x, 50)}% ${num(im.y, 50)}%`);
-      out.push('background-repeat:no-repeat');
-      if (im.attachment) out.push(`background-attachment:${im.attachment}`);
-      if (im.opacity !== undefined) out.push(`--bgOpacity:${im.opacity}`);
-    }
-    if (bg.overlay) {
-      const g = gradientCSS(bg.overlay);
-      if (g) out.push(`--bgOverlay:${g}`);
-    }
-    return out;
+    if (!bg || !bg.mode) return [];
+    if (bg.mode === 'none') return ['background-color:transparent'];
+    if (bg.mode === 'solid') return bg.color ? [`background-color:${bg.color}`] : [];
+    return [];
   }
 
   /* ------------------------------------------------------ declaration build */
@@ -216,6 +205,9 @@
     if (!model || !model.nodes) return '';
     const out = [];
     const rule = (sel, decls) => { if (decls.length) out.push(`${sel}{${decls.join(';')}}`); };
+
+    // The page wrapper has no data-id, so its own background is emitted here.
+    if (model.site && model.site.background) rule('.site', backgroundDecls(model.site.background));
 
     for (const id in model.nodes) {
       const n = model.nodes[id];
@@ -674,6 +666,7 @@
     writeCSS(emitCSS(model));
     // Texture overlays are real elements, not declarations, so they are built
     // after the stylesheet rather than emitted into it.
+    if (window.StudioBackground) window.StudioBackground.applyFromModel(model);
     if (window.StudioTexture) window.StudioTexture.syncModel(model);
     return { missing, hydrated };
   }

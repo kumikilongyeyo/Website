@@ -596,9 +596,307 @@
     window.StudioShell.reloadTexturePanel = loadInto;
   }
 
+
+  /* --------------------------------------------------- background panel
+   * §14/§15. Target is the page or the selected object. Gradient stops are
+   * editable rows, not a preset-only dropdown, and presets load INTO the
+   * editor so they stay adjustable afterwards.
+   */
+  function buildBackgroundPanel() {
+    const host = $('.tab-panel[data-tab="design"]');
+    if (!host || $('#backgroundPanel2') || !window.StudioBackground) return;
+    const B = window.StudioBackground;
+    const p = document.createElement('div');
+    p.className = 'panel';
+    p.id = 'backgroundPanel2';
+    p.innerHTML = `
+      <h4>Background</h4>
+      <div class="seg" role="group" aria-label="Background target">
+        <button type="button" data-bg-target="site" class="active" aria-pressed="true">Page</button>
+        <button type="button" data-bg-target="object" aria-pressed="false">Selected object</button>
+      </div>
+      <div class="ctrl"><label>Mode</label><select id="bgMode">
+        ${B.MODES.map(m => `<option value="${m}">${m[0].toUpperCase() + m.slice(1)}</option>`).join('')}
+      </select></div>
+
+      <div id="bgSolidBox" hidden>
+        <div class="ctrl"><label>Colour</label><input id="bgSolidColor" type="color" value="#10120f"></div>
+      </div>
+
+      <div id="bgGradientBox" hidden>
+        <div class="ctrl"><label>Preset</label><select id="bgPreset">
+          <option value="">Choose a preset…</option>
+          ${B.GRADIENT_PRESETS.map((g, i) => `<option value="${i}">${g.name}</option>`).join('')}
+        </select></div>
+        <div class="ctrl"><label>Type</label><select id="bgGradType"><option value="linear">Linear</option><option value="radial">Radial</option></select></div>
+        <div class="ctrl" id="bgAngleCtrl"><label>Angle</label><input id="bgGradAngle" type="range" min="0" max="360" step="5"></div>
+        <div class="ctrl" id="bgRadialXCtrl" hidden><label>Centre X</label><input id="bgGradX" type="range" min="0" max="100"></div>
+        <div class="ctrl" id="bgRadialYCtrl" hidden><label>Centre Y</label><input id="bgGradY" type="range" min="0" max="100"></div>
+        <div class="ctrl"><label>Opacity</label><input id="bgGradOpacity" type="range" min="0" max="100"></div>
+        <label class="check"><input id="bgGradReverse" type="checkbox">Reverse</label>
+        <div class="stops-head"><span>Stops</span><button type="button" id="bgAddStop" title="Add a stop">＋</button></div>
+        <div id="bgStops" class="stops"></div>
+        <div class="bg-preview" id="bgPreview" aria-hidden="true"></div>
+      </div>
+
+      <div id="bgImageBox" hidden>
+        <div class="ctrl stack"><label>Image URL</label><input id="bgImgSrc" type="url" placeholder="/media/... or https://..."></div>
+        <p class="editor-note">Pick an upload from the Image library below and press Use as background.</p>
+        <button type="button" id="bgUseAsset">Use selected library asset</button>
+        <div class="ctrl"><label>Fit</label><select id="bgImgFit"><option>cover</option><option>contain</option><option value="auto">original</option></select></div>
+        <div class="ctrl"><label>Crop X</label><input id="bgImgX" type="range" min="0" max="100"></div>
+        <div class="ctrl"><label>Crop Y</label><input id="bgImgY" type="range" min="0" max="100"></div>
+        <div class="ctrl"><label>Zoom</label><input id="bgImgZoom" type="range" min="0.4" max="3" step="0.05"></div>
+        <div class="ctrl"><label>Opacity</label><input id="bgImgOpacity" type="range" min="0" max="100"></div>
+        <div class="ctrl"><label>Blur</label><input id="bgImgBlur" type="range" min="0" max="30" step="0.5"></div>
+        <div class="ctrl"><label>Attachment</label><select id="bgImgAttach"><option value="scroll">Scroll</option><option value="fixed">Fixed</option><option value="parallax">Parallax</option></select></div>
+      </div>
+
+      <label class="check" id="bgOverlayToggleWrap"><input id="bgOverlayOn" type="checkbox">Gradient overlay on top</label>
+      <div class="ctrl" id="bgOverlayCtrl" hidden><label>Overlay preset</label><select id="bgOverlayPreset">
+        ${B.GRADIENT_PRESETS.map((g, i) => `<option value="${i}">${g.name}</option>`).join('')}
+      </select></div>
+      <p class="editor-note" id="bgNote"></p>`;
+    host.appendChild(p);
+
+    let bgTarget = 'site';
+    const note = m => { const n = $('#bgNote'); if (n) n.textContent = m || ''; };
+
+    function readBG() {
+      const m = ed.model();
+      if (bgTarget === 'site') return (m && m.site && m.site.background) || { mode: 'none' };
+      const sel = ed.selected();
+      const n = sel && m && m.nodes && m.nodes[sel.dataset.id];
+      return (n && n.states && n.states.base && n.states.base.background) || { mode: 'none' };
+    }
+
+    function writeBG(bg) {
+      const m = ed.model();
+      if (!m) return;
+      if (bgTarget === 'site') {
+        m.site = m.site || {};
+        m.site.background = bg;
+      } else {
+        const sel = ed.selected();
+        if (!sel) return note('Select an object first, or switch the target back to Page.');
+        const n = m.nodes && m.nodes[sel.dataset.id];
+        if (!n) return note('That object is not in the model yet.');
+        // Background lives in the base state so it can be overridden later.
+        window.StudioModel.setProp(m, sel.dataset.id, 'background', bg, 'base');
+      }
+      window.StudioModel.writeCSS(window.StudioModel.emitCSS(m));
+      window.StudioBackground.applyFromModel(m);
+      ed.push();
+      note(bg.mode === 'none' ? 'Background cleared.' : `${bg.mode[0].toUpperCase() + bg.mode.slice(1)} background applied to ${bgTarget === 'site' ? 'the page' : (ed.selected()?.dataset.node || 'the object')}.`);
+    }
+
+    function renderStops(bg) {
+      const box = $('#bgStops');
+      if (!box) return;
+      const g = bg.gradient || window.StudioBackground.DEFAULT_GRADIENT();
+      box.innerHTML = '';
+      g.stops.forEach((st, i) => {
+        const row = document.createElement('div');
+        row.className = 'stop-row';
+        row.innerHTML = `
+          <input type="color" value="${/^#/.test(st.color) ? st.color : '#000000'}" aria-label="Stop ${i + 1} colour">
+          <input type="range" min="0" max="100" value="${Number(st.at)}" aria-label="Stop ${i + 1} position">
+          <span class="stop-pct">${Math.round(Number(st.at))}%</span>
+          <button type="button" class="danger-lite" aria-label="Remove stop ${i + 1}" ${g.stops.length <= 2 ? 'disabled title="A gradient needs at least two stops"' : ''}>−</button>`;
+        const [colorEl, posEl, pctEl, delEl] = [row.children[0], row.children[1], row.children[2], row.children[3]];
+        colorEl.addEventListener('input', () => { g.stops[i].color = colorEl.value; bg.gradient = g; writeBG(bg); paintPreview(bg); });
+        posEl.addEventListener('input', () => { g.stops[i].at = Number(posEl.value); pctEl.textContent = posEl.value + '%'; bg.gradient = g; writeBG(bg); paintPreview(bg); });
+        delEl.addEventListener('click', () => {
+          if (g.stops.length <= 2) return note('A gradient needs at least two stops.');
+          g.stops.splice(i, 1); bg.gradient = g; writeBG(bg); renderStops(bg); paintPreview(bg);
+        });
+        box.appendChild(row);
+      });
+    }
+
+    function paintPreview(bg) {
+      const pv = $('#bgPreview');
+      if (!pv) return;
+      const css = window.StudioBackground.gradientCSS(bg.gradient);
+      pv.style.backgroundImage = css || 'none';
+      pv.style.opacity = String(bg.gradient && bg.gradient.opacity !== undefined ? bg.gradient.opacity : 1);
+    }
+
+    function showBoxes(mode) {
+      $('#bgSolidBox').hidden = mode !== 'solid';
+      $('#bgGradientBox').hidden = mode !== 'gradient';
+      $('#bgImageBox').hidden = mode !== 'image';
+      $('#bgOverlayToggleWrap').hidden = !(mode === 'image' || mode === 'gradient');
+      const radial = $('#bgGradType') && $('#bgGradType').value === 'radial';
+      if ($('#bgAngleCtrl')) $('#bgAngleCtrl').hidden = radial;
+      if ($('#bgRadialXCtrl')) $('#bgRadialXCtrl').hidden = !radial;
+      if ($('#bgRadialYCtrl')) $('#bgRadialYCtrl').hidden = !radial;
+    }
+
+    function loadInto() {
+      const bg = JSON.parse(JSON.stringify(readBG()));
+      $('#bgMode').value = bg.mode || 'none';
+      if (bg.mode === 'solid') $('#bgSolidColor').value = /^#/.test(bg.color || '') ? bg.color : '#10120f';
+      const g = bg.gradient || window.StudioBackground.DEFAULT_GRADIENT();
+      $('#bgGradType').value = g.type || 'linear';
+      $('#bgGradAngle').value = g.angle !== undefined ? g.angle : 180;
+      $('#bgGradX').value = g.x !== undefined ? g.x : 50;
+      $('#bgGradY').value = g.y !== undefined ? g.y : 50;
+      $('#bgGradOpacity').value = Math.round((g.opacity !== undefined ? g.opacity : 1) * 100);
+      $('#bgGradReverse').checked = !!g.reverse;
+      const im = bg.image || window.StudioBackground.DEFAULT_IMAGE();
+      $('#bgImgSrc').value = im.src || '';
+      $('#bgImgFit').value = im.fit || 'cover';
+      $('#bgImgX').value = im.x !== undefined ? im.x : 50;
+      $('#bgImgY').value = im.y !== undefined ? im.y : 50;
+      $('#bgImgZoom').value = im.zoom !== undefined ? im.zoom : 1;
+      $('#bgImgOpacity').value = Math.round((im.opacity !== undefined ? im.opacity : 1) * 100);
+      $('#bgImgBlur').value = im.blur || 0;
+      $('#bgImgAttach').value = im.attachment || 'scroll';
+      $('#bgOverlayOn').checked = !!bg.overlay;
+      if ($('#bgOverlayCtrl')) $('#bgOverlayCtrl').hidden = !bg.overlay;
+      showBoxes(bg.mode || 'none');
+      renderStops(bg);
+      paintPreview(bg);
+    }
+
+    function collect() {
+      const bg = JSON.parse(JSON.stringify(readBG()));
+      bg.mode = $('#bgMode').value;
+      if (bg.mode === 'solid') bg.color = $('#bgSolidColor').value;
+      const g = bg.gradient || window.StudioBackground.DEFAULT_GRADIENT();
+      g.type = $('#bgGradType').value;
+      g.angle = Number($('#bgGradAngle').value);
+      g.x = Number($('#bgGradX').value);
+      g.y = Number($('#bgGradY').value);
+      g.opacity = Number($('#bgGradOpacity').value) / 100;
+      g.reverse = $('#bgGradReverse').checked;
+      bg.gradient = g;
+      const im = bg.image || window.StudioBackground.DEFAULT_IMAGE();
+      im.src = $('#bgImgSrc').value.trim();
+      im.fit = $('#bgImgFit').value;
+      im.x = Number($('#bgImgX').value);
+      im.y = Number($('#bgImgY').value);
+      im.zoom = Number($('#bgImgZoom').value);
+      im.opacity = Number($('#bgImgOpacity').value) / 100;
+      im.blur = Number($('#bgImgBlur').value);
+      im.attachment = $('#bgImgAttach').value;
+      bg.image = im;
+      if ($('#bgOverlayOn').checked) {
+        const idx = Number($('#bgOverlayPreset').value) || 0;
+        const src = window.StudioBackground.GRADIENT_PRESETS[idx];
+        bg.overlay = JSON.parse(JSON.stringify(src));
+      } else delete bg.overlay;
+      return bg;
+    }
+
+    const commit = () => { const bg = collect(); showBoxes(bg.mode); writeBG(bg); paintPreview(bg); };
+
+    $$('[data-bg-target]', p).forEach(b => {
+      b.onclick = () => {
+        bgTarget = b.dataset.bgTarget;
+        $$('[data-bg-target]', p).forEach(x => {
+          const on = x === b;
+          x.classList.toggle('active', on);
+          x.setAttribute('aria-pressed', String(on));
+        });
+        loadInto();
+        note(bgTarget === 'object' && !ed.selected() ? 'No object selected yet.' : '');
+      };
+    });
+
+    ['bgMode', 'bgSolidColor', 'bgGradType', 'bgGradAngle', 'bgGradX', 'bgGradY', 'bgGradOpacity',
+     'bgGradReverse', 'bgImgSrc', 'bgImgFit', 'bgImgX', 'bgImgY', 'bgImgZoom', 'bgImgOpacity',
+     'bgImgBlur', 'bgImgAttach', 'bgOverlayOn', 'bgOverlayPreset'].forEach(id => {
+      const el = $('#' + id);
+      if (!el) return;
+      el.addEventListener(el.tagName === 'SELECT' || el.type === 'checkbox' ? 'change' : 'input', commit);
+    });
+
+    // A preset loads into the editable stop list, so it stays adjustable (§15).
+    $('#bgPreset').addEventListener('change', e => {
+      const idx = e.target.value;
+      if (idx === '') return;
+      const src = window.StudioBackground.GRADIENT_PRESETS[Number(idx)];
+      const bg = collect();
+      bg.mode = 'gradient';
+      bg.gradient = { ...window.StudioBackground.DEFAULT_GRADIENT(), ...JSON.parse(JSON.stringify(src)) };
+      $('#bgMode').value = 'gradient';
+      loadIntoFrom(bg);
+      writeBG(bg);
+      note(`Loaded "${src.name}". The stops below are now editable.`);
+      e.target.value = '';
+    });
+
+    function loadIntoFrom(bg) {
+      $('#bgGradType').value = bg.gradient.type || 'linear';
+      $('#bgGradAngle').value = bg.gradient.angle !== undefined ? bg.gradient.angle : 180;
+      $('#bgGradOpacity').value = Math.round((bg.gradient.opacity !== undefined ? bg.gradient.opacity : 1) * 100);
+      $('#bgGradReverse').checked = !!bg.gradient.reverse;
+      showBoxes('gradient');
+      renderStops(bg);
+      paintPreview(bg);
+    }
+
+    $('#bgAddStop').addEventListener('click', () => {
+      const bg = collect();
+      const g = bg.gradient;
+      if (g.stops.length >= 8) return note('Eight stops is the practical limit.');
+      const last = g.stops[g.stops.length - 1];
+      const prev = g.stops[g.stops.length - 2] || { at: 0 };
+      g.stops.push({ color: last.color, at: Math.min(100, Math.round((Number(last.at) + Number(prev.at)) / 2) + 10) });
+      bg.gradient = g;
+      writeBG(bg); renderStops(bg); paintPreview(bg);
+    });
+
+    $('#bgUseAsset').addEventListener('click', () => {
+      const assets = (window.StudioAssets && window.StudioAssets.state.assets) || [];
+      if (!assets.length) return note('No uploads in the library yet. Upload an image first.');
+      $('#bgImgSrc').value = assets[0].url;
+      $('#bgMode').value = 'image';
+      commit();
+      note(`Using ${assets[0].filename || assets[0].key} as the background.`);
+    });
+
+    loadInto();
+    window.StudioShell.reloadBackgroundPanel = loadInto;
+  }
+
+  /* Alt text for meaningful portfolio images (§16/§34). */
+  function buildAltTextControl() {
+    const host = $('#projectMediaPanel') || $('.tab-panel[data-tab="design"]');
+    if (!host || $('#imgAlt')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'ctrl stack';
+    wrap.innerHTML = '<label for="imgAlt">Image alt text</label><input id="imgAlt" type="text" placeholder="Describe the artwork for screen readers">';
+    host.appendChild(wrap);
+    const input = $('#imgAlt');
+    input.addEventListener('input', () => {
+      const sel = ed.selected();
+      if (!sel) return ed.status('Select a tile to set its alt text.');
+      const img = sel.querySelector && sel.querySelector('img');
+      if (!img) return ed.status('That object has no image yet, so alt text would describe nothing.');
+      img.alt = input.value;
+      const m = ed.model();
+      const n = m && m.nodes && m.nodes[sel.dataset.id];
+      if (n) { n.content = n.content || {}; n.content.alt = input.value; }
+      ed.push();
+    });
+    window.StudioShell.syncAltText = () => {
+      const sel = ed.selected();
+      const img = sel && sel.querySelector && sel.querySelector('img');
+      input.value = img ? (img.getAttribute('alt') || '') : '';
+      input.disabled = !img;
+      input.placeholder = img ? 'Describe the artwork for screen readers' : 'Add an image first';
+    };
+    window.StudioShell.syncAltText();
+  }
+
   function init() {
     buildToolbar();
     buildTexturePanel();
+    buildBackgroundPanel();
+    buildAltTextControl();
     buildStateBar();
     applyView();
     setViewport(shell.viewport);
@@ -610,7 +908,7 @@
   window.StudioShell = {
     shell, init, renderTree, setPreview, setView, setViewport, setEditState, writeTarget,
     addObject, duplicateObject, deleteObject, toggleHidden, toggleLocked, renameObject, reorder,
-    buildTexturePanel,
+    buildTexturePanel, buildBackgroundPanel, buildAltTextControl,
     VIEWPORTS, VIEW_FLAGS,
   };
 })();

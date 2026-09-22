@@ -174,3 +174,27 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,[c
   [data-motion]:not(.in){opacity:1!important;transform:none!important;filter:none!important;
     -webkit-mask-size:100% 100%!important;mask-size:100% 100%!important;clip-path:none!important}
 }
+
+/* Background layer (§14/§15). Gradient and image backgrounds live on their own
+   child so opacity, blur, zoom and parallax are real rather than approximated,
+   and so fading a background never fades the text on top of it. */
+[data-bg-positioned="1"]{position:relative}
+.bg-layer{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;
+  background-repeat:no-repeat;will-change:transform,opacity}
+.site>.bg-layer{position:fixed;inset:0;z-index:-1}
+.tile>.bg-layer{border-radius:inherit}
+/* Content must sit above the layer without every component needing a z-index. */
+[data-bg-positioned="1"]>*:not(.bg-layer):not(.tex-layer){position:relative;z-index:1}
+
+/* Gradient stop editor */
+.stops-head{display:flex;align-items:center;justify-content:space-between;margin:8px 0 4px;font-size:8px;text-transform:uppercase;letter-spacing:.12em;opacity:.7}
+.stops-head button{width:22px;height:22px;border-radius:4px;border:1px solid var(--line);background:#1b1f1b;color:inherit;cursor:pointer}
+.stops{display:grid;gap:5px}
+.stop-row{display:grid;grid-template-columns:28px 1fr 30px 22px;gap:5px;align-items:center}
+.stop-row input[type="color"]{height:22px;padding:0;border:1px solid var(--line);border-radius:4px;background:none}
+.stop-row input[type="range"]{min-width:0}
+.stop-pct{font-size:8px;opacity:.65;text-align:right}
+.stop-row button{height:22px;border-radius:4px;border:1px solid var(--line);background:#1b1f1b;color:inherit;cursor:pointer;font-size:11px;line-height:1}
+.stop-row button[disabled]{opacity:.4;cursor:not-allowed}
+.bg-preview{height:44px;margin-top:8px;border:1px solid var(--line);border-radius:6px;background-size:cover}
+#bgUseAsset{width:100%;height:26px;font-size:9px;border-radius:5px;border:1px solid var(--line);background:#1b1f1b;color:inherit;cursor:pointer;margin-bottom:6px}
