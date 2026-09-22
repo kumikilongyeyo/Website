@@ -4,17 +4,29 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Frame-Options: SAMEORIGIN
 
-/app.css
-  Cache-Control: no-cache, no-store, must-revalidate
+/studio
+  Cache-Control: no-cache, must-revalidate
 
-/editor.js
-  Cache-Control: no-cache, no-store, must-revalidate
+/studio.html
+  Cache-Control: no-cache, must-revalidate
 
-/studio*
-  Cache-Control: no-cache, no-store, must-revalidate
+/studio.css
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/studio-overrides.css
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/studio-editor.js
+  Cache-Control: public, max-age=3600, must-revalidate
 
 /gallery*
-  Cache-Control: no-cache, no-store, must-revalidate
+  Cache-Control: no-cache, must-revalidate
+
+/app.css
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/editor.js
+  Cache-Control: public, max-age=3600, must-revalidate
 
 /assets/*
   Cache-Control: public, max-age=604800
