@@ -112,6 +112,9 @@
     // both work rather than everything becoming an external new-tab redirect.
     document.addEventListener('click', e => {
       if (document.body.classList.contains('editing')) return;
+      // Guarded for the same reason as the drag handler: e.target may be
+      // document or a text node, neither of which has closest().
+      if (!e.target || typeof e.target.closest !== 'function') return;
       const t = e.target.closest('[data-type="text"][data-text-link-enabled="1"], [data-type="button"]');
       if (!t) return;
       const url = t.dataset.textLink || t.dataset.target || t.getAttribute('href');

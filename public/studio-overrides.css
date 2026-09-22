@@ -346,13 +346,16 @@ body.editing .gear,body.previewing .gear{display:none!important}
 
 /* Objects that can be freely positioned need a transform of their own. Tiles
    already have one, so this deliberately excludes them rather than fighting it. */
-[data-type="text"],[data-type="button"],[data-type="shape"],[data-type="divider"],[data-type="link"],[data-type="logo"]{
+[data-type="text"],[data-type="button"],[data-type="shape"],[data-type="divider"],[data-type="link"],
+[data-type="logo"],[data-type="spacer"],[data-type="container"],[data-type="section"]{
   transform:translate(var(--x,0px),var(--y,0px)) rotate(var(--objRotate,0deg)) scale(var(--objScale,1))}
 
 /* Move mode: the cursor says what a drag will do, and text stops taking the caret. */
 body.move-mode [data-type="text"],body.move-mode [data-type="button"],
 body.move-mode [data-type="shape"],body.move-mode [data-type="divider"],
-body.move-mode [data-type="link"],body.move-mode [data-type="logo"]{cursor:move}
+body.move-mode [data-type="link"],body.move-mode [data-type="logo"],
+body.move-mode [data-type="spacer"],body.move-mode [data-type="container"],
+body.move-mode [data-type="section"]{cursor:move}
 body.move-mode [data-node]{user-select:none}
 [data-move-mode].active{background:var(--accent)!important;color:#111!important;font-weight:700}
 
@@ -375,3 +378,8 @@ body.move-mode [data-node]{user-select:none}
 .scheme-swatch{flex:0 0 auto;width:26px;height:26px;border-radius:5px;border:1px solid rgba(255,255,255,.14);
   display:grid;grid-template-columns:repeat(3,1fr);align-items:end;overflow:hidden;padding:3px;gap:2px}
 .scheme-swatch i{display:block;height:9px;border-radius:2px}
+
+/* A dragged object must not be able to give the whole page a horizontal
+   scrollbar. `clip` rather than `hidden` so no scroll container is created and
+   sticky positioning keeps working. */
+.site{overflow-x:clip}

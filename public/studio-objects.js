@@ -212,7 +212,9 @@
    * moves the object; with it off, clicking text puts the caret in it as
    * before. Alt+drag works in either mode for a quick nudge.
    */
-  const MOVABLE = ['text', 'button', 'shape', 'divider', 'link', 'logo'];
+  // spacer/container/section were movable in the model but had no transform
+  // rule, so they stored a position and never visibly moved.
+  const MOVABLE = ['text', 'button', 'shape', 'divider', 'link', 'logo', 'spacer', 'container', 'section'];
   let moveMode = false;
 
   function setMoveMode(on) {
@@ -236,10 +238,15 @@
       if (!ed.editing()) return;
       if (window.StudioShell && window.StudioShell.shell.previewing) return;
       if (!moveMode && !e.altKey) return;
-      const el = e.target.closest('[data-node]');
+      // e.target is not always an Element. A pointer event dispatched on
+      // document, or one landing on a text node, has no closest(), and calling
+      // it threw a TypeError that killed this handler outright.
+      const src = e.target;
+      if (!src || typeof src.closest !== 'function') return;
+      const el = src.closest('[data-node]');
       if (!el || !MOVABLE.includes(el.dataset.type)) return;
       if (el.dataset.locked === '1') { ed.status(`"${el.dataset.node}" is locked.`); return; }
-      if (e.target.closest('.resize, button[data-link-select]')) return;
+      if (src.closest('.resize, button[data-link-select]')) return;
 
       e.preventDefault();
       ed.select(el);
