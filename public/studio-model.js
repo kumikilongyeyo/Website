@@ -315,6 +315,19 @@
     const report = { from: null, unmappedNodes: [], unmappedProps: [], notes: [] };
     if (!raw || !isObj(raw)) return { model: blank(), report: { ...report, from: 'empty' } };
     if (raw.schema === CURRENT_SCHEMA) return { model: raw, report: { ...report, from: 'schema-4' } };
+    // A config written by a NEWER editor must be passed through untouched.
+    // Running it down the legacy path would quietly strip whatever that
+    // version added, turning a forward-compatible load into data loss.
+    if (typeof raw.schema === 'number' && raw.schema > CURRENT_SCHEMA) {
+      return {
+        model: raw,
+        report: {
+          ...report,
+          from: `schema-${raw.schema}`,
+          notes: [`This config was written by a newer Studio (schema ${raw.schema}); this build understands ${CURRENT_SCHEMA}. It was applied as-is rather than downgraded, so newer settings are preserved but may not be editable here.`],
+        },
+      };
+    }
 
     report.from = raw.schema ? `schema-${raw.schema}` : 'legacy';
     const model = blank();
@@ -403,6 +416,9 @@
     model.links = clone(o.LINKS || {});
     model.projects = clone(o.PROJECTS || {});
     model.order = [...root.querySelectorAll('.tile')].map(t => t.dataset.id);
+    // Every node in document order, so objects added in Studio can be put back
+    // where they were. Without this only tiles survived a reload.
+    model.domOrder = [...root.querySelectorAll('[data-node]')].map(e => e.dataset.id).filter(Boolean);
 
     for (const el of root.querySelectorAll('[data-node]')) {
       const id = el.dataset.id;
@@ -416,7 +432,12 @@
         id,
         type: el.dataset.type || before.type || 'text',
         name: el.dataset.node || before.name || id,
-        parent: before.parent || null,
+        // Derived from the DOM, not carried blindly: nesting is only real if
+        // it can be rebuilt, and a stale parent would resurrect old structure.
+        parent: (() => {
+          const p = el.parentElement && el.parentElement.closest('[data-node]');
+          return p && p.dataset.id ? p.dataset.id : null;
+        })(),
         content: clean({
           html: el.dataset.type === 'text' ? el.innerHTML : undefined,
           title: q('.t-title'),
@@ -443,8 +464,10 @@
         }),
         interaction: clean({
           ...(before.interaction || {}),
-          action: el.dataset.action,
-          target: el.dataset.target,
+          // Prefer the DOM, fall back to what the model already held: a value
+          // set on the model alone would otherwise be erased on the next read.
+          action: el.dataset.action || (before.interaction && before.interaction.action),
+          target: el.dataset.target || (before.interaction && before.interaction.target),
           textLink: el.dataset.textLink,
           textLinkEnabled: el.dataset.textLinkEnabled ? true : undefined,
         }),
@@ -473,6 +496,66 @@
     return model;
   }
 
+
+  /* Rebuilds an element for any node type. Previously only tiles could be
+   * recreated, so every heading, button, section or shape added in Studio was
+   * published and then silently missing on the next load.
+   */
+  const TAGS = {
+    text: 'p', heading: 'h2', tile: 'article', hero: 'div', logo: 'span',
+    button: 'a', section: 'section', container: 'div', divider: 'hr',
+    spacer: 'div', shape: 'div',
+  };
+  const CLASSES = {
+    button: 'ui-btn', divider: 'rule', spacer: 'spacer', shape: 'shape',
+    container: 'container-box', section: 'section', tile: 'tile',
+  };
+
+  function createElementFor(id, node) {
+    const type = (node && node.type) || 'text';
+    if (type === 'tile') return null;            // tiles keep their own builder
+    const el = document.createElement(TAGS[type] || 'div');
+    if (CLASSES[type]) el.className = CLASSES[type];
+    el.dataset.id = id;
+    el.dataset.type = type;
+    el.dataset.node = (node && node.name) || id;
+    const c = (node && node.content) || {};
+    if (c.html != null) el.innerHTML = c.html;
+    if (type === 'button') {
+      const url = (node.interaction && (node.interaction.target || node.interaction.url)) || '#';
+      el.href = url;
+      if (node.interaction && node.interaction.newTab) { el.target = '_blank'; el.rel = 'noopener'; }
+    }
+    return el;
+  }
+
+  // Puts hydrated nodes back into their recorded parent and document order.
+  function restoreStructure(model, root) {
+    const order = model.domOrder || [];
+    if (!order.length) return;
+    const fallback = root.querySelector('.site') || document.body;
+    for (const id of order) {
+      const el = root.querySelector(`[data-id="${cssEscape(id)}"]`);
+      if (!el) continue;
+      const node = model.nodes[id];
+      const parentId = node && node.parent;
+      const parent = parentId ? root.querySelector(`[data-id="${cssEscape(parentId)}"]`) : null;
+      // Never reparent a tile out of the grid, and never nest inside itself.
+      if (parent && parent !== el && !el.contains(parent)) {
+        if (el.parentElement !== parent) parent.appendChild(el);
+      } else if (!parentId && !el.parentElement) {
+        fallback.appendChild(el);
+      }
+    }
+    // Second pass fixes sibling order within each parent.
+    for (const id of order) {
+      const el = root.querySelector(`[data-id="${cssEscape(id)}"]`);
+      if (!el || el.classList.contains('tile')) continue;
+      const host = el.parentElement;
+      if (host) host.appendChild(el);
+    }
+  }
+
   /* ------------------------------------------------------------------ apply
    * Writes a model onto the page: content and behaviour onto the DOM,
    * everything visual into one generated stylesheet. Nodes present in the
@@ -481,14 +564,21 @@
   function apply(model, opts) {
     const o = opts || {};
     const root = o.root || document;
-    const missing = [];
-    if (!model || !model.nodes) return { missing };
+    const missing = [], hydrated = [];
+    if (!model || !model.nodes) return { missing, hydrated };
 
     for (const id in model.nodes) {
       const n = model.nodes[id];
       let el = root.querySelector(`[data-id="${cssEscape(id)}"]`);
       if (!el && o.hydrate) el = o.hydrate(id, n);
+      if (!el) el = createElementFor(id, n);
       if (!el) { missing.push({ id, type: n.type, name: n.name }); continue; }
+      if (!el.isConnected) {
+        // Parked at the end for now; restoreStructure puts it in place once
+        // every node exists, since a parent may be hydrated after its child.
+        (root.querySelector('.site') || document.body).appendChild(el);
+        hydrated.push(id);
+      }
 
       // The static HTML ships design defaults as inline styles, and inline
       // beats a stylesheet on specificity — leaving them in place would let a
@@ -553,11 +643,12 @@
       if (el && el.classList.contains('tile')) grid.appendChild(el);
     }
 
+    restoreStructure(model, root);
     writeCSS(emitCSS(model));
     // Texture overlays are real elements, not declarations, so they are built
     // after the stylesheet rather than emitted into it.
     if (window.StudioTexture) window.StudioTexture.syncModel(model);
-    return { missing };
+    return { missing, hydrated };
   }
 
 
@@ -645,5 +736,6 @@
     CURRENT_SCHEMA, STATES, BREAKPOINTS, NODE_TYPES, CSS_MAP, FILTER_PROPS,
     blank, migrate, fromDOM, apply, emitCSS, writeCSS, previewState,
     getProp, setProp, propOrigin, parseInlineStyle, gradientCSS, declsFor, EPHEMERAL, adoptInline,
+    createElementFor, restoreStructure,
   };
 })();
