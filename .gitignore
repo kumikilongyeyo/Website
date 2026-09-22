@@ -1,0 +1,7 @@
+# Local wrangler dev state: miniflare's KV/R2/D1 simulation, bundles and temp
+# build output. Committing these ships local test data and build artifacts that
+# have nothing to do with the site.
+.wrangler/
+node_modules/
+package-lock.json
+.DS_Store
