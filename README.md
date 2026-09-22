@@ -135,6 +135,23 @@ Three preset families, all in the Site tab, all persisted with the published con
 
 Applying a layout deliberately replaces per-tile sizes, and lands as one undo step.
 
+## Links
+
+Three levels, all routed through the same confirmation flow:
+
+- **Whole-object links** — a text object, button or tile carries one URL.
+- **Inline links** — a run of words inside a paragraph. These need no special persistence
+  because the model already stores a text node's innerHTML as its content.
+- **Link peek** — hovering or focusing any link shows a popover naming the destination, with
+  Copy and Continue. The confirmation dialog only appears after a click, which is too late to
+  decide; the peek lets you read the address first. It is shown on focus as well as hover so
+  it is not a pointer-only affordance, is clamped to the viewport, and never appears over the
+  canvas while editing.
+
+`#anchor` links scroll instead of going through the leave-site dialog. An address with a
+scheme that is not http(s), mailto or tel is refused by name rather than being prefixed into
+something that looks valid.
+
 ## Studio architecture
 
 `public/studio.html` loads, in order:

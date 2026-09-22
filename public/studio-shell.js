@@ -1389,8 +1389,61 @@
     });
   }
 
+
+  /* Inline link controls (§12). Whole-object links already worked; this adds
+   * linking a run of words inside a paragraph. Inline markup needs no special
+   * persistence because the model stores a text node's innerHTML as content.
+   */
+  function buildInlineLinkControls() {
+    const host = $('#textLinkPanel');
+    if (!host || $('#inlineLinkUrl')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'inline-link-tools';
+    wrap.innerHTML = `
+      <h4>Inline link</h4>
+      <p class="editor-note">Select words inside a text object, then set the address. The rest of the paragraph stays plain.</p>
+      <div class="ctrl stack"><label for="inlineLinkUrl">Address</label><input id="inlineLinkUrl" type="url" placeholder="https://… or #section"></div>
+      <div class="action-row">
+        <button type="button" id="inlineLinkApply">Link selection</button>
+        <button type="button" id="inlineLinkRemove" class="danger-lite">Unlink</button>
+      </div>
+      <p class="editor-note" id="inlineLinkNote"></p>`;
+    host.appendChild(wrap);
+
+    const note = m => { const n = $('#inlineLinkNote'); if (n) { n.textContent = m || ''; n.classList.toggle('is-error', /select|already|only|no |too much|not a usable/i.test(m || '')); } };
+    const urlIn = $('#inlineLinkUrl');
+
+    urlIn.addEventListener('input', () => {
+      const v = urlIn.value.trim();
+      if (!v || !window.StudioLinks) return note('');
+      const info = window.StudioLinks.describe(v);
+      note(info.ok ? (info.kind === 'anchor' ? `Jumps to ${info.url}` : `Opens ${info.url}`) : info.why);
+    });
+
+    $('#inlineLinkApply').addEventListener('click', () => {
+      if (!window.StudioLinks) return;
+      const res = window.StudioLinks.wrapSelection(urlIn.value.trim());
+      if (!res.ok) return note(res.why);
+      // The text object's html carries the anchor, so a push is all it takes.
+      ed.push();
+      if (window.StudioLinks.upgrade) window.StudioLinks.upgrade(document);
+      note(`Linked "${res.text}".`);
+      ed.status(`Inline link added to ${res.node.dataset.node || res.node.dataset.id}.`);
+    });
+
+    $('#inlineLinkRemove').addEventListener('click', () => {
+      if (!window.StudioLinks) return;
+      const res = window.StudioLinks.unwrapSelection();
+      if (!res.ok) return note(res.why);
+      ed.push();
+      note('Link removed.');
+      ed.status(`Inline link removed from ${res.node.dataset.node || res.node.dataset.id}.`);
+    });
+  }
+
   function init() {
     buildToolbar();
+    buildInlineLinkControls();
     buildHeroControls();
     buildLinkControls();
     buildEffectsPanel();
@@ -1411,7 +1464,7 @@
     shell, init, renderTree, setPreview, setView, setViewport, setEditState, writeTarget,
     addObject, duplicateObject, deleteObject, toggleHidden, toggleLocked, renameObject, reorder,
     buildTexturePanel, buildBackgroundPanel, buildAltTextControl, buildEffectsPanel, buildMotionPanel,
-    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE, buildLinkControls, layoutToolbar, watchStatus, buildHeroControls,
+    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE, buildLinkControls, layoutToolbar, watchStatus, buildHeroControls, buildInlineLinkControls,
     VIEWPORTS, VIEW_FLAGS,
   };
 })();
