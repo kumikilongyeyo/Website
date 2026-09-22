@@ -185,6 +185,9 @@
     el.dataset.id = uid(kind);
     el.dataset.node = spec.name;
     el.dataset.type = spec.type;
+    // Marks this as Studio-authored so a reload rebuilds it. Without the mark
+    // the model cannot tell a new object from a page id that was retired.
+    el.dataset.authored = '1';
     if (spec.html) el.innerHTML = spec.html;
     if (spec.tag === 'a') { el.href = '#'; el.dataset.action = 'url'; }
 

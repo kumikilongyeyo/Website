@@ -194,7 +194,10 @@
     for (const id in model.nodes) {
       const node = model.nodes[id];
       const tex = node.texture;
-      const host = document.querySelector(`[data-id="${String(id).replace(/["\\]/g, '\\$&')}"]`);
+      // Must not resolve to a layer tree row, which mirrors the same data-id.
+      const host = (window.StudioModel && window.StudioModel.findNode)
+        ? window.StudioModel.findNode(document, id)
+        : document.querySelector(`.site [data-id="${String(id).replace(/["\\]/g, '\\$&')}"]`);
       if (!host) continue;
       if (tex && tex.enabled) { apply(host, tex); n++; } else clear(host);
     }

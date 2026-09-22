@@ -39,6 +39,21 @@
   };
   const cssEscape = s => String(s).replace(/["\\]/g, '\\$&');
 
+
+  // Layer rows, and anything else in the editor chrome, deliberately carry the
+  // same data-id as the object they represent. A bare [data-id] lookup can
+  // therefore resolve to a tree row instead of the real object, so every
+  // lookup here skips the chrome explicitly.
+  const CHROME = '.layerbox, .layers, .inspector, .devbar, .savebar, .login, #assetGrid';
+  function findNode(root, id) {
+    const els = root.querySelectorAll(`[data-id="${cssEscape(id)}"]`);
+    for (const el of els) {
+      if (el.closest && el.closest(CHROME)) continue;
+      return el;
+    }
+    return null;
+  }
+
   /* ------------------------------------------------------- property → CSS
    * One entry per typed property. Keeping this a data table (rather than
    * branching code) is what makes the property set auditable and what lets the
@@ -204,7 +219,7 @@
 
     for (const id in model.nodes) {
       const n = model.nodes[id];
-      const sel = `[data-id="${cssEscape(id)}"]`;
+      const sel = `.site [data-id="${cssEscape(id)}"]`;
       rule(sel, declsFor(n.states && n.states.base));
 
       const hover = declsFor(n.states && n.states.hover);
@@ -228,9 +243,9 @@
         const n = model.nodes[id];
         const ov = n.responsive && n.responsive[bp];
         const decls = declsFor(ov);
-        if (decls.length) inner.push(`[data-id="${cssEscape(id)}"]{${decls.join(';')}}`);
-        if (ov && ov.hidden === true) inner.push(`[data-id="${cssEscape(id)}"]{display:none}`);
-        if (ov && ov.hidden === false) inner.push(`[data-id="${cssEscape(id)}"]{display:revert}`);
+        if (decls.length) inner.push(`.site [data-id="${cssEscape(id)}"]{${decls.join(';')}}`);
+        if (ov && ov.hidden === true) inner.push(`.site [data-id="${cssEscape(id)}"]{display:none}`);
+        if (ov && ov.hidden === false) inner.push(`.site [data-id="${cssEscape(id)}"]{display:revert}`);
       }
       if (inner.length) out.push(`@media(max-width:${BREAKPOINTS[bp]}px){${inner.join('')}}`);
     }
@@ -376,6 +391,7 @@
       if (data.hover && data.hover !== 'tilt' && data.hover !== 'none') node.motion.hoverPreset = data.hover;
       if (data.strength !== undefined) node.effects.strength = num(data.strength, 9);
 
+      if (old.authored) node.authored = true;
       if (old.texture) node.texture = clone(old.texture);
       if (old.background) node.background = clone(old.background);
       if (Object.keys(unmapped).length) {
@@ -418,9 +434,12 @@
     model.order = [...root.querySelectorAll('.tile')].map(t => t.dataset.id);
     // Every node in document order, so objects added in Studio can be put back
     // where they were. Without this only tiles survived a reload.
-    model.domOrder = [...root.querySelectorAll('[data-node]')].map(e => e.dataset.id).filter(Boolean);
+    model.domOrder = [...root.querySelectorAll('[data-node]')]
+      .filter(e => !(e.closest && e.closest(CHROME)))
+      .map(e => e.dataset.id).filter(Boolean);
 
     for (const el of root.querySelectorAll('[data-node]')) {
+      if (el.closest && el.closest(CHROME)) continue;
       const id = el.dataset.id;
       if (!id) continue;
       const before = prev[id] || {};
@@ -488,6 +507,9 @@
           ? { enabled: true, ...(before.tilt || {}), strength: num(el.dataset.strength, 9) }
           : { ...(before.tilt || {}), enabled: false },
         placeholder: el.classList.contains('placeholder'),
+        // Set by the shell when it creates an object, so a reload knows the
+        // difference between "Studio made this" and "the page used to have one".
+        authored: el.dataset.authored === '1' || before.authored === true || undefined,
       };
       if (before.unmapped) model.nodes[id].unmapped = before.unmapped;
       if (before.texture) model.nodes[id].texture = clone(before.texture);
@@ -535,11 +557,11 @@
     if (!order.length) return;
     const fallback = root.querySelector('.site') || document.body;
     for (const id of order) {
-      const el = root.querySelector(`[data-id="${cssEscape(id)}"]`);
+      const el = findNode(root, id);
       if (!el) continue;
       const node = model.nodes[id];
       const parentId = node && node.parent;
-      const parent = parentId ? root.querySelector(`[data-id="${cssEscape(parentId)}"]`) : null;
+      const parent = parentId ? findNode(root, parentId) : null;
       // Never reparent a tile out of the grid, and never nest inside itself.
       if (parent && parent !== el && !el.contains(parent)) {
         if (el.parentElement !== parent) parent.appendChild(el);
@@ -549,7 +571,7 @@
     }
     // Second pass fixes sibling order within each parent.
     for (const id of order) {
-      const el = root.querySelector(`[data-id="${cssEscape(id)}"]`);
+      const el = findNode(root, id);
       if (!el || el.classList.contains('tile')) continue;
       const host = el.parentElement;
       if (host) host.appendChild(el);
@@ -569,10 +591,14 @@
 
     for (const id in model.nodes) {
       const n = model.nodes[id];
-      let el = root.querySelector(`[data-id="${cssEscape(id)}"]`);
+      let el = findNode(root, id);
       if (!el && o.hydrate) el = o.hydrate(id, n);
-      if (!el) el = createElementFor(id, n);
-      if (!el) { missing.push({ id, type: n.type, name: n.name }); continue; }
+      // Rebuild only what Studio itself created. A legacy config still carries
+      // ids the page retired in a redesign (renamed or deleted), and
+      // recreating those appends duplicate, resurrected content to the public
+      // page. Anything else missing is reported, not invented.
+      if (!el && n.authored) el = createElementFor(id, n);
+      if (!el) { missing.push({ id, type: n.type, name: n.name, authored: !!n.authored }); continue; }
       if (!el.isConnected) {
         // Parked at the end for now; restoreStructure puts it in place once
         // every node exists, since a parent may be hydrated after its child.
@@ -588,6 +614,7 @@
       // left alone: they are rewritten every frame and own nothing.
       adoptInline(el, n);
 
+      if (n.authored) el.dataset.authored = '1';
       if (n.name) el.dataset.node = n.name;
       if (n.type) el.dataset.type = n.type;
       if (n.motion && n.motion.preset) el.dataset.motion = n.motion.preset;
@@ -639,7 +666,7 @@
     // Tile order
     const grid = root.querySelector('.grid');
     if (grid) for (const id of (model.order || [])) {
-      const el = root.querySelector(`[data-id="${cssEscape(id)}"]`);
+      const el = findNode(root, id);
       if (el && el.classList.contains('tile')) grid.appendChild(el);
     }
 
@@ -736,6 +763,6 @@
     CURRENT_SCHEMA, STATES, BREAKPOINTS, NODE_TYPES, CSS_MAP, FILTER_PROPS,
     blank, migrate, fromDOM, apply, emitCSS, writeCSS, previewState,
     getProp, setProp, propOrigin, parseInlineStyle, gradientCSS, declsFor, EPHEMERAL, adoptInline,
-    createElementFor, restoreStructure,
+    createElementFor, restoreStructure, findNode,
   };
 })();
