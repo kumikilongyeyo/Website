@@ -359,3 +359,19 @@ body.move-mode [data-node]{user-select:none}
 /* A divider keeps its sweep unless switched off, and honours its own size. */
 .rule{height:var(--rule-h,1px)}
 .rule.no-sweep::after{display:none}
+
+/* Font + colour presets (§11/§14) */
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 12px}
+.preset-card{display:flex;align-items:center;gap:7px;padding:7px;border:1px solid var(--line);border-radius:6px;
+  background:rgba(255,255,255,.02);color:inherit;cursor:pointer;text-align:left;min-width:0;height:auto}
+.preset-card:hover{border-color:rgba(255,255,255,.3)}
+.preset-card.active{border-color:var(--accent);background:rgba(189,214,87,.12)}
+/* Active state carries a mark, not colour alone (§34) */
+.preset-card.active .preset-meta strong::after{content:' \2713';color:var(--accent)}
+.preset-aa{font-size:20px;line-height:1;flex:0 0 auto;width:26px;text-align:center}
+.preset-meta{display:grid;gap:1px;min-width:0}
+.preset-meta strong{font-size:9px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preset-meta span{font-size:8px;opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scheme-swatch{flex:0 0 auto;width:26px;height:26px;border-radius:5px;border:1px solid rgba(255,255,255,.14);
+  display:grid;grid-template-columns:repeat(3,1fr);align-items:end;overflow:hidden;padding:3px;gap:2px}
+.scheme-swatch i{display:block;height:9px;border-radius:2px}

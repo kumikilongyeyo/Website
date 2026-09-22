@@ -684,6 +684,9 @@
     writeCSS(emitCSS(model));
     // Texture overlays are real elements, not declarations, so they are built
     // after the stylesheet rather than emitted into it.
+    // Visitors need the chosen webfont families too, or a published pairing
+    // renders in the fallback stack.
+    if (window.StudioPresets) window.StudioPresets.hydrate(model);
     if (window.StudioBackground) window.StudioBackground.applyFromModel(model);
     if (window.StudioMotion) window.StudioMotion.applyFromModel(model);
     if (window.StudioTexture) window.StudioTexture.syncModel(model);

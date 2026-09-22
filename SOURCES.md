@@ -3,8 +3,26 @@
 ## Font pairings
 This project uses free/open-source typefaces from the Google Fonts repository:
 
-- Default pairing: Instrument Serif + Manrope
-- Alternate pairings: DM Serif Display + DM Sans, Space Grotesk
+Font pairing presets (12), all from the Google Fonts repository under the SIL Open
+Font License or Apache 2.0:
+
+| Preset | Display | Body |
+| --- | --- | --- |
+| Editorial | Instrument Serif | Manrope |
+| Modern | DM Serif Display | DM Sans |
+| Technical | Space Grotesk | Space Grotesk |
+| Gallery | Cormorant Garamond | Inter |
+| Poster | Archivo Black | Archivo |
+| Quiet | Newsreader | Public Sans |
+| Brutal | Anton | Inter Tight |
+| Billboard | Bebas Neue | Barlow |
+| Classic | Playfair Display | Source Sans 3 |
+| Warm | Fraunces | Nunito Sans |
+| Edge | Syne | IBM Plex Mono |
+| Press | Libre Baskerville | Work Sans |
+
+Only the pairing in use is downloaded, so the public page never fetches twelve
+pairings' worth of webfonts.
 
 Source: https://github.com/google/fonts
 
