@@ -56,7 +56,7 @@
 </section>
 
 <div class="rule"></div>
-<section class="statement"><div class="statement-row"><div class="num">00 / Principle</div><h2 data-node data-id="statement" data-node="Statement" data-type="text" data-motion="rise">THE ART GETS THE SPACE. THE TOOL GETS OUT OF THE WAY.</h2></div></section>
+<section class="statement"><div class="statement-row"><div class="num" data-node="Principle label" data-id="statement-num" data-type="text" data-motion="fade">00 / Principle</div><h2 data-node data-id="statement" data-node="Statement" data-type="text" data-motion="rise">THE ART GETS THE SPACE. THE TOOL GETS OUT OF THE WAY.</h2></div></section>
 <div class="rule"></div>
 
 <section class="section" id="work">
@@ -72,7 +72,7 @@
 </section>
 
 <div class="rule"></div>
-<section class="statement"><div class="statement-row"><div class="num">∞ / Contact</div><h2 data-node data-id="contact-cta" data-node="Contact CTA" data-type="text" data-motion="blur">LET’S MAKE SOMETHING PEOPLE ACTUALLY REMEMBER.</h2></div></section>
+<section class="statement"><div class="statement-row"><div class="num" data-node="Contact label" data-id="contact-num" data-type="text" data-motion="fade">∞ / Contact</div><h2 data-node data-id="contact-cta" data-node="Contact CTA" data-type="text" data-motion="blur">LET’S MAKE SOMETHING PEOPLE ACTUALLY REMEMBER.</h2></div></section>
 </main>
 
 <footer class="footer" id="contact">
@@ -118,7 +118,7 @@
 
       <div class="panel" data-for="hero"><h4>Landing image</h4><div class="ctrl stack"><label>Image URL</label><input id="heroUrl" type="url" placeholder="assets/headliner.webp or https://..."></div><label class="file-btn">Upload optimized preview<input id="heroImage" type="file" accept="image/*"></label><div class="ctrl"><label>Caption</label><input id="heroCaption" type="text"></div><p class="editor-note">The landing page is one image only, with blurred bleed and background-color fades at the top and bottom.</p></div>
 
-      <div class="panel" data-for="tile"><h4>Tile image + crop</h4><label class="file-btn">Replace image<input id="tileImage" type="file" accept="image/*"></label><div class="ctrl"><label>Crop zoom</label><div class="scrub"><input id="zoomRange" type="range" min="1" max="2.2" step=".02"><input id="zoom" type="number" step=".02"></div></div><div class="ctrl"><label>Position X</label><div class="scrub"><input id="ixRange" type="range" min="0" max="100"><input id="ix" type="number"></div></div><div class="ctrl"><label>Position Y</label><div class="scrub"><input id="iyRange" type="range" min="0" max="100"><input id="iy" type="number"></div></div></div>
+      <div class="panel" data-for="tile"><h4>Thumbnail image + crop</h4><p class="editor-note">The single cover image for this tile in the Selected work grid. The images a visitor sees <b>after</b> clicking it are separate — set those under <b>Popup images</b> below.</p><div class="thumb-preview" id="tileThumbPreview"></div><div class="ctrl stack"><label>Thumbnail URL</label><div class="url-inline"><input id="tileImageUrl" type="url" placeholder="assets/art.webp or https://..."><button type="button" id="setTileImageUrl">Set</button></div></div><label class="file-btn">Upload a thumbnail<input id="tileImage" type="file" accept="image/*"></label><div class="ctrl"><label>Crop zoom</label><div class="scrub"><input id="zoomRange" type="range" min="1" max="2.2" step=".02"><input id="zoom" type="number" step=".02"></div></div><div class="ctrl"><label>Position X</label><div class="scrub"><input id="ixRange" type="range" min="0" max="100"><input id="ix" type="number"></div></div><div class="ctrl"><label>Position Y</label><div class="scrub"><input id="iyRange" type="range" min="0" max="100"><input id="iy" type="number"></div></div></div>
 
       <div class="panel" data-for="tile"><h4>Edge FX + content</h4><div class="ctrl"><label>Edge effect</label><select id="edge"><option>none</option><option>gradient</option><option>blur</option><option>both</option></select></div><label class="check"><input id="etop" type="checkbox">Top</label><label class="check"><input id="ebottom" type="checkbox">Bottom</label><label class="check"><input id="eleft" type="checkbox">Left</label><label class="check"><input id="eright" type="checkbox">Right</label><div class="section-title">Tile text</div><div class="ctrl"><label>Title</label><input id="tt" type="text"></div><div class="ctrl"><label>Subtitle</label><input id="ts" type="text"></div><div class="ctrl"><label>Tag</label><input id="tag" type="text"></div><div class="ctrl"><label>Click action</label><select id="act"><option value="project">Project popup</option><option value="none">None</option><option value="url">URL</option><option value="scroll">Scroll target</option></select></div><div class="ctrl"><label>Target</label><input id="target" type="text"></div></div>
 

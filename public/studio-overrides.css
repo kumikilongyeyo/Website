@@ -491,6 +491,128 @@ body:not(.editing) #objFrame,body.previewing #objFrame{display:none!important}
 .version-row button{flex:0 0 auto;height:24px;padding:0 9px;font-size:9px;border-radius:4px;
   border:1px solid var(--line);background:#1b1f1b;color:inherit;cursor:pointer}
 .version-row button[disabled]{opacity:.45;cursor:not-allowed}
+.version-actions{display:flex;gap:4px;flex:0 0 auto}
+
+/* Thumbnail preview + popup image rows. The old rows were a URL string each,
+   which is why "which image is the thumbnail" was impossible to answer by
+   looking. Every row now shows the picture it is talking about. */
+.thumb-preview{display:grid;gap:5px;margin:8px 0}
+.thumb-preview img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:6px;
+  border:1px solid var(--line);background:#0b0d0b}
+.thumb-preview span{font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:#7d877d}
+.thumb-preview .thumb-none{padding:14px 10px;border:1px dashed rgba(255,255,255,.10);
+  border-radius:6px;text-transform:none;letter-spacing:0;line-height:1.5}
+.media-row{grid-template-columns:16px 46px 1fr auto!important}
+.media-row .media-n{font-size:8px;color:var(--accent);text-align:center}
+.media-row .media-thumb{width:46px;height:30px;border-radius:4px;overflow:hidden;
+  background:#141714;display:grid;place-items:center}
+.media-row .media-thumb img{width:100%;height:100%;object-fit:cover}
+.media-row .media-acts{display:flex;gap:2px}
+.media-row .media-acts button{width:22px;height:22px!important;flex:0 0 auto;border-radius:4px;
+  border:1px solid rgba(255,255,255,.08)!important;font-size:9px;line-height:1}
+.media-row .media-acts button[disabled]{opacity:.3;cursor:not-allowed}
+.media-row .m-rm:hover{color:#e08b84!important;border-color:#c8564d!important}
+
+/* ===================================================== popup styling (§ new)
+ * Both public popups — the artwork viewer and the external-link dialog — read
+ * one set of variables set by applyPopup(). Defaults here match the values the
+ * editor ships with, so a page published before these controls existed looks
+ * exactly as it did.
+ */
+:root{
+  --pop-backdrop:rgba(0,0,0,.72);--pop-blur:16px;--pop-pattern-strength:.22;
+  --pop-bg:#121512;--pop-fg:#f4f2e8;--pop-border:#2a2f2a;--pop-border-w:1px;
+  --pop-radius:10px;--pop-pad:20px;--pop-shadow:rgba(0,0,0,.38);--pop-max:520px;
+  --pop-head-font:var(--display);--pop-head-size:32px;--pop-align:left;
+  --pop-actions:flex-end;--pop-order:row;--pop-dur:260ms;
+  --pop-ease:cubic-bezier(.16,.82,.18,1);
+  --pop-stream-max:1240px;--pop-stream-gap:18px;--pop-img-radius:4px;
+}
+.modal,.redirect-modal{background:var(--pop-backdrop);
+  -webkit-backdrop-filter:blur(var(--pop-blur));backdrop-filter:blur(var(--pop-blur))}
+
+/* The pattern is its own fixed layer so it never scrolls with the artwork
+   stream and never intercepts a click meant for the image behind it. */
+.modal::before,.redirect-modal::before{content:'';position:fixed;inset:0;
+  pointer-events:none;opacity:var(--pop-pattern-strength);z-index:0}
+body[data-popup-pattern='none'] .modal::before,
+body[data-popup-pattern='none'] .redirect-modal::before{display:none}
+body[data-popup-pattern='grain'] .modal::before,
+body[data-popup-pattern='grain'] .redirect-modal::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
+body[data-popup-pattern='dots'] .modal::before,
+body[data-popup-pattern='dots'] .redirect-modal::before{
+  background-image:radial-gradient(rgba(255,255,255,.65) 1px,transparent 1px);background-size:10px 10px}
+body[data-popup-pattern='lines'] .modal::before,
+body[data-popup-pattern='lines'] .redirect-modal::before{
+  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.5) 0 1px,transparent 1px 7px)}
+body[data-popup-pattern='grid'] .modal::before,
+body[data-popup-pattern='grid'] .redirect-modal::before{
+  background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+  background-size:28px 28px}
+body[data-popup-pattern='vignette'] .modal::before,
+body[data-popup-pattern='vignette'] .redirect-modal::before{
+  background-image:radial-gradient(ellipse at center,transparent 38%,#000 100%)}
+
+/* The dialog box */
+.redirect-box{width:min(var(--pop-max),calc(100% - 30px));padding:var(--pop-pad);
+  background:var(--pop-bg);color:var(--pop-fg);
+  border:var(--pop-border-w) solid var(--pop-border);border-radius:var(--pop-radius);
+  box-shadow:0 28px 90px var(--pop-shadow);text-align:var(--pop-align);position:relative;z-index:1}
+.redirect-box h3{font-family:var(--pop-head-font);font-size:var(--pop-head-size);color:var(--pop-fg)}
+.redirect-box .redirect-url{text-align:left}
+.redirect-actions{justify-content:var(--pop-actions);flex-direction:var(--pop-order)}
+body[data-popup-actions='stretch'] .redirect-actions .ui-btn{flex:1}
+
+/* The artwork stream */
+.stream{width:min(var(--pop-stream-max),calc(100% - 54px));gap:var(--pop-stream-gap);position:relative;z-index:1}
+.stream img,.stream video{border-radius:var(--pop-img-radius)}
+.modal .close{z-index:3}
+
+/* The artwork viewer carries .project-modal, whose own rules are more specific
+   than .modal and set the backdrop with !important. Without these three the
+   backdrop, width and spacing controls would move the link dialog and quietly
+   do nothing to the artwork popup. */
+.project-modal{background:var(--pop-backdrop)!important;
+  -webkit-backdrop-filter:blur(var(--pop-blur))!important;backdrop-filter:blur(var(--pop-blur))!important}
+.project-modal .stream{width:min(var(--pop-stream-max),calc(100vw - var(--pop-stream-inset,150px)))}
+/* .project-media is the element with overflow:hidden, so the corner radius has
+   to land there rather than on the image inside it. */
+.project-modal .project-media{margin-bottom:var(--pop-stream-gap);border-radius:var(--pop-img-radius)}
+/* Restated after the rule above, which would otherwise undo the narrow-screen
+   inset that is declared earlier in this file. */
+@media(max-width:980px){:root{--pop-stream-inset:28px}}
+
+/* Open animation. Held behind no-preference: an involuntary popup that scales
+   or blurs into place is exactly what that setting exists to stop. */
+@media (prefers-reduced-motion: no-preference){
+  @keyframes pop-in-fade{from{opacity:0}to{opacity:1}}
+  @keyframes pop-in-scale{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+  @keyframes pop-in-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  @keyframes pop-in-drop{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
+  @keyframes pop-in-blur{from{opacity:0;filter:blur(13px);transform:scale(1.02)}to{opacity:1;filter:none;transform:none}}
+  body:not([data-popup-anim='none']) .modal.open,
+  body:not([data-popup-anim='none']) .redirect-modal.open{
+    animation:pop-in-fade var(--pop-dur) var(--pop-ease) both}
+  body[data-popup-anim='fade'] .redirect-box,body[data-popup-anim='fade'] .stream{
+    animation:pop-in-fade var(--pop-dur) var(--pop-ease) both}
+  body[data-popup-anim='scale'] .redirect-box,body[data-popup-anim='scale'] .stream{
+    animation:pop-in-scale var(--pop-dur) var(--pop-ease) both}
+  body[data-popup-anim='rise'] .redirect-box,body[data-popup-anim='rise'] .stream{
+    animation:pop-in-rise var(--pop-dur) var(--pop-ease) both}
+  body[data-popup-anim='drop'] .redirect-box,body[data-popup-anim='drop'] .stream{
+    animation:pop-in-drop var(--pop-dur) var(--pop-ease) both}
+  body[data-popup-anim='blur'] .redirect-box,body[data-popup-anim='blur'] .stream{
+    animation:pop-in-blur var(--pop-dur) var(--pop-ease) both}
+}
+
+/* Inspector sub-headings inside a long panel */
+.panel h5.sub{margin:14px 0 6px;font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+  color:#7d877d;font-weight:600;border-top:1px solid rgba(255,255,255,.06);padding-top:10px}
+.panel h5.sub:first-of-type{border-top:0;padding-top:0}
+
+.version-row .v-remove{background:transparent;border-color:rgba(255,255,255,.09);color:#a4aca4}
+.version-row .v-remove:not([disabled]):hover{border-color:#c8564d;color:#e08b84}
 
 
 /* ------------------------------------------------- accessibility + mobile

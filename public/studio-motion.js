@@ -139,11 +139,34 @@
     el.classList.remove('in');
   }
 
+  /* What a replay on this element would actually show, so a caller can say
+   * "nothing is configured" instead of reporting success over a no-op. */
+  function describe(el) {
+    if (!el) return [];
+    const parts = [];
+    const preset = el.dataset.motion;
+    if (preset && preset !== 'none') parts.push('preset ' + preset);
+    const sm = el.dataset.splitMode;
+    if (sm && sm !== 'object') parts.push('text by ' + sm);
+    const ia = el.dataset.imgAnim;
+    if (ia && ia !== 'none') parts.push('image ' + ia);
+    return parts;
+  }
+
   function replay(el) {
-    if (!el) return;
+    if (!el) return [];
+    const parts = describe(el);
     el.classList.remove('in');
+    // Pan / Float / Ken Burns are infinite keyframes on the child media, keyed
+    // to .in. Dropping the class does not rewind them, so they are restarted.
+    el.querySelectorAll('img,video').forEach(m => {
+      m.style.animation = 'none'; void m.offsetWidth; m.style.animation = '';
+    });
     void el.offsetWidth;                      // force a reflow so the transition restarts
-    requestAnimationFrame(() => el.classList.add('in'));
+    // A timeout rather than rAF: rAF never fires while the tab is hidden, which
+    // left the object stripped of .in and stuck invisible until the next scroll.
+    setTimeout(() => el.classList.add('in'), 25);
+    return parts;
   }
 
   function bindTrigger(el, motion) {
@@ -241,7 +264,7 @@
 
   window.StudioMotion = {
     TRIGGERS, TEXT_MODES, IMAGE_PRESETS,
-    split, restore, canSplit, bindTrigger, clearTriggers, replay, effectDecls,
+    split, restore, canSplit, bindTrigger, clearTriggers, replay, describe, effectDecls,
     reducedMotion: reduced,
 
     // Applies triggers and text splitting for every node that asks for them.

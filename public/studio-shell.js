@@ -1362,8 +1362,12 @@
       const sel = ed.selected();
       if (!sel) return note('Select an object first.');
       if (window.StudioMotion.reducedMotion()) return note('Reduced motion is on, so there is nothing to replay.');
-      window.StudioMotion.replay(sel);
-      note('Replayed.');
+      const parts = window.StudioMotion.replay(sel);
+      // Reporting "Replayed." over an object with no animation configured was
+      // the whole reason replay looked broken.
+      note(parts.length
+        ? 'Replayed — ' + parts.join(', ') + '.'
+        : 'Nothing to replay: this object has no animation preset and no image animation. Set an image preset above, or a preset under Selected object animation.');
     });
 
     window.StudioShell.syncMotionPanel = () => {
@@ -1528,8 +1532,8 @@
     p.id = 'versionsPanel';
     p.innerHTML = `
       <h4>Published history</h4>
-      <p class="editor-note">Every publish saves a snapshot. Restoring one puts it back live without deleting anything, so you can always return.</p>
-      <div class="action-row"><button type="button" id="versionsRefresh">Load history</button></div>
+      <p class="editor-note">Every publish saves a snapshot. Restoring one puts it back live without deleting anything, so you can always return. Remove clears a snapshot you no longer want to keep — that one is permanent, and the live version can never be removed.</p>
+      <div class="action-row"><button type="button" id="versionsRefresh">Load history</button><button type="button" id="versionsClear" class="danger-lite">Remove all but live</button></div>
       <div id="versionList" class="version-list"></div>
       <p class="editor-note" id="versionsNote"></p>`;
     host.appendChild(p);
@@ -1582,9 +1586,14 @@
             <strong>${when(v.publishedAt)}${isCurrent ? ' · live now' : ''}</strong>
             <span>${(v.label || 'No label').replace(/</g, '&lt;')} · ${Math.max(1, Math.round((v.bytes || 0) / 1024))}KB</span>
           </div>
-          <button type="button" ${isCurrent ? 'disabled title="This is the version currently live"' : ''}>Restore</button>`;
-        const btn = row.querySelector('button');
-        if (!isCurrent) btn.onclick = () => restore(v);
+          <div class="version-actions">
+            <button type="button" class="v-restore" ${isCurrent ? 'disabled title="This is the version currently live"' : ''}>Restore</button>
+            <button type="button" class="v-remove danger-lite" ${isCurrent ? 'disabled title="The live version cannot be removed"' : 'title="Delete this snapshot permanently"'}>Remove</button>
+          </div>`;
+        if (!isCurrent) {
+          row.querySelector('.v-restore').onclick = () => restore(v);
+          row.querySelector('.v-remove').onclick = () => remove(v);
+        }
         box.appendChild(row);
       }
     }
@@ -1617,7 +1626,41 @@
       }
     }
 
+    /* Deleting a snapshot cannot be undone, so both paths confirm and say
+     * exactly what will go. The live version is never offered. */
+    async function remove(v) {
+      if (!window.confirm(`Permanently delete the snapshot from ${when(v.publishedAt)}?\n\nThis cannot be undone. The live site is not affected.`)) return;
+      await send(`/api/versions?version=studio&id=${encodeURIComponent(v.id)}`, 'Removed that snapshot.');
+    }
+
+    async function removeOthers() {
+      if (!$$('#versionList .version-row').length) return note('Load the history first.', true);
+      if (!window.confirm('Permanently delete every snapshot except the one currently live?\n\nThis cannot be undone. The live site is not affected, and your next publish starts the history again.')) return;
+      await send('/api/versions?version=studio&scope=others', 'Cleared the old snapshots.');
+    }
+
+    async function send(url, okMessage) {
+      if (!cred()) return note('Sign in first.', true);
+      note('Removing…');
+      try {
+        const r = await fetch(url, { method: 'DELETE', credentials: 'same-origin' });
+        let body = null; try { body = await r.json(); } catch { /* not JSON */ }
+        if (!r.ok || !body || !body.ok) {
+          return note((body && body.error) || `Could not remove (server returned ${r.status}).`, true);
+        }
+        // Refresh before reporting: load() ends by writing the snapshot count,
+        // which would otherwise wipe the confirmation before it could be read.
+        await load();
+        note(body.warning
+          ? okMessage + ' ' + body.warning
+          : `${okMessage} ${body.removed} removed, ${body.kept} kept.`, !!body.warning);
+      } catch {
+        note('Could not reach the server. Nothing was removed.', true);
+      }
+    }
+
     $('#versionsRefresh').addEventListener('click', load);
+    $('#versionsClear').addEventListener('click', removeOthers);
     window.StudioShell.loadVersions = load;
   }
 
