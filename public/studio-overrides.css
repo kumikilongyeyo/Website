@@ -58,9 +58,32 @@ button[disabled]{opacity:.55;cursor:not-allowed}
 .asset-thumb{aspect-ratio:4/3;background:#0d0f0d;display:grid;place-items:center;overflow:hidden}
 .asset-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .asset-badge{font-size:8px;text-transform:uppercase;letter-spacing:.12em;opacity:.7}
-.asset-meta{padding:6px 7px;display:grid;gap:2px;min-width:0}
-.asset-meta strong{font-size:10px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.asset-meta span{font-size:8px;opacity:.6}
+.asset-meta{padding:6px 7px;display:grid;gap:3px;min-width:0}
+.asset-meta span{font-size:8px;opacity:.6;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+
+/* Search and filters sit above the grid (§6). */
+.asset-tools{display:grid;gap:6px;margin-top:8px}
+.asset-tools input[type=search]{width:100%;height:26px;padding:0 8px;font:inherit;font-size:10px;color:inherit;background:#121512;border:1px solid var(--line);border-radius:5px}
+.asset-filters{display:flex;gap:2px;border:1px solid var(--line);border-radius:6px;padding:2px}
+.asset-filters button{flex:1;height:22px;font-size:9px;border:0;border-radius:4px;background:transparent;color:inherit;cursor:pointer}
+.asset-filters button.on{background:var(--accent);color:#111;font-weight:700}
+
+/* The label and alt text are edited in place, so they are inputs that read as
+   text until focused — a box per field would crowd a two-column grid. */
+.asset-label,.asset-alt{width:100%;min-width:0;font:inherit;color:inherit;background:transparent;border:1px solid transparent;border-radius:4px;padding:2px 4px}
+.asset-label{font-size:10px;font-weight:600}
+.asset-alt{font-size:8px;opacity:.75}
+.asset-label:hover,.asset-alt:hover{border-color:var(--line)}
+.asset-label:focus,.asset-alt:focus{outline:none;border-color:var(--accent);background:#121512}
+.asset-label::placeholder{opacity:.75;font-weight:400}
+/* Missing alt text is flagged by a marker as well as colour (§34). */
+.asset-alt.needs-alt::placeholder{opacity:.9;color:#ffb38f}
+.asset-alt.needs-alt{border-color:rgba(255,179,143,.35)}
+
+.asset-tag{font-size:7px;text-transform:uppercase;letter-spacing:.1em;padding:1px 4px;border-radius:3px;border:1px solid var(--line);opacity:.8;white-space:nowrap}
+.asset-tag.is-used{border-color:rgba(140,220,160,.5);color:#8cdca0}
+.asset-tag.is-trash{border-color:rgba(255,179,143,.5);color:#ffb38f}
+.asset-card.is-trashed .asset-thumb{opacity:.45}
 .asset-actions{display:flex;gap:4px;padding:0 7px 7px}
 .asset-actions button{flex:1;height:24px;font-size:9px;border-radius:4px;border:1px solid var(--line);background:#1b1f1b;color:inherit;cursor:pointer;min-width:0}
 .asset-empty{grid-column:1/-1;padding:14px;text-align:center;font-size:9px;opacity:.55;border:1px dashed var(--line);border-radius:6px}

@@ -1,12 +1,14 @@
-/* Media library endpoints backed by Cloudflare R2 (§17).
+/* Media library endpoints (§6/§17), backed by R2 when it is bound and by KV
+ * otherwise.
  *
  * Replaces the old path where uploads were compressed to base64 data URLs and
  * published inside the KV config. That capped the entire site's artwork at
  * roughly 760KB and put image bytes in a store meant for configuration.
  *
- * GET    /api/media          list assets (auth)
- * POST   /api/media          upload one file, multipart field "file" (auth)
- * DELETE /api/media?key=...  delete, refused while the asset is still in use (auth)
+ * GET    /api/media            list assets, with use counts (auth)
+ * POST   /api/media            upload one file, multipart field "file" (auth)
+ * PATCH  /api/media            set label / alt text / status (auth)
+ * DELETE /api/media?key=...    move to trash; &purge=1 deletes the bytes (auth)
  *
  * Every failure answers with a reason and a machine-readable code, because the
  * Studio surfaces the reason verbatim rather than inventing one (§29).
@@ -27,7 +29,7 @@ const TYPES = {
 
 // Auth, JSON and the session/CSRF checks are shared with the rest of the admin
 // API so there is one place that decides who may write.
-import { json, gate as sharedGate } from './_lib.js';
+import { json, gate as sharedGate, VERSIONS, CURRENT_KEY, VERSION_KEY, readIndex } from './_lib.js';
 
 // Delegates identity to the shared gate, then adds the media-specific
 // requirement that somewhere to put the file actually exists.
@@ -77,54 +79,191 @@ function keyFor(name, mime) {
   return `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${stem}-${rand}.${ext}`;
 }
 
+/* --------------------------------------------------------------- sidecar
+ * Labels, alt text and trash state live in one small KV document rather than
+ * on the object itself. R2 cannot change customMetadata without rewriting the
+ * whole object, so renaming a 12MB illustration would mean re-uploading it;
+ * and in the KV backend the metadata sits beside the blob, so editing a label
+ * would rewrite the bytes too. A sidecar makes a rename one small write on
+ * either backend.
+ *
+ * One document also means one read to list the library. It assumes a single
+ * editor — two people renaming at the same instant, one would win — which is
+ * exactly what this project is.
+ */
+const META_KEY = 'media-meta';
+
+async function readMeta(env) {
+  if (!env.PORTFOLIO_CONFIG) return {};
+  try {
+    const raw = await env.PORTFOLIO_CONFIG.get(META_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    // A corrupt sidecar must not make the library unreadable: the blobs are
+    // the record, labels are decoration.
+    return {};
+  }
+}
+
+async function writeMeta(env, meta) {
+  if (!env.PORTFOLIO_CONFIG) return false;
+  try {
+    await env.PORTFOLIO_CONFIG.put(META_KEY, JSON.stringify(meta));
+    return true;
+  } catch { return false; }
+}
+
+function hex(buf) {
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* Every /media/... URL the published site points at, from one pass over each
+ * config. Used to mark assets as unused, so the owner can clear space without
+ * guessing which files are safe to remove.
+ */
+async function usedUrls(env) {
+  const out = new Set();
+  if (!env.PORTFOLIO_CONFIG) return out;
+  for (const version of VERSIONS) {
+    let raw;
+    try { raw = await env.PORTFOLIO_CONFIG.get(CURRENT_KEY(version)); } catch { continue; }
+    if (!raw) continue;
+    for (const m of raw.matchAll(/\/media\/[A-Za-z0-9/_.\-]+/g)) out.add(m[0]);
+  }
+  return out;
+}
+
+/* The detailed version, for the message shown when a delete is refused: says
+ * where each reference lives rather than only how many there are.
+ */
+async function referencesTo(env, key) {
+  if (!env.PORTFOLIO_CONFIG) return [];
+  const url = '/media/' + key;
+  const used = [];
+  for (const version of VERSIONS) {
+    let raw;
+    // Only the config keys: the KV fallback also stores media blobs in this
+    // namespace under media:, and those are not JSON.
+    try { raw = await env.PORTFOLIO_CONFIG.get(CURRENT_KEY(version)); } catch { continue; }
+    if (!raw) continue;
+    let parsed;
+    try { parsed = JSON.parse(raw); } catch { continue; }
+    const state = parsed && parsed.state;
+    if (!state) continue;
+    const scan = (obj, path) => {
+      if (obj === null || obj === undefined) return;
+      if (typeof obj === 'string') { if (obj.includes(url)) used.push({ version, path }); return; }
+      if (Array.isArray(obj)) { obj.forEach((v, i) => scan(v, `${path}[${i}]`)); return; }
+      if (typeof obj === 'object') { for (const k in obj) scan(obj[k], path ? `${path}.${k}` : k); }
+    };
+    scan(state, '');
+  }
+  return used;
+}
+
+/* Which saved version snapshots point at this asset.
+ *
+ * The live check above decides whether a delete is refused; this one only
+ * informs, and it exists because purging the bytes is what actually breaks
+ * history. Rolling back to a version that referenced a purged file would
+ * restore a page with a missing image and no explanation. It reads the
+ * snapshots only on a purge, which is rare, rather than on every listing.
+ */
+async function historyReferencesTo(env, key) {
+  if (!env.PORTFOLIO_CONFIG) return [];
+  const url = '/media/' + key;
+  const hits = [];
+  for (const version of VERSIONS) {
+    let index = [];
+    try { index = await readIndex(env, version); } catch { continue; }
+    for (const entry of index) {
+      let raw;
+      try { raw = await env.PORTFOLIO_CONFIG.get(VERSION_KEY(version, entry.id)); } catch { continue; }
+      if (raw && raw.includes(url)) hits.push({ version, id: entry.id, publishedAt: entry.publishedAt, label: entry.label || '' });
+    }
+  }
+  return hits;
+}
+
+async function listRaw(env) {
+  const store = backend(env);
+  const out = [];
+  if (store === 'r2') {
+    let cursor;
+    do {
+      const page = await env.PORTFOLIO_MEDIA.list({ limit: 1000, cursor, include: ['customMetadata'] });
+      for (const o of page.objects) {
+        const meta = o.customMetadata || {};
+        out.push({
+          key: o.key,
+          size: o.size,
+          uploaded: o.uploaded instanceof Date ? o.uploaded.toISOString() : String(o.uploaded || ''),
+          mime: meta.mime || '',
+          filename: meta.filename || o.key.split('/').pop(),
+          width: meta.width ? Number(meta.width) : null,
+          height: meta.height ? Number(meta.height) : null,
+          sha: meta.sha || '',
+        });
+      }
+      cursor = page.truncated ? page.cursor : null;
+    } while (cursor);
+  } else {
+    let cursor;
+    do {
+      const page = await env.PORTFOLIO_CONFIG.list({ prefix: KV_PREFIX, cursor });
+      for (const k of page.keys) {
+        const meta = k.metadata || {};
+        const key = k.name.slice(KV_PREFIX.length);
+        out.push({
+          key,
+          size: meta.size || 0,
+          uploaded: meta.uploaded || '',
+          mime: meta.mime || '',
+          filename: meta.filename || key.split('/').pop(),
+          width: meta.width ? Number(meta.width) : null,
+          height: meta.height ? Number(meta.height) : null,
+          sha: meta.sha || '',
+        });
+      }
+      cursor = page.list_complete ? null : page.cursor;
+    } while (cursor);
+  }
+  return out;
+}
+
 export async function onRequestGet({ request, env }) {
   const bad = await gate(request, env);
   if (bad) return bad;
   const store = backend(env);
   try {
-    const out = [];
-    if (store === 'r2') {
-      let cursor;
-      do {
-        const page = await env.PORTFOLIO_MEDIA.list({ limit: 1000, cursor, include: ['customMetadata'] });
-        for (const o of page.objects) {
-          const meta = o.customMetadata || {};
-          out.push({
-            key: o.key,
-            url: '/media/' + o.key,
-            size: o.size,
-            uploaded: o.uploaded,
-            mime: meta.mime || '',
-            filename: meta.filename || o.key.split('/').pop(),
-            width: meta.width ? Number(meta.width) : null,
-            height: meta.height ? Number(meta.height) : null,
-          });
-        }
-        cursor = page.truncated ? page.cursor : null;
-      } while (cursor);
-    } else {
-      let cursor;
-      do {
-        const page = await env.PORTFOLIO_CONFIG.list({ prefix: KV_PREFIX, cursor });
-        for (const k of page.keys) {
-          const meta = k.metadata || {};
-          const key = k.name.slice(KV_PREFIX.length);
-          out.push({
-            key,
-            url: '/media/' + key,
-            size: meta.size || 0,
-            uploaded: meta.uploaded || '',
-            mime: meta.mime || '',
-            filename: meta.filename || key.split('/').pop(),
-            width: meta.width ? Number(meta.width) : null,
-            height: meta.height ? Number(meta.height) : null,
-          });
-        }
-        cursor = page.list_complete ? null : page.cursor;
-      } while (cursor);
-    }
-    out.sort((a, b) => String(b.uploaded).localeCompare(String(a.uploaded)));
-    return json({ assets: out, count: out.length, storage: store, limitBytes: capFor(env) });
+    const [raw, meta, used] = await Promise.all([listRaw(env), readMeta(env), usedUrls(env)]);
+    const assets = raw.map(a => {
+      const side = meta[a.key] || {};
+      const url = '/media/' + a.key;
+      return {
+        ...a,
+        url,
+        label: side.label || '',
+        alt: side.alt || '',
+        status: side.status === 'trashed' ? 'trashed' : 'active',
+        trashedAt: side.trashedAt || null,
+        sha: a.sha || side.sha || '',
+        inUse: used.has(url),
+      };
+    });
+    assets.sort((a, b) => String(b.uploaded).localeCompare(String(a.uploaded)));
+    const active = assets.filter(a => a.status === 'active');
+    return json({
+      assets,
+      count: assets.length,
+      activeCount: active.length,
+      trashedCount: assets.length - active.length,
+      unusedCount: active.filter(a => !a.inUse).length,
+      bytesUsed: assets.reduce((n, a) => n + (a.size || 0), 0),
+      storage: store,
+      limitBytes: capFor(env),
+    });
   } catch (e) {
     return json({ error: `Could not list media from ${store.toUpperCase()}: ` + (e && e.message ? e.message : 'unknown error'), code: 'list-failed' }, 502);
   }
@@ -166,16 +305,71 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'That file is empty.', code: 'empty' }, 400);
   }
 
-  const key = keyFor(file.name, mime);
-  const width = form.get('width'), height = form.get('height');
   const store = backend(env);
+  const width = form.get('width'), height = form.get('height');
   const uploaded = new Date().toISOString();
+
+  // Read once: the same bytes are hashed for the duplicate check and then
+  // written, so a 12MB upload is not streamed twice.
+  let buf;
+  try { buf = await file.arrayBuffer(); } catch {
+    return json({ error: 'The upload stream ended early. Nothing was stored.', code: 'read-failed' }, 400);
+  }
+  const sha = hex(await crypto.subtle.digest('SHA-256', buf));
+
+  /* Re-uploading a file already in the library returns the existing asset
+   * instead of storing the bytes twice. On a free tier that is the difference
+   * between a library that fits and one that does not, and it keeps a single
+   * artwork from appearing three times in the grid.
+   */
+  const meta = await readMeta(env);
+  const dupKey = Object.keys(meta).find(k => meta[k] && meta[k].sha === sha);
+  if (dupKey) {
+    const stillThere = store === 'r2'
+      ? await env.PORTFOLIO_MEDIA.head(dupKey).catch(() => null)
+      : await env.PORTFOLIO_CONFIG.getWithMetadata(KV_PREFIX + dupKey, 'stream').then(r => r && r.value, () => null);
+    if (stillThere) {
+      // A duplicate of something in the trash is a change of mind, not a new
+      // file: bring it back rather than refusing or storing a second copy.
+      const wasTrashed = meta[dupKey].status === 'trashed';
+      if (wasTrashed) {
+        meta[dupKey] = { ...meta[dupKey], status: 'active', trashedAt: null };
+        await writeMeta(env, meta);
+      }
+      const size = store === 'r2' ? stillThere.size : (meta[dupKey].size || file.size);
+      return json({
+        ok: true,
+        deduped: true,
+        restored: wasTrashed,
+        asset: {
+          key: dupKey,
+          url: '/media/' + dupKey,
+          size,
+          mime: meta[dupKey].mime || mime,
+          filename: meta[dupKey].filename || file.name,
+          label: meta[dupKey].label || '',
+          alt: meta[dupKey].alt || '',
+          status: 'active',
+          sha,
+          width: meta[dupKey].width || null,
+          height: meta[dupKey].height || null,
+          uploaded: meta[dupKey].uploaded || uploaded,
+        },
+        storage: store,
+      });
+    }
+    // The sidecar outlived the blob. Drop the stale entry and store the file.
+    delete meta[dupKey];
+  }
+
+  const key = keyFor(file.name, mime);
   try {
     if (store === 'r2') {
-      await env.PORTFOLIO_MEDIA.put(key, file.stream(), {
+      await env.PORTFOLIO_MEDIA.put(key, buf, {
         httpMetadata: { contentType: mime, cacheControl: 'public, max-age=31536000, immutable' },
         customMetadata: {
           mime,
+          sha,
           filename: String(file.name || '').slice(0, 200),
           ...(width ? { width: String(width) } : {}),
           ...(height ? { height: String(height) } : {}),
@@ -184,9 +378,10 @@ export async function onRequestPost({ request, env }) {
     } else {
       // KV values take an ArrayBuffer directly, so bytes stay bytes — no base64
       // inflation. Metadata has a 1KB ceiling, hence the trimmed filename.
-      await env.PORTFOLIO_CONFIG.put(KV_PREFIX + key, await file.arrayBuffer(), {
+      await env.PORTFOLIO_CONFIG.put(KV_PREFIX + key, buf, {
         metadata: {
           mime,
+          sha,
           filename: String(file.name || '').slice(0, 120),
           size: file.size,
           uploaded,
@@ -202,56 +397,82 @@ export async function onRequestPost({ request, env }) {
     }, 502);
   }
 
+  meta[key] = {
+    sha,
+    mime,
+    filename: String(file.name || '').slice(0, 200),
+    size: file.size,
+    uploaded,
+    status: 'active',
+    label: '',
+    alt: '',
+    ...(width ? { width: Number(width) } : {}),
+    ...(height ? { height: Number(height) } : {}),
+  };
+  // The sidecar is an index, not the record: if this write fails the file is
+  // still stored and still listed, only without a label.
+  const sidecarOk = await writeMeta(env, meta);
+
   return json({
     ok: true,
+    deduped: false,
+    sidecar: sidecarOk,
     asset: {
       key,
       url: '/media/' + key,
       size: file.size,
       mime,
       filename: file.name,
+      label: '',
+      alt: '',
+      status: 'active',
+      sha,
       width: width ? Number(width) : null,
       height: height ? Number(height) : null,
       uploaded,
+      inUse: false,
     },
     storage: store,
   });
 }
 
-/* Refuses to delete an asset the published site still points at, and says
- * which objects use it (§17/§29). A referenced asset deleted quietly would
- * leave broken images on the public page with no explanation.
+/* Label, alt text and restore-from-trash. Touches only the sidecar, so it
+ * never rewrites an image to change a caption.
  */
-async function referencesTo(env, key) {
-  if (!env.PORTFOLIO_CONFIG) return [];
-  const url = '/media/' + key;
-  const used = [];
-  for (const version of ['studio', 'gallery']) {
-    let raw;
-    // Only the config keys: the KV fallback also stores media blobs in this
-    // namespace under media:, and those are not JSON.
-    try { raw = await env.PORTFOLIO_CONFIG.get('site-config:' + version); } catch { continue; }
-    if (!raw) continue;
-    let parsed;
-    try { parsed = JSON.parse(raw); } catch { continue; }
-    const state = parsed && parsed.state;
-    if (!state) continue;
-    const scan = (obj, path) => {
-      if (obj === null || obj === undefined) return;
-      if (typeof obj === 'string') { if (obj.includes(url)) used.push({ version, path }); return; }
-      if (Array.isArray(obj)) { obj.forEach((v, i) => scan(v, `${path}[${i}]`)); return; }
-      if (typeof obj === 'object') { for (const k in obj) scan(obj[k], path ? `${path}.${k}` : k); }
-    };
-    scan(state, '');
+export async function onRequestPatch({ request, env }) {
+  const bad = await gate(request, env);
+  if (bad) return bad;
+
+  let body;
+  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON', code: 'bad-json' }, 400); }
+  const key = body && body.key;
+  if (!key || typeof key !== 'string') return json({ error: 'No asset key was given.', code: 'no-key' }, 400);
+
+  const meta = await readMeta(env);
+  const entry = meta[key] || {};
+
+  if (typeof body.label === 'string') entry.label = body.label.trim().slice(0, 120);
+  if (typeof body.alt === 'string') entry.alt = body.alt.trim().slice(0, 300);
+  if (body.status === 'active') { entry.status = 'active'; entry.trashedAt = null; }
+  else if (body.status === 'trashed') { entry.status = 'trashed'; entry.trashedAt = new Date().toISOString(); }
+
+  meta[key] = entry;
+  if (!await writeMeta(env, meta)) {
+    return json({ error: 'Could not save the change to storage. Nothing was updated.', code: 'meta-write-failed' }, 502);
   }
-  return used;
+  return json({ ok: true, key, label: entry.label || '', alt: entry.alt || '', status: entry.status || 'active' });
 }
 
+/* Delete moves an asset to the trash by default. The bytes only go when the
+ * owner asks a second time with purge=1 — a mis-click should not destroy the
+ * only copy of an illustration, and there is no undo for R2 or KV.
+ */
 export async function onRequestDelete({ request, env }) {
   const bad = await gate(request, env);
   if (bad) return bad;
 
-  const key = new URL(request.url).searchParams.get('key');
+  const params = new URL(request.url).searchParams;
+  const key = params.get('key');
   if (!key) return json({ error: 'No asset key was given to delete.', code: 'no-key' }, 400);
 
   const store = backend(env);
@@ -260,7 +481,8 @@ export async function onRequestDelete({ request, env }) {
     : await env.PORTFOLIO_CONFIG.get(KV_PREFIX + key, 'stream').catch(() => null);
   if (!exists) return json({ error: 'That asset is not in media storage. It may already be deleted.', code: 'not-found' }, 404);
 
-  const force = new URL(request.url).searchParams.get('force') === '1';
+  const purge = params.get('purge') === '1';
+  const force = params.get('force') === '1';
   const used = await referencesTo(env, key);
   if (used.length && !force) {
     const where = used.map(u => `${u.version}: ${u.path}`).slice(0, 6).join(', ');
@@ -268,6 +490,28 @@ export async function onRequestDelete({ request, env }) {
       error: `That asset is still used by ${used.length} published reference${used.length === 1 ? '' : 's'} (${where}). Replace or remove those first, or delete anyway to leave them broken.`,
       code: 'in-use',
       references: used,
+    }, 409);
+  }
+
+  const meta = await readMeta(env);
+  if (!purge) {
+    meta[key] = { ...(meta[key] || {}), status: 'trashed', trashedAt: new Date().toISOString() };
+    if (!await writeMeta(env, meta)) {
+      return json({ error: 'Could not record the change to storage. The asset was not moved to the trash.', code: 'meta-write-failed' }, 502);
+    }
+    return json({ ok: true, key, trashed: true, purged: false, forced: force && used.length > 0, brokenReferences: force ? used : [] });
+  }
+
+  /* Purging is the only irreversible step here, so it is also the only one that
+   * checks history. Answering 409 the first time gives the owner the count and
+   * a way to proceed; confirm=1 says they read it.
+   */
+  const inHistory = await historyReferencesTo(env, key);
+  if (inHistory.length && params.get('confirm') !== '1') {
+    return json({
+      error: `${inHistory.length} saved version${inHistory.length === 1 ? ' still references' : 's still reference'} this file. Deleting the bytes cannot be undone, and rolling back to ${inHistory.length === 1 ? 'that version' : 'those versions'} would show a missing image. Move it to the trash instead, or confirm to delete anyway.`,
+      code: 'in-history',
+      historyReferences: inHistory,
     }, 409);
   }
 
@@ -280,5 +524,12 @@ export async function onRequestDelete({ request, env }) {
       code: store + '-delete-failed',
     }, 502);
   }
-  return json({ ok: true, key, forced: force && used.length > 0, brokenReferences: force ? used : [] });
+  delete meta[key];
+  await writeMeta(env, meta);
+  return json({
+    ok: true, key, trashed: false, purged: true,
+    forced: force && used.length > 0,
+    brokenReferences: force ? used : [],
+    historyReferences: inHistory,
+  });
 }

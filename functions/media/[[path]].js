@@ -28,6 +28,18 @@ export async function onRequestGet({ params, env, request }) {
     'x-content-type-options': 'nosniff',
   };
 
+  /* An SVG is a document, not just a picture: opened directly it can run script
+   * in this origin, where the editor session cookie lives. Rendering one in an
+   * <img> is unaffected by this policy, so the library keeps working while a
+   * hostile upload cannot execute anything.
+   */
+  const harden = headers => {
+    if ((headers.get('content-type') || '').includes('svg')) {
+      headers.set('content-security-policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+    }
+    return headers;
+  };
+
   if (env.PORTFOLIO_MEDIA) {
     const object = await env.PORTFOLIO_MEDIA.get(key).catch(() => null);
     if (object) {
@@ -35,6 +47,7 @@ export async function onRequestGet({ params, env, request }) {
       object.writeHttpMetadata(headers);
       headers.set('cache-control', common['cache-control']);
       headers.set('etag', object.httpEtag);
+      harden(headers);
       if (request.headers.get('if-none-match') === object.httpEtag) {
         return new Response(null, { status: 304, headers });
       }
@@ -55,6 +68,7 @@ export async function onRequestGet({ params, env, request }) {
         'content-type': meta.mime || 'application/octet-stream',
         etag,
       });
+      harden(headers);
       if (request.headers.get('if-none-match') === etag) {
         return new Response(null, { status: 304, headers });
       }
