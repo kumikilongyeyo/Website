@@ -24,7 +24,7 @@
   const CURRENT_SCHEMA = 4;
   const STATES = ['base', 'hover', 'pressed'];
   const BREAKPOINTS = { tablet: 900, mobile: 600 };
-  const NODE_TYPES = ['text', 'tile', 'hero', 'logo', 'button', 'section', 'container', 'divider', 'spacer', 'shape'];
+  const NODE_TYPES = ['text', 'tile', 'hero', 'logo', 'button', 'link', 'section', 'container', 'divider', 'spacer', 'shape'];
 
   /* ---------------------------------------------------------------- helpers */
 

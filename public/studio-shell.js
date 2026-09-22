@@ -147,6 +147,7 @@
         : `Editing the ${name} state — only properties you change here override base.`;
     }
     if (window.StudioInspector) window.StudioInspector.syncFromModel();
+    if (window.StudioObjects && window.StudioObjects.syncDivider) window.StudioObjects.syncDivider();
     ed.status(name === 'base' ? 'Base state' : `${name} state`);
   }
 
@@ -619,6 +620,7 @@
     wrap.id = 'shellTools';
     wrap.className = 'shell-tools';
     wrap.innerHTML = `
+      <button type="button" data-move-mode aria-pressed="false" title="Move mode (V): drag objects instead of editing text. Alt+drag works anytime.">Move</button>
       <button type="button" data-preview aria-pressed="false" title="Hide all editor chrome">Preview</button>
       <div class="seg" role="group" aria-label="Viewport">
         ${Object.entries(VIEWPORTS).map(([k, v]) =>
@@ -642,6 +644,8 @@
     }
 
     wrap.querySelector('[data-preview]').onclick = () => setPreview(!shell.previewing);
+    const mv = wrap.querySelector('[data-move-mode]');
+    if (mv) mv.onclick = () => { if (window.StudioObjects) window.StudioObjects.setMoveMode(!window.StudioObjects.isMoveMode()); };
     $$('[data-viewport-btn]', wrap).forEach(b => { b.onclick = () => setViewport(b.dataset.viewportBtn); });
     $$('[data-view]', wrap).forEach(i => { i.onchange = () => setView(i.dataset.view, i.checked); });
   }

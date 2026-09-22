@@ -43,6 +43,9 @@
 /studio-links.js
   Cache-Control: no-cache, no-store, must-revalidate
 
+/studio-objects.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /assets/*
   Cache-Control: public, max-age=604800
 

@@ -337,3 +337,25 @@ body.editing .gear,body.previewing .gear{display:none!important}
    around the artwork. Off by default now, and driven by a variable so the
    Site tab can switch it on for anyone who wants the frame. */
 .hero-stage{border-width:var(--hero-border,0px)!important}
+
+/* Additions to the existing External redirects panel (§12/§13) */
+.link-extras{display:grid;gap:4px;margin-top:4px}
+.link-extra-row{display:flex;gap:5px}
+.link-extra-row button{flex:1;height:24px;font-size:9px;border-radius:4px;border:1px solid var(--line);background:#1b1f1b;color:inherit;cursor:pointer}
+.link-note{margin:0;font-size:8px;line-height:1.45}
+
+/* Objects that can be freely positioned need a transform of their own. Tiles
+   already have one, so this deliberately excludes them rather than fighting it. */
+[data-type="text"],[data-type="button"],[data-type="shape"],[data-type="divider"],[data-type="link"],[data-type="logo"]{
+  transform:translate(var(--x,0px),var(--y,0px)) rotate(var(--objRotate,0deg)) scale(var(--objScale,1))}
+
+/* Move mode: the cursor says what a drag will do, and text stops taking the caret. */
+body.move-mode [data-type="text"],body.move-mode [data-type="button"],
+body.move-mode [data-type="shape"],body.move-mode [data-type="divider"],
+body.move-mode [data-type="link"],body.move-mode [data-type="logo"]{cursor:move}
+body.move-mode [data-node]{user-select:none}
+[data-move-mode].active{background:var(--accent)!important;color:#111!important;font-weight:700}
+
+/* A divider keeps its sweep unless switched off, and honours its own size. */
+.rule{height:var(--rule-h,1px)}
+.rule.no-sweep::after{display:none}
