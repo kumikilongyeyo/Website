@@ -8,15 +8,15 @@
       "binding": "PORTFOLIO_CONFIG",
       "id": "0d513248eb1641278e90510ed953fe4b"
     }
-  ],
-  // Durable storage for uploaded portfolio media. Create the bucket in the
-  // Cloudflare dashboard and bind it to the Pages project under this name;
-  // until then the media endpoints answer 503 with 'r2-unbound' rather than
-  // failing anonymously.
-  "r2_buckets": [
-    {
-      "binding": "PORTFOLIO_MEDIA",
-      "bucket_name": "klyde-art-portfolio-media"
-    }
   ]
+  // Media library storage. Declaring an r2_buckets binding here fails the
+  // Pages build until the bucket actually exists, so the binding is added in
+  // the dashboard instead (Settings -> Bindings -> R2, name PORTFOLIO_MEDIA).
+  // Until it is bound the media endpoints answer 503 'r2-unbound' naming the
+  // binding to create, and nothing else on the site is affected. Once the
+  // bucket exists this can be uncommented to keep the config declarative:
+  //
+  // "r2_buckets": [
+  //   { "binding": "PORTFOLIO_MEDIA", "bucket_name": "klyde-art-portfolio-media" }
+  // ]
 }
