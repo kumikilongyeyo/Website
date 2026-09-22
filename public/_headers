@@ -25,6 +25,12 @@
 /studio-assets.js
   Cache-Control: no-cache, no-store, must-revalidate
 
+/studio-shell.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/studio-inspector.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /gallery*
   Cache-Control: no-cache, must-revalidate
 
