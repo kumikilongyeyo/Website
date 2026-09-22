@@ -242,6 +242,7 @@ export async function onRequestGet({ request, env }) {
       const side = meta[a.key] || {};
       const url = '/media/' + a.key;
       return {
+        variants: side.variants || [],
         ...a,
         url,
         label: side.label || '',
@@ -252,14 +253,20 @@ export async function onRequestGet({ request, env }) {
         inUse: used.has(url),
       };
     });
-    assets.sort((a, b) => String(b.uploaded).localeCompare(String(a.uploaded)));
-    const active = assets.filter(a => a.status === 'active');
+    // Variants belong to their parent, not to the grid: showing them would
+    // list one artwork three times.
+    const variantKeys = new Set();
+    for (const k of Object.keys(meta)) for (const v of (meta[k].variants || [])) variantKeys.add(v.key);
+    const visible = assets.filter(a => !variantKeys.has(a.key));
+    visible.sort((a, b) => String(b.uploaded).localeCompare(String(a.uploaded)));
+    const active = visible.filter(a => a.status === 'active');
     return json({
-      assets,
-      count: assets.length,
+      assets: visible,
+      count: visible.length,
       activeCount: active.length,
-      trashedCount: assets.length - active.length,
+      trashedCount: visible.length - active.length,
       unusedCount: active.filter(a => !a.inUse).length,
+      // Totals count the variants too: they are real bytes against the quota.
       bytesUsed: assets.reduce((n, a) => n + (a.size || 0), 0),
       storage: store,
       limitBytes: capFor(env),
@@ -360,6 +367,41 @@ export async function onRequestPost({ request, env }) {
     }
     // The sidecar outlived the blob. Drop the stale entry and store the file.
     delete meta[dupKey];
+  }
+
+  /* A variant is a smaller rendering of an asset already in the library, made
+   * by the browser at upload time. It is stored as an ordinary object and
+   * recorded against its parent, so the page can offer a phone an 800px file
+   * instead of a 4000px one. Resizing in the browser keeps this on the free
+   * tier — the alternative is a paid image-resizing service.
+   */
+  const parent = form.get('variantOf');
+  const variantWidth = parseInt(form.get('variantWidth'), 10) || 0;
+  if (parent && variantWidth) {
+    if (!meta[parent]) {
+      return json({ error: 'That variant has no parent asset in the library.', code: 'no-parent' }, 400);
+    }
+    const vkey = keyFor(file.name, mime);
+    try {
+      if (store === 'r2') {
+        await env.PORTFOLIO_MEDIA.put(vkey, buf, {
+          httpMetadata: { contentType: mime, cacheControl: 'public, max-age=31536000, immutable' },
+          customMetadata: { mime, sha, filename: String(file.name || '').slice(0, 200), width: String(variantWidth), variantOf: parent },
+        });
+      } else {
+        await env.PORTFOLIO_CONFIG.put(KV_PREFIX + vkey, buf, {
+          metadata: { mime, sha, filename: String(file.name || '').slice(0, 120), size: file.size, uploaded, width: variantWidth, variantOf: parent },
+        });
+      }
+    } catch (e) {
+      return json({ error: `${store.toUpperCase()} rejected the variant: ` + (e && e.message ? e.message : 'unknown error'), code: store + '-put-failed' }, 502);
+    }
+    const list = (meta[parent].variants || []).filter(v => v.width !== variantWidth);
+    list.push({ key: vkey, width: variantWidth, size: file.size, mime });
+    list.sort((a, b) => a.width - b.width);
+    meta[parent] = { ...meta[parent], variants: list };
+    await writeMeta(env, meta);
+    return json({ ok: true, variant: true, parent, asset: { key: vkey, url: '/media/' + vkey, width: variantWidth, size: file.size, mime } });
   }
 
   const key = keyFor(file.name, mime);
@@ -516,8 +558,13 @@ export async function onRequestDelete({ request, env }) {
   }
 
   try {
-    if (store === 'r2') await env.PORTFOLIO_MEDIA.delete(key);
-    else await env.PORTFOLIO_CONFIG.delete(KV_PREFIX + key);
+    // A variant has no life of its own, so it goes with its parent rather than
+    // being left behind as bytes nothing can reach.
+    const doomed = [key, ...((meta[key] && meta[key].variants) || []).map(v => v.key)];
+    for (const k of doomed) {
+      if (store === 'r2') await env.PORTFOLIO_MEDIA.delete(k);
+      else await env.PORTFOLIO_CONFIG.delete(KV_PREFIX + k);
+    }
   } catch (e) {
     return json({
       error: `${store.toUpperCase()} rejected the delete: ` + (e && e.message ? e.message : 'unknown error'),

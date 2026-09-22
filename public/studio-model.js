@@ -486,6 +486,10 @@
           // the file arrives instead of reflowing as each image lands.
           width: img ? (img.getAttribute('width') || img.naturalWidth || undefined) : (before.media && before.media.width),
           height: img ? (img.getAttribute('height') || img.naturalHeight || undefined) : (before.media && before.media.height),
+          // Without these the responsive sizes are lost on publish and every
+          // visitor downloads the full-resolution file again.
+          srcset: img ? (img.getAttribute('srcset') || undefined) : (before.media && before.media.srcset),
+          sizes: img ? (img.getAttribute('sizes') || undefined) : (before.media && before.media.sizes),
         }),
         // Base merges what the model already knew with anything the old
         // inline-style controls just wrote, so both paths work mid-migration.
@@ -700,6 +704,10 @@
             im.setAttribute('width', n.media.width);
             im.setAttribute('height', n.media.height);
           }
+          if (n.media.srcset) im.setAttribute('srcset', n.media.srcset);
+          else im.removeAttribute('srcset');
+          if (n.media.sizes) im.setAttribute('sizes', n.media.sizes);
+          else im.removeAttribute('sizes');
           el.classList.remove('placeholder');
           const ph = el.querySelector('.ph'); if (ph) ph.remove();
         }
@@ -707,6 +715,10 @@
           if (d === im) return;
           if (d.getAttribute('src') !== n.media.src) d.src = n.media.src;
           d.alt = '';
+          // The backdrop fills a different box than the artwork, so the
+          // content slot's sizes hint would be wrong for it.
+          d.removeAttribute('srcset');
+          d.removeAttribute('sizes');
         });
       } else if (n.placeholder && el.classList.contains('tile')) {
         el.classList.add('placeholder');

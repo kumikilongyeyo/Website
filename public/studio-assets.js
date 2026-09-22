@@ -86,6 +86,61 @@
     });
   }
 
+  /* Responsive variants, made in the browser.
+   *
+   * A 4000px illustration sent whole to a phone is the largest avoidable cost
+   * on an art site, and server-side resizing means a paid image service. The
+   * browser can do it for nothing: decode once, draw to a canvas at each
+   * target width, and upload the results beside the original. The original is
+   * never altered or replaced — it stays the largest source.
+   *
+   * Only photographic formats are resized. SVG is already resolution
+   * independent, GIF would lose its animation, and video is not an image.
+   */
+  const VARIANT_WIDTHS = [800, 1600];
+  const RESIZABLE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+  async function makeVariants(file, dims) {
+    if (!RESIZABLE_TYPES.includes(file.type) || !dims || !dims.width) return [];
+    const targets = VARIANT_WIDTHS.filter(w => w < dims.width * 0.9);
+    if (!targets.length) return [];
+
+    let bitmap;
+    try { bitmap = await createImageBitmap(file); } catch { return []; }
+    const out = [];
+    for (const w of targets) {
+      const h = Math.round(dims.height * (w / dims.width));
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(bitmap, 0, 0, w, h);
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/webp', 0.9));
+        // A variant that came out bigger than the original is not a saving.
+        if (blob && blob.size < file.size) out.push({ width: w, blob });
+      } catch { /* one failed size must not stop the upload */ }
+    }
+    if (bitmap.close) bitmap.close();
+    return out;
+  }
+
+  async function uploadVariants(parentKey, baseName, variants) {
+    const stored = [];
+    for (const v of variants) {
+      const form = new FormData();
+      form.append('file', new File([v.blob], `${baseName}-${v.width}w.webp`, { type: 'image/webp' }));
+      form.append('variantOf', parentKey);
+      form.append('variantWidth', String(v.width));
+      try {
+        const r = await fetch('/api/media', { method: 'POST', credentials: 'same-origin', body: form });
+        if (r.ok) { const d = await r.json(); if (d.asset) stored.push(d.asset); }
+      } catch { /* the original is already safe; a missing variant only costs bandwidth */ }
+    }
+    return stored;
+  }
+
   async function upload(file) {
     if (!signedIn()) return { ok: false, error: 'Sign in to the editor before uploading.' };
     if (!file) return { ok: false, error: 'No file was chosen.' };
@@ -103,6 +158,13 @@
       }
       const data = await r.json();
       if (!data.ok || !data.asset) return { ok: false, error: 'The server accepted the upload but returned no asset.' };
+      if (!data.deduped && dims) {
+        const variants = await makeVariants(file, dims);
+        if (variants.length) {
+          const stored = await uploadVariants(data.asset.key, (file.name || 'asset').replace(/\.[^.]*$/, ''), variants);
+          data.asset.variants = stored.map(v => ({ key: v.key, width: v.width }));
+        }
+      }
       // A deduplicated upload returns an asset that is already in the list.
       const i = state.assets.findIndex(a => a.key === data.asset.key);
       if (i >= 0) state.assets[i] = { ...state.assets[i], ...data.asset };
@@ -347,6 +409,26 @@
       target.prepend(im);
     }
     im.src = a.url;
+    /* Offer every stored size and describe how wide the slot is, so the browser
+     * can pick. Without sizes it assumes full viewport width and downloads the
+     * largest file anyway.
+     *
+     * The description is declarative, not a measurement. Measuring the slot at
+     * placement time freezes whatever layout existed at that moment — and in
+     * the editor the canvas is narrowed by the layer and inspector panels, so
+     * the number baked in was wrong for every visitor. These match the 980px
+     * breakpoint in the stylesheet, where a tile stops being half width and
+     * spans the full grid.
+     */
+    const variants = (a.variants || []).filter(v => v.key && v.width);
+    if (variants.length && a.width) {
+      im.srcset = [...variants.map(v => `/media/${v.key} ${v.width}w`), `${a.url} ${a.width}w`].join(', ');
+      const full = target.dataset.type === 'hero' || target.classList.contains('hero-stage');
+      im.sizes = full ? '100vw' : '(max-width: 980px) 100vw, 50vw';
+    } else {
+      im.removeAttribute('srcset');
+      im.removeAttribute('sizes');
+    }
     // Intrinsic size lets the browser reserve the right space before the file
     // arrives, so placing artwork does not shift the layout under it.
     if (a.width && a.height) { im.width = a.width; im.height = a.height; }
