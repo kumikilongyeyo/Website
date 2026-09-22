@@ -85,6 +85,54 @@ Then run:
 
 You can also connect this GitHub repository directly in the Cloudflare Pages dashboard and deploy `public/`.
 
-## Image uploads
+## Image uploads (R2)
 
-The current Replace Image control is immediate but session-local. For permanent uploads, the next production step is an R2 binding and upload endpoint; save the resulting image URL in the portfolio config rather than putting full image data into localStorage or KV.
+Uploads go to Cloudflare R2 and the page stores a durable `/media/<key>` URL.
+Nothing image-shaped is written into KV any more.
+
+**One-time setup — the media library stays disabled until this is done:**
+
+1. Cloudflare dashboard → **R2** → *Create bucket*, named `klyde-art-portfolio-media`.
+2. Pages project `klyde-art-portfolio` → **Settings → Bindings → Add R2 bucket**,
+   with the variable name **`PORTFOLIO_MEDIA`** pointing at that bucket.
+   Add it to both Production and Preview.
+3. Redeploy (or push any commit).
+
+Until that binding exists, `/api/media` answers `503` with code `r2-unbound` and a
+message naming the binding to create, and a tile upload falls back to inlining the
+image into the config while telling you that is what happened. Nothing else on the
+site is affected.
+
+Do not declare the bucket in `wrangler.jsonc` before it exists — a binding pointing
+at a missing bucket fails the Pages build, which is why it is commented out there.
+Once the bucket exists you may uncomment it to keep the config declarative.
+
+Endpoints (all require the editor credentials):
+
+- `GET /api/media` — list assets
+- `POST /api/media` — upload (multipart, field `file`); validates type and size
+- `DELETE /api/media?key=...` — refuses while the asset is referenced by a published
+  config and names the exact reference; add `&force=1` to delete anyway
+- `GET /media/<key>` — public, immutable, etag-revalidated
+
+## Studio architecture
+
+`public/studio.html` loads, in order:
+
+| File | Role |
+| --- | --- |
+| `studio-model.js` | typed component model (schema 4), migration, generated CSS |
+| `studio-assets.js` | R2 media library client and Assets panel |
+| `studio-shell.js` | toolbar, preview, viewports, layer tree, object ops, texture panel |
+| `studio-inspector.js` | binds controls to the model for the active state/breakpoint |
+| `studio-texture.js` | animated grain overlays |
+| `studio-editor.js` | the original engine: selection, drag, publish, project viewer |
+
+Styling reaches the page as one generated stylesheet keyed on `[data-id]`, not as
+inline styles. That is what makes hover/pressed states and per-breakpoint overrides
+expressible, and it keeps the editor's selection outline strictly separate from an
+object's real border.
+
+`public/studio-patch.js` is **dead code** — nothing loads it, and it would throw on
+load because it references `syncSelection`, which does not exist (the function is
+`syncSelected`). It is kept only to avoid deleting work that may be wanted later.
