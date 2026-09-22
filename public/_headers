@@ -40,6 +40,9 @@
 /studio-motion.js
   Cache-Control: no-cache, no-store, must-revalidate
 
+/studio-links.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /gallery*
   Cache-Control: no-cache, must-revalidate
 

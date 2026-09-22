@@ -1243,8 +1243,54 @@
     window.StudioShell.syncMotionPanel();
   }
 
+
+  /* Same-tab / new-tab choice and live link validation (§12/§13). */
+  function buildLinkControls() {
+    const host = $('#textLinkPanel');
+    if (!host || $('#linkNewTab')) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `
+      <label class="check"><input id="linkNewTab" type="checkbox" checked>Open in a new tab</label>
+      <p class="editor-note" id="linkNote">Accepts https://…, mailto:…, tel:… or #section for an internal jump.</p>`;
+    host.appendChild(wrap);
+
+    const apply = () => {
+      const sel = ed.selected();
+      if (!sel) return;
+      const newTab = $('#linkNewTab').checked;
+      sel.dataset.linkNewTab = newTab ? '1' : '0';
+      const m = ed.model();
+      const n = m && m.nodes && m.nodes[sel.dataset.id];
+      if (n) { n.interaction = n.interaction || {}; n.interaction.newTab = newTab; }
+      if (window.StudioLinks) window.StudioLinks.upgrade(document);
+      ed.push();
+    };
+    $('#linkNewTab').addEventListener('change', apply);
+
+    // Validate as typed, so a broken anchor is caught before publishing.
+    const url = $('#textLinkUrl');
+    if (url) url.addEventListener('input', () => {
+      const note = $('#linkNote');
+      if (!note || !window.StudioLinks) return;
+      const v = url.value.trim();
+      if (!v) { note.textContent = 'Accepts https://…, mailto:…, tel:… or #section for an internal jump.'; note.classList.remove('is-error'); return; }
+      const info = window.StudioLinks.describe(v);
+      note.textContent = info.ok
+        ? (info.kind === 'anchor' ? `Jumps to ${info.url} on this page.` : `Opens ${info.url}`)
+        : info.why;
+      note.classList.toggle('is-error', !info.ok);
+    });
+
+    window.StudioShell.syncLinkControls = () => {
+      const sel = ed.selected();
+      if (!sel) return;
+      $('#linkNewTab').checked = sel.dataset.linkNewTab !== '0';
+    };
+  }
+
   function init() {
     buildToolbar();
+    buildLinkControls();
     buildEffectsPanel();
     buildMotionPanel();
     buildTexturePanel();
@@ -1263,7 +1309,7 @@
     shell, init, renderTree, setPreview, setView, setViewport, setEditState, writeTarget,
     addObject, duplicateObject, deleteObject, toggleHidden, toggleLocked, renameObject, reorder,
     buildTexturePanel, buildBackgroundPanel, buildAltTextControl, buildEffectsPanel, buildMotionPanel,
-    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE,
+    enhanceResize, enhanceAllResize, SNAP_STEP, SNAP_TOLERANCE, buildLinkControls,
     VIEWPORTS, VIEW_FLAGS,
   };
 })();
