@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="cz-mode-scroll">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -26,15 +26,18 @@
 <link rel="stylesheet" href="/studio.css">
 <link rel="stylesheet" href="/studio-overrides.css">
 <link rel="stylesheet" href="/casino.game/casino.css">
+<!-- The hero ships in its starting state (first frame, no text) so nothing
+     flashes before the script arms it; without scripts, show it finished. -->
+<noscript><style>.cz-hero-anim .cz-hero-title,.cz-hero-anim .cz-hero-name,.cz-hero-anim .cz-hero-pitch,.cz-hero-anim .cz-hero-shade{opacity:1!important;translate:none!important}.cz-hero-anim .cz-hero-rule{transform:none!important}.cz-video-mode .hero-main{visibility:visible!important}.cz-hero-video{display:none!important}.cz-mode-scroll .cz-hero-pin{height:auto!important}.cz-mode-scroll .cz-hero{position:relative!important}</style></noscript>
 </head>
 <body class="cz-body" data-version="casino" data-header-sticky="0">
 <div class="site casino">
 <a class="skip-link" href="#works">Skip to the work</a>
 
 <div class="cz-hero-pin">
-<section class="cz-hero" id="top" aria-label="Introduction">
+<section class="cz-hero cz-hero-anim cz-video-mode" id="top" aria-label="Introduction">
   <div class="hero-stage cz-hero-stage" data-node="Landing image" data-id="hero-media" data-type="hero">
-    <div class="hero-media"><img class="hero-main" src="/casino.game/assets/hero/hero-jeepney.webp" alt="A chrome jeepney racing through a neon Manila street at night, key art by Klyde Sosa" width="2400" height="1330" fetchpriority="high" decoding="async"><video class="cz-hero-video" muted playsinline preload="auto" aria-hidden="true" disablepictureinpicture></video></div>
+    <div class="hero-media"><img class="hero-main" src="/casino.game/assets/hero/hero-jeepney.webp" alt="A chrome jeepney racing through a neon Manila street at night, key art by Klyde Sosa" width="2400" height="1330" fetchpriority="high" decoding="async"><video class="cz-hero-video" muted playsinline preload="auto" poster="/casino.game/assets/hero/hero-jeepney-drive-first.webp" aria-hidden="true" disablepictureinpicture></video></div>
   </div>
   <div class="cz-hero-shade" aria-hidden="true"></div>
   <div class="cz-hero-fade" aria-hidden="true"></div>
@@ -169,6 +172,17 @@
 </footer>
 </div>
 
+
+<div class="cz-lightbox" role="dialog" aria-modal="true" aria-label="Gameplay screen" hidden>
+  <div class="cz-lb-backdrop" data-lb-close></div>
+  <figure class="cz-lb-figure">
+    <div class="cz-lb-stage"><img class="cz-lb-img" alt=""></div>
+    <figcaption class="cz-lb-cap"><span class="cz-lb-count" aria-live="polite"></span></figcaption>
+  </figure>
+  <button type="button" class="cz-lb-btn cz-lb-prev" data-lb-step="-1" aria-label="Previous screen">‹</button>
+  <button type="button" class="cz-lb-btn cz-lb-next" data-lb-step="1" aria-label="Next screen">›</button>
+  <button type="button" class="cz-lb-close" data-lb-close aria-label="Close">×</button>
+</div>
 
 <!-- Editor chrome, copied from /index.html. Hidden unless signed in. -->
 <div class="modal"><button class="close" aria-label="Close artwork">×</button><div class="stream"><img class="main" alt="Final artwork"><img loading="lazy" alt="Process placeholder" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900'%3E%3Crect width='1600' height='900' fill='%23151815'/%3E%3Crect x='80' y='80' width='1440' height='740' fill='none' stroke='%23bdd657' stroke-width='3'/%3E%3Ctext x='120' y='780' fill='%23bdd657' font-family='Arial' font-size='28'%3EPROCESS / THUMBNAILS — REPLACE IMAGE%3C/text%3E%3C/svg%3E"><img loading="lazy" alt="Process placeholder" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900'%3E%3Crect width='1600' height='900' fill='%230b1b1e'/%3E%3Ccircle cx='800' cy='440' r='280' fill='none' stroke='%235adccf' stroke-width='3'/%3E%3Ctext x='120' y='790' fill='%235adccf' font-family='Arial' font-size='28'%3EPROCESS / VALUE PASS — REPLACE IMAGE%3C/text%3E%3C/svg%3E"></div></div>

@@ -125,7 +125,9 @@ body.previewing [data-node]:not(:focus-visible){outline:0!important}
 body.previewing [data-node]::after{content:none!important}
 body.previewing .site{max-width:none}
 /* One way back out, always reachable */
-body.previewing::after{content:'Preview — press Escape to return';position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;background:#131513;color:#f4f2e8;border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:7px 14px;font-size:9px;letter-spacing:.06em;pointer-events:none}
+/* Reuses body::after, which is the full-screen background layer (inset:0);
+   without resetting top/right the label stretched into a screen-sized pill. */
+body.previewing::after{content:'Preview — press Escape to return';position:fixed;top:auto;right:auto;width:auto;height:auto;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;background:#131513;color:#f4f2e8;border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:7px 14px;font-size:9px;letter-spacing:.06em;pointer-events:none}
 
 /* Hidden objects stay visible-but-marked in the editor, gone in preview (§8) */
 body.editing .is-hidden{opacity:.28;filter:grayscale(1)}

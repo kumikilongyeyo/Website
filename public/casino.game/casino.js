@@ -131,7 +131,7 @@
 
     function build() {
       if (!wall || !host) return;
-      const shots = C().screens.filter(x => x.src);
+      const shots = C().screens.map((x, i) => ({ ...x, i })).filter(x => x.src);
       const n = colCount();
       wall.style.setProperty('--cols', n);
       host.innerHTML = '';
@@ -149,7 +149,7 @@
         const col = document.createElement('div'); col.className = 'cz-col';
         const track = document.createElement('div'); track.className = 'cz-track';
         // Two copies of the set: the loop wraps at exactly one set's height.
-        const html = copy => mine.map(s => `<div class="cz-shot"${copy ? ' aria-hidden="true"' : ''}><img ${loaded ? 'src' : 'data-src'}="${esc(s.src)}" alt="${copy ? '' : 'Gameplay screen'}"${sizeAttrs(s)} decoding="async"></div>`).join('');
+        const html = copy => mine.map(s => `<div class="cz-shot" data-shot="${s.i}"${copy ? ' aria-hidden="true"' : ''}><img ${loaded ? 'src' : 'data-src'}="${esc(s.src)}" alt="${copy ? '' : 'Gameplay screen'}"${sizeAttrs(s)} decoding="async"></div>`).join('');
         track.innerHTML = html(false) + html(true);
         col.appendChild(track); host.appendChild(col);
         // No per-column offset: when the wall first appears every column starts
@@ -169,8 +169,21 @@
       }
     }
 
+    // Hovering the wall (or having a screen open) freezes it in place. On
+    // resume the drift is re-based, so the columns carry on from where they
+    // stopped instead of jumping by however far the page scrolled meanwhile.
+    let paused = false, frozen = 0;
+    const scNow = () => { const r = wall.getBoundingClientRect(); return (innerHeight / 2 - (r.top + r.height / 2)) * (Number(C().wall.scroll) || 0) / 100; };
+    function pause(on) {
+      if (on === paused) return;
+      paused = on;
+      wall.classList.toggle('paused', on);
+      if (on) frozen = drift + scNow(); else drift = frozen - scNow();
+    }
+
     // Loop + scroll: constant drift, plus the page's scroll position.
     function place() {
+      if (paused) return;
       const rect = wall.getBoundingClientRect();
       // Zero when the wall is centred on screen, which is when it is first seen
     // whole: the columns rest on their starting screens there.
@@ -186,7 +199,7 @@
     function frame(t) {
       const dt = last ? Math.min(0.05, (t - last) / 1000) : 0;
       last = t;
-      if (armed) drift += (Number(C().wall.speed) || 0) * dt;
+      if (armed && !paused) drift += (Number(C().wall.speed) || 0) * dt;
       place();
       raf = requestAnimationFrame(frame);
     }
@@ -210,10 +223,82 @@
       addEventListener('resize', () => { measure(); place(); });
       phone.addEventListener('change', build);
       reduced.addEventListener('change', () => (reduced.matches ? stop() : visible && start()));
+      if (matchMedia('(hover: hover)').matches) {
+        wall.addEventListener('pointerenter', () => { if (!editingNow() || document.body.classList.contains('previewing')) pause(true); });
+        wall.addEventListener('pointerleave', () => { if (!document.querySelector('.cz-lightbox:not([hidden])')) pause(false); });
+      }
       document.addEventListener('visibilitychange', () => (document.hidden ? stop() : visible && start()));
     }
-    return { build };
+    return { build, pause };
   })();
+
+  /* ------------------------------------------------ screen viewer (wall)
+   * Click a screen: the page dims and blurs behind it; ‹ › buttons, the
+   * arrow keys and swiping step through every screen in list order.
+   */
+  const LB = (() => {
+    const box = $('.cz-lightbox');
+    if (!box) return { open() {} };
+    const img = $('.cz-lb-img', box), count = $('.cz-lb-count', box);
+    let i = 0, opener = null, closing = 0;
+    const items = () => C().screens.filter(x => x.src);
+    function show(dir) {
+      const list = items();
+      if (!list.length) return close();
+      i = (i + list.length) % list.length;
+      const it = list[i];
+      const swap = () => { img.src = it.src; img.alt = `Gameplay screen ${i + 1} of ${list.length}`; count.textContent = `${i + 1} / ${list.length}`; };
+      if (!dir || reduced.matches) return swap();
+      box.style.setProperty('--dir', dir);
+      img.classList.add('leaving');
+      setTimeout(() => { swap(); img.classList.remove('leaving'); img.classList.add('entering'); void img.offsetWidth; img.classList.remove('entering'); }, 160);
+    }
+    function open(index, from) {
+      if (editingNow() && !document.body.classList.contains('previewing')) return;
+      clearTimeout(closing);
+      const list = items(), src = (C().screens[index] || {}).src;
+      i = Math.max(0, list.findIndex(x => x.src === src)); opener = from || null;
+      box.hidden = false; document.body.style.overflow = 'hidden';
+      Wall.pause(true);
+      show(0);
+      requestAnimationFrame(() => box.classList.add('open'));
+      $('.cz-lb-close', box).focus({ preventScroll: true });
+    }
+    function close() {
+      box.classList.remove('open'); document.body.style.overflow = '';
+      closing = setTimeout(() => { box.hidden = true; }, reduced.matches ? 0 : 260);
+      if (!document.querySelector('.cz-wall:hover')) Wall.pause(false);
+      if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+    }
+    const step = d => { i += d; show(d); };
+    box.addEventListener('click', e => {
+      if (e.target.closest('[data-lb-close]')) return close();
+      const s = e.target.closest('[data-lb-step]'); if (s) step(Number(s.dataset.lbStep));
+    });
+    document.addEventListener('keydown', e => {
+      if (box.hidden) return;
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+      else if (e.key === 'Tab') {
+        const f = $$('button', box), k = f.indexOf(document.activeElement);
+        if (e.shiftKey && k <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+        else if (!e.shiftKey && k === f.length - 1) { e.preventDefault(); f[0].focus(); }
+      }
+    }, true);
+    let x0 = null, y0 = 0;
+    box.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    box.addEventListener('touchend', e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+      if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy) * 1.3) step(dx < 0 ? 1 : -1);
+    });
+    return { open };
+  })();
+  document.addEventListener('click', e => {
+    const shot = e.target.closest && e.target.closest('.cz-shot');
+    if (shot) LB.open(Number(shot.dataset.shot), shot);
+  });
 
   /* -------------------------------------------------------- hero motion
    * scroll:   the hero is pinned; scrolling scrubs the drive-in video, and the
