@@ -118,6 +118,7 @@
   .tbx-h{position:absolute;width:10px;height:10px;background:#fff;border:1.5px solid #0d99ff;border-radius:2px;pointer-events:auto;touch-action:none}
   .tbx-h[data-h=nw]{left:-6px;top:-6px;cursor:nwse-resize}.tbx-h[data-h=se]{right:-6px;bottom:-6px;cursor:nwse-resize}
   .tbx-h[data-h=ne]{right:-6px;top:-6px;cursor:nesw-resize}.tbx-h[data-h=sw]{left:-6px;bottom:-6px;cursor:nesw-resize}
+  .tbx-bar.line-bar>:not([data-tb=edit]):not([data-tb=anim]):not(.tbx-vp){display:none}
   .tbx.line .tbx-h[data-h=nw],.tbx.line .tbx-h[data-h=ne]{display:none}
   .tbx.line .tbx-h[data-h=sw]{left:-6px;top:50%;bottom:auto;margin-top:-5px;cursor:ew-resize}
   .tbx.line .tbx-h[data-h=se]{right:-6px;top:50%;bottom:auto;margin-top:-5px;cursor:ew-resize}
@@ -137,8 +138,17 @@
   .tbx-bar .tbx-sep{width:1px;height:18px;background:rgba(255,255,255,.14);margin:0 2px}
   .tbx-bar .tbx-vp{padding:3px 7px;border-radius:5px;background:#0d99ff;color:#fff;font-weight:600;font-size:11px;white-space:nowrap}
   .tbx-bar select:disabled{opacity:.45}
+  .tbx-bar .tbx-anim{display:inline-flex;align-items:center;gap:5px}
+  .tbx-bar .tbx-anim-name{font-size:11px;opacity:.8;text-transform:capitalize}
+  .tbx-bar .tbx-anim.on .tbx-anim-name{color:#7dd3ff;opacity:1}
+  @keyframes tbx-flash{0%{box-shadow:0 0 0 2px #0d99ff,0 0 0 8px rgba(13,153,255,.35)}100%{box-shadow:0 0 0 0 rgba(13,153,255,0)}}
+  .inspector .tbx-flash{animation:tbx-flash 1.2s ease-out;border-radius:8px}
+  .inspector .panel.tbx-folded>:not(h4){display:none!important}
+  .inspector .panel.tbx-folded>h4::after{content:" (folded, click ✎ or the animation icon again to open)";font-weight:400;opacity:.5;text-transform:none;letter-spacing:0}
   .tbx-bar .tbx-hint{opacity:.55;font-size:11px;padding:0 6px;white-space:nowrap}
   @media (max-width:900px){.tbx-bar .tbx-hint{display:none}}`;
+  const PENCIL = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M9.6 1.6l2.8 2.8-7.6 7.6H2V9.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.2 3l2.8 2.8" stroke="currentColor" stroke-width="1.5"/></svg>';
+  const SPARK = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1.2l1.5 3.9 3.9 1.4-3.9 1.5L7 11.8 5.5 8 1.6 6.5l3.9-1.4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M11.4 10.2l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="currentColor"/></svg>';
   const ALIGN_ICON = a => `<svg width="14" height="12" viewBox="0 0 14 12" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">${a === 'left' ? '<path d="M1 2h12M1 6h8M1 10h10"/>' : a === 'center' ? '<path d="M1 2h12M3 6h8M2 10h10"/>' : '<path d="M1 2h12M5 6h8M3 10h10"/>'}</g></svg>`;
 
   let box, bar, cur = null, raf = 0;
@@ -158,6 +168,9 @@
       ${['left', 'center', 'right'].map(a => `<button type="button" data-align="${a}" aria-label="Align ${a}" title="Align ${a}">${ALIGN_ICON(a)}</button>`).join('')}
       <span class="tbx-sep"></span>
       <button type="button" data-tb="reset" title="Put it back in its default position for this size" aria-label="Reset position">⟲</button>
+      <span class="tbx-sep"></span>
+      <button type="button" data-tb="edit" title="Open its settings in the side panel" aria-label="Settings">${PENCIL}</button>
+      <button type="button" data-tb="anim" class="tbx-anim" title="Open its animation settings" aria-label="Animation">${SPARK}<span class="tbx-anim-name"></span></button>
       <span class="tbx-vp" hidden></span>
       <span class="tbx-hint">Drag a corner to resize · ⌘⇧&lt; &gt;</span>`;
     document.body.append(box, bar);
@@ -179,6 +192,10 @@
     const weights = new Set([...document.fonts].filter(f => f.family.replace(/["']/g, '') === fam && f.status === 'loaded').map(f => String(f.weight)));
     const single = weights.size === 1 && ![...weights][0].includes(' ');
     ws.disabled = single;
+    const an = animInfo(cur);
+    bar.querySelector('.tbx-anim-name').textContent = an.label;
+    bar.querySelector('.tbx-anim').classList.toggle('on', an.active);
+    bar.querySelector('.tbx-anim').title = an.title;
     ws.title = single ? `${fam} comes in one weight only` : 'Weight';
 
     const al = read(cur, 'textAlign', () => getComputedStyle(cur).textAlign);
@@ -197,7 +214,8 @@
     // Scrolled out of view: hide rather than pin a toolbar to the screen edge
     // for text you can no longer see. The loop keeps running to bring it back.
     if (r.bottom < 0 || r.top > innerHeight) { box.hidden = true; bar.hidden = true; raf = requestAnimationFrame(place); return; }
-    box.hidden = false; bar.hidden = isLine(el);
+    box.hidden = false; bar.hidden = false;
+    bar.classList.toggle('line-bar', isLine(el));
     const t = target(), vp = bar.querySelector('.tbx-vp'), label = t.breakpoint ? `Editing ${t.breakpoint} size` : t.state !== 'base' ? `Editing ${t.state}` : '';
     if (vp.textContent !== label) { vp.textContent = label; vp.hidden = !label; syncBar(); }
     Object.assign(box.style, { left: r.left - 3 + 'px', top: r.top - 3 + 'px', width: r.width + 6 + 'px', height: r.height + 6 + 'px' });
@@ -208,6 +226,49 @@
     raf = requestAnimationFrame(place);          // follows scrolling, typing and reflow
   }
   const kick = () => { if (!raf) raf = requestAnimationFrame(place); };
+
+  /* ------------------------------------------------------------ side panel
+   * ✎ opens the object's own settings, the spark opens its animation. A page
+   * can take over either for particular objects (window.StudioPageHooks),
+   * e.g. the casino hero text, whose timing lives in its Hero animation panel.
+   * A second click on the same icon folds the section it opened.
+   */
+  let lastJump = null;
+  function panelByTitle(tab, re) {
+    return [...document.querySelectorAll(`.inspector .tab-panel[data-tab="${tab}"] .panel`)].find(p => re.test((p.querySelector('h4') || {}).textContent || ''));
+  }
+  function jumpTo(tab, panel, key) {
+    const t = document.querySelector(`.inspect-tab[data-tab="${tab}"]`);
+    if (t && !t.classList.contains('active')) t.click();
+    if (!panel) return;
+    if (lastJump === key && !panel.classList.contains('tbx-folded') && t && t.classList.contains('active')) { panel.classList.add('tbx-folded'); lastJump = null; say('Folded. Click the icon again to open it.'); return; }
+    panel.classList.remove('tbx-folded');
+    lastJump = key;
+    panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    document.querySelectorAll('.inspector .tbx-flash').forEach(x => x.classList.remove('tbx-flash'));
+    void panel.offsetWidth; panel.classList.add('tbx-flash');
+  }
+  function motionPreset(el) {
+    const n = state().nodes[el.dataset.id];
+    return (n && n.motion && n.motion.preset) || el.dataset.motion || 'none';
+  }
+  function animInfo(el) {
+    const hook = window.StudioPageHooks && window.StudioPageHooks.anim && window.StudioPageHooks.anim(el);
+    if (hook) return { label: hook.label, active: true, title: hook.title || 'Open its animation settings' };
+    const p = motionPreset(el);
+    return { label: p === 'none' ? 'None' : p, active: p !== 'none', title: p === 'none' ? 'No animation yet. Click to add one' : `Animation: ${p}. Click to change it` };
+  }
+  function openSettings(el) {
+    const hook = window.StudioPageHooks && window.StudioPageHooks.edit && window.StudioPageHooks.edit(el);
+    if (hook) return hook.open();
+    if (isLine(el)) return jumpTo('design', document.getElementById('dividerPanel'), 'edit-line');
+    jumpTo('design', panelByTitle('design', /typography/i), 'edit-text');
+  }
+  function openAnimation(el) {
+    const hook = window.StudioPageHooks && window.StudioPageHooks.anim && window.StudioPageHooks.anim(el);
+    if (hook) return hook.open();
+    jumpTo('motion', panelByTitle('motion', /selected object animation/i), 'anim');
+  }
 
   /* ------------------------------------------------------------ gestures */
   function drag(e, onMove, onEnd) {
@@ -266,6 +327,8 @@
       if (b.dataset.tb === 'inc') setSize(fontSize(cur) + (e.altKey ? 10 : 2), true);
       if (b.dataset.tb === 'dec') setSize(fontSize(cur) - (e.altKey ? 10 : 2), true);
       if (b.dataset.align) { write(cur, { textAlign: b.dataset.align }, true); syncBar(); }
+      if (b.dataset.tb === 'edit') { openSettings(cur); return; }
+      if (b.dataset.tb === 'anim') { openAnimation(cur); return; }
       if (b.dataset.tb === 'reset') { write(cur, { offsetX: 0, offsetY: 0 }, true); const t = target(); say(`Position reset${t.breakpoint ? ' for the ' + t.breakpoint + ' size' : ''}.`); }
     });
     size.addEventListener('input', () => setSize(Number(size.value)));
@@ -305,8 +368,9 @@
     window.select = wrapped;
   }
   new MutationObserver(kick).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  document.addEventListener('change', e => { if (e.target && e.target.id === 'motion') setTimeout(() => { if (cur) syncBar(); }, 0); });
   addEventListener('scroll', kick, true);
   addEventListener('resize', kick);
   kick();
-  window.StudioTextBox = { refresh: kick };
+  window.StudioTextBox = { refresh: kick, jumpTo, panelByTitle };
 })();

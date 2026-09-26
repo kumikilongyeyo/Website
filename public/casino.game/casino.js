@@ -42,6 +42,7 @@
     // page defaults fill in, so older publishes keep working.
     c.heroAnim = { ...(def.heroAnim || {}), ...(c.heroAnim || {}) };
     if (!Array.isArray(c.decor)) c.decor = JSON.parse(JSON.stringify(def.decor || []));
+    c.cardAnim = { on: true, dur: 0.9, artDelay: 0.18, textDelay: 0.3, ...(c.cardAnim || {}) };
     return c;
   };
   const editingNow = () => document.body.classList.contains('editing');
@@ -108,6 +109,13 @@
     h.style.setProperty('--line-dur', (Number(a.lineDur) || 2.4) + 's');
     h.style.setProperty('--line-w', (Number(a.lineWidth) || 1) + 'px');
     renderDecor();
+    const ca = C().cardAnim, cards = $('.cz-cards');
+    if (cards) {
+      cards.classList.toggle('cz-cards-static', !ca.on);
+      cards.style.setProperty('--card-dur', (Number(ca.dur) || 0.9) + 's');
+      cards.style.setProperty('--art-delay', (Number(ca.artDelay) || 0) + 's');
+      cards.style.setProperty('--copy-delay', (Number(ca.textDelay) || 0) + 's');
+    }
   }
 
   function renderDecor() {
@@ -597,6 +605,14 @@
           <div class="cz-row">${c.avatar.src ? `<img src="${esc(c.avatar.src)}" alt="">` : '<span class="cz-thumb-empty"></span>'}<div class="cz-fields"><span class="cz-meta">Profile photo</span></div>
             <div class="cz-ops"><label class="file-btn" style="padding:0 6px">Replace<input type="file" accept="image/*" data-avatar hidden></label></div></div>
         </div></details>
+      <details data-key="cardAnim"${openKeys.includes('cardAnim') ? ' open' : ''}><summary>Service card animation</summary>
+        <p class="cz-note">How each service card and its character arrive the first time they scroll into view.</p>
+        <label class="cz-meta"><input type="checkbox" data-set="cardAnim.on"${c.cardAnim.on ? ' checked' : ''}> Animate the cards</label>
+        ${ctl('cardAnim.dur', 'Duration (s)', 0.2, 3, 0.05, c.cardAnim.dur)}
+        ${ctl('cardAnim.artDelay', 'Character delay (s)', 0, 2, 0.05, c.cardAnim.artDelay)}
+        ${ctl('cardAnim.textDelay', 'Text delay (s)', 0, 2, 0.05, c.cardAnim.textDelay)}
+        <button type="button" class="file-btn" data-card-replay>▶ Replay on the page</button>
+      </details>
       <details data-key="hero"${openKeys.includes('hero') ? ' open' : ''}><summary>Hero image position</summary>
         <p class="cz-note">Keep the driver clear of the headline. Turn on dragging and drag the image, or use the sliders. Desktop and phone are framed separately; the editor's phone preview edits the phone framing.</p>
         <button type="button" class="file-btn" data-hero-drag aria-pressed="${document.body.classList.contains('cz-hero-drag')}">${document.body.classList.contains('cz-hero-drag') ? 'Stop dragging' : 'Drag the hero image'}</button>
@@ -725,7 +741,7 @@
   });
 
   /* ---------------------------------------- finding the right controls */
-  const JUMPS = [['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
+  const JUMPS = [['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
   function openSection(key) {
     const tab = $('.inspect-tab[data-tab="site"]'); if (tab && !tab.classList.contains('active')) tab.click();
     mountPanel();
@@ -815,6 +831,13 @@
     });
 
     p.addEventListener('click', e => {
+      if (e.target.closest('[data-card-replay]')) {
+        const cards = $$('.cz-card'); cards.forEach(c => c.classList.remove('in'));
+        cards[0] && cards[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
+        document.body.classList.add('cz-replaying');
+        setTimeout(() => { cards.forEach(c => c.classList.add('in')); setTimeout(() => document.body.classList.remove('cz-replaying'), 2500); }, 700);
+        return;
+      }
       const jb = e.target.closest('[data-jump]');
       if (jb) { openSection(jb.dataset.jump); return; }
       const sr = e.target.closest('[data-sel-remove]');
@@ -964,7 +987,13 @@
     function mount() {
       if (box) return;
       box = document.createElement('div'); box.className = 'cz-artbox'; box.hidden = true;
-      box.innerHTML = '<b></b>' + ['nw', 'ne', 'sw', 'se'].map(h => `<span data-h="${h}"></span>`).join('');
+      box.innerHTML = '<b></b><i class="cz-artbox-tools"><button type="button" data-art="edit" title="Position and size settings" aria-label="Settings">✎</button><button type="button" data-art="anim" title="Entrance animation settings" aria-label="Animation">✦ <em></em></button></i>' + ['nw', 'ne', 'sw', 'se'].map(h => `<span data-h="${h}"></span>`).join('');
+      box.querySelector('.cz-artbox-tools').addEventListener('pointerdown', e => e.stopPropagation(), true);
+      box.querySelector('.cz-artbox-tools').addEventListener('click', e => {
+        const b = e.target.closest('[data-art]'); if (!b) return;
+        e.stopPropagation();
+        openSection(b.dataset.art === 'edit' ? 'slots' : 'cardAnim');
+      });
       document.body.appendChild(box);
       box.querySelectorAll('span').forEach(h => h.addEventListener('pointerdown', e => {
         const img = card && $('.cz-card-art img', card); if (!img) return;
@@ -985,6 +1014,7 @@
       Object.assign(box.style, { left: r.left - 2 + 'px', top: r.top - 2 + 'px', width: r.width + 4 + 'px', height: r.height + 4 + 'px' });
       box.hidden = false;
       box.querySelector('b').textContent = `Character · ${phoneView() ? 'phone' : 'desktop'} · drag to move, corners to resize`;
+      box.querySelector('[data-art="anim"] em').textContent = C().cardAnim.on ? 'On' : 'Off';
       raf = requestAnimationFrame(place);
     }
     function select(c) {
@@ -992,6 +1022,8 @@
       // One selection at a time: picking a character drops the text selection
       // (and its toolbar). `selected` is the editor's global.
       if (typeof selected !== 'undefined' && selected) { selected.classList.remove('selected'); selected = null; }
+      const names = ['2D Game Art', 'Asset Optimization', 'UI / UX'], sl = document.querySelector('.inspector .sel'), st = document.querySelector('.inspector .sel-type');
+      if (sl) sl.textContent = `Character · ${names[Number(c.dataset.slot)] || 'service card'}`; if (st) st.textContent = 'IMAGE';
       if (!raf) raf = requestAnimationFrame(place);
     }
     document.addEventListener('pointerdown', e => {
@@ -1029,6 +1061,20 @@
     const up = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); if (panelOpen()) renderPanel(); commit(`Decoration moved to ${d.x}% × ${d.y}%.`); };
     addEventListener('pointermove', move); addEventListener('pointerup', up);
   }, true);
+
+  /* --------------------------------------- toolbar shortcuts (✎ / spark)
+   * The hero's text and line are timed by the hero animation, not by the
+   * per-object Motion presets, so their animation icon opens that panel.
+   */
+  const HERO_TIMED = ['cz-hero-title', 'cz-hero-name', 'cz-hero-pitch', 'cz-hero-rule'];
+  window.StudioPageHooks = {
+    anim(el) {
+      if (!el || !HERO_TIMED.includes(el.dataset.id)) return null;
+      const a = C().heroAnim, mode = { scroll: 'Scroll', autoplay: 'On load', image: 'Timed' }[a.mode] || 'Hero';
+      return { label: mode, title: 'Timed by the hero animation: open its settings', open: () => openSection('heroAnim') };
+    },
+    edit() { return null; },
+  };
 
   /* ---------------------------------------------------- editor wiring
    * applyState() (load, undo, redo, rollback) swaps G for a new object, so the
