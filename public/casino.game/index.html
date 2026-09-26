@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#15123a">
+<!-- Link-only: shared with selected people, kept out of search results. -->
+<meta name="robots" content="noindex, nofollow">
 <title>Klyde Sosa — Casino Game Art</title>
 <meta name="description" content="Slot and casino game art by Klyde Jerrel Sosa: game logos, gameplay screens, reel symbols and UI for mobile casino titles.">
 <link rel="canonical" href="https://klyde-art-portfolio.pages.dev/casino.game/">
@@ -29,9 +31,10 @@
 <div class="site casino">
 <a class="skip-link" href="#works">Skip to the work</a>
 
+<div class="cz-hero-pin">
 <section class="cz-hero" id="top" aria-label="Introduction">
   <div class="hero-stage cz-hero-stage" data-node="Landing image" data-id="hero-media" data-type="hero">
-    <div class="hero-media"><img class="hero-main" src="/casino.game/assets/hero/hero-jeepney.webp" alt="A chrome jeepney racing through a neon Manila street at night, key art by Klyde Sosa" width="2400" height="1330" fetchpriority="high" decoding="async"></div>
+    <div class="hero-media"><img class="hero-main" src="/casino.game/assets/hero/hero-jeepney.webp" alt="A chrome jeepney racing through a neon Manila street at night, key art by Klyde Sosa" width="2400" height="1330" fetchpriority="high" decoding="async"><video class="cz-hero-video" muted playsinline preload="auto" aria-hidden="true" disablepictureinpicture></video></div>
   </div>
   <div class="cz-hero-shade" aria-hidden="true"></div>
   <div class="cz-hero-top cz-wrap">
@@ -43,11 +46,14 @@
     <div class="cz-hero-foot">
       <p class="cz-hero-name" data-node="Hero name" data-id="cz-hero-name" data-type="text">Klyde Jerrel Sosa</p>
       <p class="cz-hero-pitch" data-node="Hero pitch" data-id="cz-hero-pitch" data-type="text">I focus on delivering high quality, production ready art assets that directly supports the team to build your game vision</p>
+      <span class="cz-hero-rule" aria-hidden="true"></span>
     </div>
   </div>
   <span class="cz-cross cz-spin tl" style="--cx:1.2%;--cy:3.2%" aria-hidden="true"></span>
   <span class="cz-cross cz-spin" style="--cx:95%;--cy:78%" aria-hidden="true"></span>
+  <span class="cz-scroll-hint" aria-hidden="true">Scroll</span>
 </section>
+</div>
 
 <nav class="cz-nav" aria-label="Page sections">
   <div class="cz-nav-inner">
@@ -60,7 +66,7 @@
 
 <main>
 <section class="cz-section" id="works" aria-labelledby="cz-works-title">
-  <img class="cz-decor cz-decor-ribbon-a" src="/casino.game/assets/decor/ribbon-a.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+  <div class="cz-decor-layer" data-section="works" aria-hidden="true"></div>
   <div class="cz-head cz-wrap">
     <h2 class="cz-title" id="cz-works-title" data-node="Works heading" data-id="cz-works-title" data-type="text" data-motion="rise">WORKS</h2>
     <p class="cz-sub" data-node="Works subtitle" data-id="cz-works-sub" data-type="text">Bringing Casino Game Concepts to Life</p>
@@ -87,8 +93,7 @@
 </section>
 
 <section class="cz-section" id="services" aria-labelledby="cz-services-title">
-  <img class="cz-decor cz-decor-sphere" src="/casino.game/assets/decor/sphere-half.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
-  <img class="cz-decor cz-decor-ribbon-b" src="/casino.game/assets/decor/ribbon-b.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+  <div class="cz-decor-layer" data-section="services" aria-hidden="true"></div>
   <div class="cz-head cz-wrap">
     <h2 class="cz-title" id="cz-services-title" data-node="Services heading" data-id="cz-services-title" data-type="text" data-motion="rise">SERVICES</h2>
     <p class="cz-sub" data-node="Services subtitle" data-id="cz-services-sub" data-type="text">Production-ready game art with creativity, quality, and efficiency.</p>
@@ -119,6 +124,7 @@
 </section>
 
 <section class="cz-section" id="about" aria-labelledby="cz-about-title">
+  <div class="cz-decor-layer" data-section="about" aria-hidden="true"></div>
   <div class="cz-head cz-wrap">
     <h2 class="cz-title" id="cz-about-title" data-node="About heading" data-id="cz-about-title" data-type="text" data-motion="rise">ABOUT ME</h2>
     <p class="cz-sub" data-node="About subtitle" data-id="cz-about-sub" data-type="text">A brief introduction to my professional experience, strengths, and core values.</p>
@@ -149,6 +155,7 @@
   <div class="cz-wrap">
     <p class="cz-connect-title" data-node="Connect heading" data-id="cz-connect-title" data-type="text">LET’S CONNECT</p>
     <div class="cz-links">
+      <button type="button" class="cz-link" data-link-key="email" data-name="Gmail">klydesosa.art09@gmail.com</button>
       <button type="button" class="cz-link" data-link-key="behance" data-name="Behance">behance.net/klydesosa</button>
       <button type="button" class="cz-link" data-link-key="artstation" data-name="ArtStation">artstation.com/sosaklyde42069</button>
       <button type="button" class="cz-link" data-link-key="linkedin" data-name="LinkedIn">linkedin.com/in/klyde-sosa-1973b4273</button>
@@ -227,7 +234,7 @@
       <div class="panel"><h4>Button style</h4><div class="ctrl"><label>Background</label><input id="buttonBg" type="color" value="#bdd657"></div><div class="ctrl"><label>Text</label><input id="buttonText" type="color" value="#111111"></div><div class="ctrl"><label data-scrub="buttonRadius">Radius ↔</label><div class="scrub"><input id="buttonRadiusRange" type="range" min="0" max="999"><input id="buttonRadius" type="number"></div></div><div class="ctrl"><label data-scrub="buttonBorder">Border ↔</label><div class="scrub"><input id="buttonBorderRange" type="range" min="0" max="6" step=".1"><input id="buttonBorder" type="number" step=".1"></div></div></div>
 
       <div class="panel"><h4>External redirects</h4><p class="editor-note">Paste the destination here. Visitors get a confirmation popup showing the exact URL, with Cancel, Go and Copy Link.</p>
-        <div class="redirect-edit"><div class="mini-title">Behance</div><div class="ctrl"><label>Title</label><input data-link-title="behance" type="text"></div><div class="ctrl stack"><label>URL</label><input data-link-url="behance" type="url" placeholder="https://www.behance.net/you"></div></div>
+        <div class="redirect-edit"><div class="mini-title">Email</div><div class="ctrl"><label>Title</label><input data-link-title="email" type="text"></div><div class="ctrl stack"><label>URL</label><input data-link-url="email" type="url" placeholder="mailto:you@example.com"></div></div><div class="redirect-edit"><div class="mini-title">Behance</div><div class="ctrl"><label>Title</label><input data-link-title="behance" type="text"></div><div class="ctrl stack"><label>URL</label><input data-link-url="behance" type="url" placeholder="https://www.behance.net/you"></div></div>
         <div class="redirect-edit"><div class="mini-title">ArtStation</div><div class="ctrl"><label>Title</label><input data-link-title="artstation" type="text"></div><div class="ctrl stack"><label>URL</label><input data-link-url="artstation" type="url" placeholder="https://..."></div></div>
         <div class="redirect-edit"><div class="mini-title">LinkedIn</div><div class="ctrl"><label>Title</label><input data-link-title="linkedin" type="text"></div><div class="ctrl stack"><label>URL</label><input data-link-url="linkedin" type="url" placeholder="https://..."></div></div>
         

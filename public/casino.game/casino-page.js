@@ -510,13 +510,38 @@ window.STUDIO_PAGE = {
       "wall": {
         "columns": 4,
         "speed": 28,
-        "scroll": 35
-      }
+        "scroll": 35,
+        "fade": 16,
+        "blur": 10,
+        "band": 20
+      },
+      // The hero: the jeepney drives in (video), then the text and the line.
+      // mode: 'scroll' (the video follows the scroll, then the text arrives),
+      // 'autoplay' (plays once on load) or 'image' (the still).
+      "heroAnim": {
+        "mode": "scroll",
+        "video": "/casino.game/assets/hero/hero-jeepney-drive.mp4",
+        "poster": "/casino.game/assets/hero/hero-jeepney-drive-first.webp",
+        "pin": 120,
+        "textAt": 85,
+        "textDelay": 0.4,
+        "lineDelay": 2,
+        "lineDur": 2.4,
+        "lineMode": "time",
+        "lineWidth": 1
+      },
+      // Background decorations: position and size are % of their section.
+      "decor": [
+        { "id": "ribbon-a", "section": "works", "src": "/casino.game/assets/decor/ribbon-a.webp", "x": 66, "y": 30, "w": 40, "rot": 0, "op": 0.42, "hidden": false },
+        { "id": "sphere", "section": "services", "src": "/casino.game/assets/decor/sphere-half.webp", "x": 88, "y": 12, "w": 12, "rot": 0, "op": 0.7, "hidden": false },
+        { "id": "ribbon-b", "section": "services", "src": "/casino.game/assets/decor/ribbon-b.webp", "x": -10, "y": 38, "w": 36, "rot": 0, "op": 0.45, "hidden": false }
+      ]
     },
   },
   brand: { text: 'KLYDE JERREL SOSA / CASINO GAME ART' },
   hero: { src: '/casino.game/assets/hero/hero-jeepney.webp', caption: '', x: 62, y: 50, scale: 1, height: 100, blur: 0, fadeTop: 0, fadeBottom: 0 },
   links: {
+    email: { title: 'klydesosa.art09@gmail.com', url: 'mailto:klydesosa.art09@gmail.com' },
     behance: { title: 'behance.net/klydesosa', url: 'https://www.behance.net/klydesosa' },
     artstation: { title: 'artstation.com/sosaklyde42069', url: 'https://www.artstation.com/sosaklyde42069' },
     linkedin: { title: 'linkedin.com/in/klyde-sosa-1973b4273', url: 'https://www.linkedin.com/in/klyde-sosa-1973b4273' },

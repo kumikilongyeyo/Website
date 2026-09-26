@@ -59,12 +59,41 @@ body.editing[data-viewport="mobile"] .casino.site, body.editing[data-viewport="t
 
 /* ------------------------------------------------------------------ hero */
 .cz-hero { position: relative; isolation: isolate; min-height: min(max(620px, 100svh), 1000px); display: grid; grid-template-rows: auto 1fr; overflow: hidden; }
+/* Scroll mode: the hero stays pinned while the page scrolls through --pin of
+ * extra height, and that scroll drives the video. */
+.cz-mode-scroll .cz-hero-pin { height: calc(100svh + var(--pin, 120vh)); }
+.cz-mode-scroll .cz-hero { position: sticky; top: 0; height: 100svh; min-height: 560px; }
+body.editing:not(.previewing) .cz-hero-pin { height: auto !important; }
+body.editing:not(.previewing) .cz-hero { position: relative !important; }
+.cz-hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+/* Video modes show the video (its poster until it loads) in place of the still. */
+.cz-video-mode .cz-hero-video { display: block; }
+.cz-video-mode .hero-main { visibility: hidden; }
+/* Text arrives after the drive-in. Only while the animation is armed, so with
+ * no JS, reduced motion or the editor, everything simply shows. */
+.cz-hero-anim .cz-hero-title, .cz-hero-anim .cz-hero-name, .cz-hero-anim .cz-hero-pitch { opacity: 0; translate: 0 28px; transition: opacity .8s ease, translate 1s cubic-bezier(.2, .8, .2, 1); }
+.cz-hero-anim .cz-hero-name { transition-delay: .25s; }
+.cz-hero-anim .cz-hero-pitch { transition-delay: .4s; }
+.cz-hero-anim.cz-text-in .cz-hero-title, .cz-hero-anim.cz-text-in .cz-hero-name, .cz-hero-anim.cz-text-in .cz-hero-pitch { opacity: 1; translate: none; }
+/* The thin line under the pitch: draws from the left, --line-delay after the
+ * text, over --line-dur; or follows the scroll (--line-p) in scroll-line mode. */
+.cz-hero-rule { display: block; height: var(--line-w, 1px); margin-top: 22px; background: color-mix(in srgb, var(--cz-ink) 70%, transparent); transform-origin: left center; transform: scaleX(1); }
+.cz-hero-anim .cz-hero-rule { transform: scaleX(0); transition: transform var(--line-dur, 2.4s) cubic-bezier(.65, 0, .35, 1) var(--line-delay, 2s); }
+.cz-hero-anim.cz-line-in .cz-hero-rule { transform: scaleX(1); }
+.cz-hero-anim.cz-line-scroll .cz-hero-rule { transition: none; transform: scaleX(var(--line-p, 0)); }
+body.editing:not(.previewing) .cz-hero-rule { transform: none !important; transition: none !important; }
+.cz-scroll-hint { position: absolute; left: 50%; bottom: 28px; translate: -50% 0; z-index: 4; display: none; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: color-mix(in srgb, var(--cz-ink) 75%, transparent); transition: opacity .4s; }
+.cz-scroll-hint::after { content: ""; display: block; width: 1px; height: 34px; margin: 10px auto 0; background: currentColor; animation: cz-hint 1.8s ease-in-out infinite; transform-origin: top; }
+@keyframes cz-hint { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+.cz-mode-scroll .cz-scroll-hint { display: block; }
+.cz-scrolled .cz-scroll-hint { opacity: 0; }
+body.editing:not(.previewing) .cz-scroll-hint { display: none; }
 .casino .cz-hero-stage { position: absolute; inset: 0; z-index: -2; min-height: 0; border: 0; border-radius: 0; background: var(--bg); }
 .casino .cz-hero-stage .hero-media { position: absolute; inset: 0; }
 /* Framing is set in the editor (Casino page images → Hero image), separately
  * for desktop and phone, so the driver's face can be kept clear of the text. */
-.casino .cz-hero-stage .hero-main { width: 100%; height: 100%; object-fit: cover; object-position: var(--czh-x, 62%) var(--czh-y, 50%); transform: scale(var(--czh-s, 1)); transform-origin: var(--czh-x, 62%) var(--czh-y, 50%); }
-body[data-viewport="mobile"] .casino .cz-hero-stage .hero-main { object-position: var(--czh-mx, 70%) var(--czh-my, 50%); transform: scale(var(--czh-ms, 1)); transform-origin: var(--czh-mx, 70%) var(--czh-my, 50%); }
+.casino .cz-hero-stage .hero-main, .casino .cz-hero-video { width: 100%; height: 100%; object-fit: cover; object-position: var(--czh-x, 62%) var(--czh-y, 50%); transform: scale(var(--czh-s, 1)); transform-origin: var(--czh-x, 62%) var(--czh-y, 50%); }
+body[data-viewport="mobile"] .casino .cz-hero-stage .hero-main, body[data-viewport="mobile"] .casino .cz-hero-video { object-position: var(--czh-mx, 70%) var(--czh-my, 50%); transform: scale(var(--czh-ms, 1)); transform-origin: var(--czh-mx, 70%) var(--czh-my, 50%); }
 body.cz-hero-drag .cz-hero { cursor: grab; }
 body.cz-hero-drag .cz-hero:active { cursor: grabbing; }
 body.cz-hero-drag .cz-hero::after { content: "Drag to move the image"; position: absolute; right: 16px; bottom: 16px; z-index: 5; padding: 6px 10px; border-radius: 6px; background: rgba(0, 0, 0, .7); color: #fff; font: 600 12px/1 var(--body); pointer-events: none; }
@@ -84,7 +113,7 @@ body.cz-hero-drag .cz-hero::after { content: "Drag to move the image"; position:
   /* On a phone the headline sits over the windshield, so the top half gets its own shade. */
   .cz-hero-shade { background:
     linear-gradient(180deg, rgba(13, 11, 42, .82) 0%, rgba(13, 11, 42, .55) 42%, rgba(13, 11, 42, .1) 62%, rgba(13, 11, 42, .5) 80%, var(--bg) 100%); }
-  .casino .cz-hero-stage .hero-main { object-position: var(--czh-mx, 70%) var(--czh-my, 50%); transform: scale(var(--czh-ms, 1)); transform-origin: var(--czh-mx, 70%) var(--czh-my, 50%); }
+  .casino .cz-hero-stage .hero-main, .casino .cz-hero-video { object-position: var(--czh-mx, 70%) var(--czh-my, 50%); transform: scale(var(--czh-ms, 1)); transform-origin: var(--czh-mx, 70%) var(--czh-my, 50%); }
   .cz-cross.tl { display: none; }
 }
 .cz-hero-pitch { margin: 0; text-shadow: 0 1px 8px rgba(0, 0, 0, .7); font-weight: 600; font-size: 15px; line-height: 1.5; color: color-mix(in srgb, var(--cz-ink) 88%, transparent); max-width: 46ch; }
@@ -102,20 +131,24 @@ body.editing .cz-nav { top: var(--bar, 52px); }
 .cz-head { text-align: center; margin-bottom: clamp(32px, 5vw, 56px); }
 .cz-title { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(44px, 7.4vw, 88px); line-height: 1; letter-spacing: .04em; color: var(--cz-ink); }
 .cz-sub { margin: 12px auto 0; max-width: 60ch; font-size: clamp(15px, 1.5vw, 19px); color: var(--cz-muted); }
-.cz-decor { position: absolute; z-index: -1; pointer-events: none; user-select: none; opacity: .5; }
-.cz-decor-ribbon-a { width: min(46vw, 560px); right: -8vw; top: 38%; opacity: .42; filter: blur(1px); }
-.cz-decor-ribbon-b { width: min(40vw, 480px); left: -10vw; top: 42%; opacity: .45; }
-.cz-decor-sphere { width: min(14vw, 180px); right: 0; top: 18%; opacity: .7; }
+.cz-decor-layer { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+/* Position and size are % of the section, set per decoration in the editor. */
+.cz-decor { position: absolute; left: var(--dx); top: var(--dy); width: var(--dw); height: auto; opacity: var(--dop, .5); rotate: var(--drot, 0deg); user-select: none; -webkit-user-drag: none; }
+body.cz-decor-drag .cz-decor-layer { pointer-events: auto; z-index: 6; overflow: visible; }
+body.cz-decor-drag .cz-decor { cursor: grab; outline: 1px dashed rgba(255, 255, 255, .6); outline-offset: 4px; }
+body.cz-decor-drag .cz-decor:active { cursor: grabbing; }
 
 /* Section label with rules either side: SCREENS, ICON AND SYMBOLS. */
 .cz-label { display: flex; align-items: center; gap: 24px; margin-block: clamp(72px, 9vw, 120px) 28px; color: var(--cz-violet); font-weight: 800; letter-spacing: .08em; font-size: clamp(16px, 1.8vw, 22px); }
-.cz-label::before, .cz-label::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cz-violet) 70%, transparent)); }
-.cz-label::after { background: linear-gradient(90deg, color-mix(in srgb, var(--cz-violet) 70%, transparent), transparent); }
+.cz-label::before, .cz-label::after { content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--cz-violet) 55%, transparent); }
 
 /* ------------------------------------------------------------ logo grid */
 .cz-logos { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(12px, 2vw, 24px); }
 .cz-logos li { width: calc((100% - 3 * clamp(12px, 2vw, 24px)) / 4); max-width: 240px; }
-.cz-logos img { width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 12px 22px rgba(0, 0, 0, .45)); }
+.cz-logos li { perspective: 700px; }
+.cz-logos img { width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 12px 22px rgba(0, 0, 0, .45)); transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--ts, 1)); transition: transform .5s cubic-bezier(.2, .8, .2, 1), filter .4s; will-change: transform; }
+/* Tilt follows the pointer (casino.js). Display only: no pointer cursor. */
+.cz-logos li.tilting img { transition: transform .12s ease-out, filter .4s; filter: drop-shadow(0 20px 28px rgba(0, 0, 0, .55)); }
 @media (max-width: 720px) { .cz-logos li { width: calc((100% - clamp(12px, 2vw, 24px)) / 2); } }
 
 /* ---------------------------------------------------------- screens wall
@@ -124,15 +157,17 @@ body.editing .cz-nav { top: var(--bar, 52px); }
  * whose own mask makes the blur strongest right at the edge.
  */
 .cz-wall { --cols: 4; position: relative; height: min(92vh, 900px); overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
-          mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%); }
+  /* Fade depth (--fade), blur strength (--blur) and blur depth (--band) are
+   * set in the editor: Casino page images → Screens wall. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade, 16%), #000 calc(100% - var(--fade, 16%)), transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade, 16%), #000 calc(100% - var(--fade, 16%)), transparent 100%); }
 .cz-wall-cols { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: clamp(10px, 1.6vw, 22px); width: min(var(--page-width, 1200px), calc(100% - 2 * var(--cz-gut))); height: 100%; margin-inline: auto; }
 .cz-col { min-width: 0; }
 .cz-track { display: flex; flex-direction: column; gap: clamp(10px, 1.6vw, 22px); will-change: transform; }
 .cz-shot { aspect-ratio: 4 / 5; border-radius: 14px; overflow: hidden; background: rgba(255, 255, 255, .05); box-shadow: 0 14px 32px rgba(0, 0, 0, .45); }
 /* Cropped to 4:5 so more screens fit on the wall; centred on the reels. */
 .cz-shot img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 42%; }
-.cz-wall-blur { position: absolute; left: 0; right: 0; height: 20%; z-index: 2; pointer-events: none; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.cz-wall-blur { position: absolute; left: 0; right: 0; height: var(--band, 20%); z-index: 2; pointer-events: none; backdrop-filter: blur(var(--blur, 10px)); -webkit-backdrop-filter: blur(var(--blur, 10px)); }
 .cz-wall-blur.top { top: 0; -webkit-mask-image: linear-gradient(to bottom, #000, transparent); mask-image: linear-gradient(to bottom, #000, transparent); }
 .cz-wall-blur.bottom { bottom: 0; -webkit-mask-image: linear-gradient(to top, #000, transparent); mask-image: linear-gradient(to top, #000, transparent); }
 @media (max-width: 720px) {
@@ -214,7 +249,7 @@ body.editing .cz-nav { top: var(--bar, 52px); }
 .cz-connect { padding-block: clamp(48px, 7vw, 80px) max(28px, env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--cz-line); margin-top: clamp(48px, 7vw, 80px); }
 .cz-connect-title { margin: 0 0 36px; text-align: center; font-size: clamp(18px, 2vw, 24px); letter-spacing: .06em; font-weight: 600; }
 .cz-connect-title::after { content: "+"; margin-left: 12px; color: #d86bff; font-weight: 400; }
-.cz-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.cz-links { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
 .cz-link { display: grid; justify-items: center; gap: 14px; padding: 8px; font-size: 14px; font-weight: 700; color: var(--cz-ink); overflow-wrap: anywhere; text-align: center; transition: color .2s; }
 .cz-link:hover { color: var(--cz-cyan); }
 /* Brand marks: Behance and ArtStation are the official glyphs (Simple Icons,
@@ -222,6 +257,7 @@ body.editing .cz-nav { top: var(--bar, 52px); }
 .cz-link::before { content: ""; display: block; width: 40px; height: 40px; border-radius: 8px; transition: transform .25s cubic-bezier(.2, .8, .2, 1); }
 .cz-link:hover::before { transform: translateY(-3px); }
 .cz-link { position: relative; }
+.cz-link[data-link-key="email"]::before { background: url("https://cdn.simpleicons.org/gmail/ffffff") center / 58% no-repeat, #ea4335; }
 .cz-link[data-link-key="behance"]::before { background: url("https://cdn.simpleicons.org/behance/ffffff") center / 62% no-repeat, #1769ff; }
 .cz-link[data-link-key="artstation"]::before { background: #13aff0; -webkit-mask: url("https://cdn.jsdelivr.net/npm/simple-icons@13/icons/artstation.svg") center / 100% no-repeat; mask: url("https://cdn.jsdelivr.net/npm/simple-icons@13/icons/artstation.svg") center / 100% no-repeat; border-radius: 0; }
 .cz-link[data-link-key="linkedin"]::before { content: "in"; display: grid; place-items: center; background: #0a66c2; color: #fff; font-family: Arial, Helvetica, sans-serif; font-weight: 700; font-size: 24px; letter-spacing: -.02em; line-height: 1; padding-top: 2px; }
@@ -257,7 +293,8 @@ body.editing .cz-card-copy > * { opacity: 1 !important; translate: none !importa
 
 /* --------------------------------------------------------------- motion */
 @media (prefers-reduced-motion: reduce) {
-  .cz-nav-bar { transition: none !important; }
+  .cz-nav-bar, .cz-logos img { transition: none !important; }
+  .cz-scroll-hint::after { animation: none; }
   html { scroll-behavior: auto; }
 }
 

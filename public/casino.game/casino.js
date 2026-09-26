@@ -30,7 +30,12 @@
     const c = g.casino;
     for (const k of ['logos', 'screens', 'icons', 'services', 'tech']) if (!Array.isArray(c[k])) c[k] = [];
     c.avatar = c.avatar || { src: '' };
-    c.wall = { columns: 4, speed: 28, scroll: 35, ...(c.wall || {}) };
+    const def = (window.STUDIO_PAGE && window.STUDIO_PAGE.G.casino) || {};
+    c.wall = { columns: 4, speed: 28, scroll: 35, fade: 16, blur: 10, band: 20, ...(c.wall || {}) };
+    // A config published before these settings existed simply has none; the
+    // page defaults fill in, so older publishes keep working.
+    c.heroAnim = { ...(def.heroAnim || {}), ...(c.heroAnim || {}) };
+    if (!Array.isArray(c.decor)) c.decor = JSON.parse(JSON.stringify(def.decor || []));
     return c;
   };
   const editingNow = () => document.body.classList.contains('editing');
@@ -86,10 +91,25 @@
     h.style.setProperty('--czh-x', p.x + '%'); h.style.setProperty('--czh-y', p.y + '%'); h.style.setProperty('--czh-s', p.s);
     h.style.setProperty('--czh-mx', p.mx + '%'); h.style.setProperty('--czh-my', p.my + '%'); h.style.setProperty('--czh-ms', p.ms);
     const b = $('.cz-board'); if (b) b.style.setProperty('--bz', (C().board && C().board.zoom) || 1);
+    const w = $('.cz-wall'), wl = C().wall;
+    if (w) { w.style.setProperty('--fade', wl.fade + '%'); w.style.setProperty('--blur', wl.blur + 'px'); w.style.setProperty('--band', wl.band + '%'); }
+    const a = C().heroAnim;
+    h.style.setProperty('--pin', (Number(a.pin) || 120) + 'vh');
+    h.style.setProperty('--line-delay', (Number(a.lineDelay) || 0) + 's');
+    h.style.setProperty('--line-dur', (Number(a.lineDur) || 2.4) + 's');
+    h.style.setProperty('--line-w', (Number(a.lineWidth) || 1) + 'px');
+    renderDecor();
+  }
+
+  function renderDecor() {
+    $$('.cz-decor-layer').forEach(layer => {
+      layer.innerHTML = C().decor.map((d, i) => d.section !== layer.dataset.section || d.hidden || !d.src ? '' :
+        `<img class="cz-decor" data-decor="${i}" src="${esc(d.src)}" alt="" draggable="false" loading="lazy" decoding="async" style="--dx:${+d.x}%;--dy:${+d.y}%;--dw:${+d.w}%;--dop:${+d.op};--drot:${+d.rot || 0}deg">`).join('');
+    });
   }
 
   function renderAll() {
-    renderHero(); renderLogos(); renderIcons(); renderServices(); renderAbout(); Wall.build();
+    renderHero(); renderLogos(); renderIcons(); renderServices(); renderAbout(); Wall.build(); HeroMotion.apply();
     if (panelOpen()) renderPanel();
   }
 
@@ -189,6 +209,161 @@
     return { build };
   })();
 
+  /* -------------------------------------------------------- hero motion
+   * scroll:   the hero is pinned; scrolling scrubs the drive-in video, and the
+   *           text arrives once the video reaches "text appears at".
+   * autoplay: the video plays once on load; the text follows it.
+   * image:    the still; the text arrives after "text delay".
+   * The line under the pitch draws after the text (line delay / duration),
+   * or follows the scroll when "line follows" is set to scroll.
+   * Reduced motion and the editor always show the finished hero.
+   */
+  const HeroMotion = (() => {
+    const root = document.documentElement, hero = $('.cz-hero'), pin = $('.cz-hero-pin'), video = $('.cz-hero-video');
+    if (!hero || !video) return { apply() {} };
+    let textShown = false, played = false, timer = 0, raf = 0, seeking = false, want = -1, primed = false;
+    const cfg = () => C().heroAnim;
+    const mode = () => (reduced.matches ? 'image' : (cfg().video ? cfg().mode : 'image'));
+    // The editor shows the finished hero, except in Preview, which plays it.
+    const armed = () => !reduced.matches && (!editingNow() || document.body.classList.contains('previewing'));
+    const textAt = () => Math.max(0, Math.min(100, Number(cfg().textAt) || 0)) / 100;
+    const clamp01 = v => Math.max(0, Math.min(1, v));
+
+    function setText(on) {
+      if (on === textShown) return;
+      textShown = on;
+      hero.classList.toggle('cz-text-in', on);
+      hero.classList.toggle('cz-line-in', on);
+    }
+    // One seek in flight at a time, always to the latest target. Compared with
+    // the last time REQUESTED, never video.currentTime: browsers snap a seek to
+    // a frame and report a slightly different time, and comparing against that
+    // re-seeked forever.
+    let last = -1, guard = 0;
+    function seek(t) {
+      if (!video.duration) return;
+      want = Math.max(0, Math.min(video.duration - 0.04, t));
+      pump();
+    }
+    function pump() {
+      if (seeking || Math.abs(want - last) < 1 / 60) return;
+      seeking = true; last = want;
+      video.currentTime = want;
+      clearTimeout(guard); guard = setTimeout(() => { seeking = false; pump(); }, 300);   // a lost 'seeked' must not stall the scrub
+    }
+    video.addEventListener('seeked', () => { seeking = false; clearTimeout(guard); pump(); });
+    video.addEventListener('emptied', () => { last = -1; seeking = false; });
+    video.addEventListener('loadeddata', () => { if (!armed() && video.duration) seek(video.duration); else tick(); });
+
+    function progress() {
+      if (!pin) return 0;
+      const top = pin.getBoundingClientRect().top, len = pin.offsetHeight - innerHeight;
+      return len > 0 ? clamp01(-top / len) : 1;
+    }
+    function tick() {
+      raf = 0;
+      if (!armed()) return;
+      const m = mode();
+      if (m === 'scroll') {
+        const p = progress();
+        root.classList.toggle('cz-scrolled', p > 0.02);
+        if (video.duration) seek(p * video.duration);
+        setText(p >= textAt());
+        hero.style.setProperty('--line-p', clamp01((p - textAt()) / Math.max(0.05, 1 - textAt())));
+      } else if (cfg().lineMode === 'scroll') {
+        hero.style.setProperty('--line-p', clamp01(scrollY / Math.max(1, hero.offsetHeight * 0.6)));
+      }
+    }
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll);
+    // iOS only decodes a video after a play() call, so seeking to follow the
+    // scroll needs one muted play/pause first.
+    const prime = () => { if (primed || mode() !== 'scroll') return; primed = true; video.play().then(() => video.pause()).catch(() => {}); };
+    addEventListener('touchstart', prime, { passive: true, once: true });
+    addEventListener('scroll', prime, { passive: true, once: true });
+
+    video.addEventListener('timeupdate', () => {
+      if (mode() !== 'autoplay' || !armed() || !video.duration) return;
+      if (video.currentTime / video.duration >= textAt()) { clearTimeout(timer); timer = setTimeout(() => setText(true), (Number(cfg().textDelay) || 0) * 1000); }
+    });
+
+    /* The whole file is fetched into memory and played from a blob: URL. A
+     * video streamed with range requests is only seekable where the server
+     * answers them, and scrubbing asks for a seek on every scroll frame; from
+     * memory it is always seekable and never re-downloads. Falls back to the
+     * plain URL if the fetch is refused (e.g. another origin). */
+    let blobUrl = '';
+    function load(src) {
+      if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = ''; }
+      last = -1;
+      fetch(src).then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); })
+        .then(b => { if (video.dataset.src !== src) return; blobUrl = URL.createObjectURL(b); video.src = blobUrl; video.load(); })
+        .catch(() => { if (video.dataset.src === src) { video.src = src; video.load(); } });
+    }
+
+    function apply() {
+      const m = mode(), on = armed(), a = cfg();
+      root.classList.toggle('cz-mode-scroll', m === 'scroll' && on);
+      hero.classList.toggle('cz-video-mode', m !== 'image');
+      hero.classList.toggle('cz-hero-anim', on);
+      hero.classList.toggle('cz-line-scroll', on && a.lineMode === 'scroll');
+      if (m !== 'image') {
+        if (video.dataset.src !== a.video) { video.dataset.src = a.video; video.poster = a.poster || ''; load(a.video); played = false; }
+      } else if (video.getAttribute('src')) { video.removeAttribute('src'); video.removeAttribute('poster'); delete video.dataset.src; video.load(); }
+      if (!on) {
+        // Editor / reduced motion: the finished hero, text in place, last frame.
+        clearTimeout(timer); textShown = false; setText(true); hero.style.setProperty('--line-p', 1);
+        if (video.duration) seek(video.duration);
+        return;
+      }
+      if (m === 'scroll') { tick(); return; }
+      if (m === 'autoplay') {
+        if (!played) {
+          played = true; setText(false);
+          const go = () => video.play().catch(() => { if (video.duration) seek(video.duration); setText(true); });
+          video.readyState >= 2 ? go() : video.addEventListener('loadeddata', go, { once: true });
+        }
+      } else if (!textShown) {
+        clearTimeout(timer); timer = setTimeout(() => setText(true), (Number(a.textDelay) || 0) * 1000);
+      }
+      tick();
+    }
+    reduced.addEventListener('change', apply);
+    const replay = () => { played = false; textShown = true; setText(false); clearTimeout(timer); last = -1; if (video.duration) seek(0); apply(); };
+    // Entering Preview replays the hero from the start; leaving it shows the finished hero again.
+    let wasPreviewing = document.body.classList.contains('previewing');
+    new MutationObserver(() => {
+      const now = document.body.classList.contains('previewing');
+      if (now === wasPreviewing) return;
+      wasPreviewing = now;
+      now ? (scrollTo(0, 0), replay()) : apply();
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return { apply, replay };
+  })();
+
+  /* ------------------------------------------------------ logo hover tilt
+   * Display-only logos still respond to the pointer: a 3D tilt toward it.
+   */
+  (() => {
+    const ul = $('.cz-logos');
+    if (!ul || !matchMedia('(hover: hover)').matches) return;
+    ul.addEventListener('pointermove', e => {
+      if (reduced.matches) return;
+      const li = e.target.closest('li'); if (!li) return;
+      const r = li.getBoundingClientRect(), nx = (e.clientX - r.left) / r.width - 0.5, ny = (e.clientY - r.top) / r.height - 0.5;
+      li.classList.add('tilting');
+      li.style.setProperty('--ry', (nx * 18).toFixed(2) + 'deg');
+      li.style.setProperty('--rx', (-ny * 18).toFixed(2) + 'deg');
+      li.style.setProperty('--ts', 1.06);
+    });
+    ul.addEventListener('pointerout', e => {
+      const li = e.target.closest('li'); if (!li || li.contains(e.relatedTarget)) return;
+      li.classList.remove('tilting');
+      ['--rx', '--ry', '--ts'].forEach(k => li.style.removeProperty(k));
+    });
+  })();
+
   /* ------------------------------------------- first-appearance motion */
   (() => {
     if (reduced.matches || !('IntersectionObserver' in window)) return;
@@ -252,6 +427,18 @@
     return { src: res.src, w, h, name: file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ') };
   }
 
+  // A range + number pair bound to a path in G.casino (e.g. 'heroAnim.pin', 'decor.2.x').
+  const ctl = (path, label, min, max, step, val) => {
+    const id = 'cz_' + path.replace(/\./g, '_');
+    return `<div class="ctrl"><label for="${id}">${label}</label><div class="scrub"><input id="${id}Range" data-set="${path}" type="range" min="${min}" max="${max}" step="${step}" value="${esc(val)}"><input id="${id}" data-set="${path}" type="number" min="${min}" max="${max}" step="${step}" value="${esc(val)}"></div></div>`;
+  };
+  function setPath(path, value) {
+    const keys = path.split('.');
+    let o = C();
+    for (let i = 0; i < keys.length - 1; i++) o = o[keys[i]];
+    o[keys[keys.length - 1]] = value;
+  }
+
   // Where a screen sits when the wall first appears, on desktop.
   function startSlot(i) {
     const n = Math.max(2, Math.min(6, Number(C().wall.columns) || 4));
@@ -307,7 +494,38 @@
         <div class="ctrl"><label for="czCols">Columns</label><div class="scrub"><input id="czColsRange" type="range" min="2" max="6" step="1" value="${c.wall.columns}"><input id="czCols" type="number" min="2" max="6" value="${c.wall.columns}"></div></div>
         <div class="ctrl"><label for="czSpeed">Drift speed</label><div class="scrub"><input id="czSpeedRange" type="range" min="0" max="120" value="${c.wall.speed}"><input id="czSpeed" type="number" min="0" max="200" value="${c.wall.speed}"></div></div>
         <div class="ctrl"><label for="czScroll">Scroll boost</label><div class="scrub"><input id="czScrollRange" type="range" min="0" max="100" value="${c.wall.scroll}"><input id="czScroll" type="number" min="0" max="200" value="${c.wall.scroll}"></div></div>
+        ${ctl('wall.fade', 'Edge fade depth (%)', 0, 45, 1, c.wall.fade)}
+        ${ctl('wall.blur', 'Edge blur (px)', 0, 40, 1, c.wall.blur)}
+        ${ctl('wall.band', 'Edge blur depth (%)', 0, 50, 1, c.wall.band)}
         <p class="cz-note">Phones always use 4 columns. Visitors who ask for reduced motion get a still wall.</p>
+      </details>
+      <details data-key="heroAnim"${openKeys.includes('heroAnim') ? ' open' : ''}><summary>Hero animation</summary>
+        <div class="ctrl"><label for="czHeroMode">Hero</label><select id="czHeroMode" data-set="heroAnim.mode">
+          ${[['scroll', 'Video follows the scroll'], ['autoplay', 'Video plays on load'], ['image', 'Still image']].map(([v, l]) => `<option value="${v}"${c.heroAnim.mode === v ? ' selected' : ''}>${l}</option>`).join('')}</select></div>
+        ${ctl('heroAnim.pin', 'Scroll length (vh)', 30, 300, 5, c.heroAnim.pin)}
+        ${ctl('heroAnim.textAt', 'Text appears at (% of video)', 0, 100, 1, c.heroAnim.textAt)}
+        ${ctl('heroAnim.textDelay', 'Text delay (s)', 0, 8, 0.1, c.heroAnim.textDelay)}
+        ${ctl('heroAnim.lineDelay', 'Line delay after text (s)', 0, 10, 0.1, c.heroAnim.lineDelay)}
+        ${ctl('heroAnim.lineDur', 'Line draw time (s)', 0.2, 10, 0.1, c.heroAnim.lineDur)}
+        ${ctl('heroAnim.lineWidth', 'Line thickness (px)', 1, 4, 1, c.heroAnim.lineWidth)}
+        <div class="ctrl"><label for="czLineMode">Line</label><select id="czLineMode" data-set="heroAnim.lineMode">
+          ${[['time', 'Draws after the text'], ['scroll', 'Follows the scroll']].map(([v, l]) => `<option value="${v}"${c.heroAnim.lineMode === v ? ' selected' : ''}>${l}</option>`).join('')}</select></div>
+        <div class="ctrl stack"><label for="czHeroVideo">Video URL (MP4)</label><input id="czHeroVideo" type="url" data-set="heroAnim.video" value="${esc(c.heroAnim.video)}"></div>
+        <label class="file-btn">Upload a video (MP4, under 2MB)<input type="file" accept="video/mp4" data-hero-video hidden></label>
+        <button type="button" class="file-btn" data-hero-replay>Watch it in Preview</button>
+        <p class="cz-note">"Text appears at" is how far through the video the headline arrives (scroll and play-on-load). "Text delay" waits after that, or after the page loads for the still image. The editor shows the finished hero so you can edit it; Preview plays it from the top.</p>
+      </details>
+      <details data-key="decor"${openKeys.includes('decor') ? ' open' : ''}><summary>Decorations (${c.decor.length})</summary>
+        <p class="cz-note">The ribbons and sphere behind the sections. Turn on dragging to move them on the page, or use the sliders. X, Y and size are % of their section.</p>
+        <button type="button" class="file-btn" data-decor-drag aria-pressed="${document.body.classList.contains('cz-decor-drag')}">${document.body.classList.contains('cz-decor-drag') ? 'Stop dragging' : 'Drag decorations'}</button>
+        ${c.decor.map((d, i) => `<div class="cz-decor-row">
+          <div class="cz-row">${d.src ? `<img src="${esc(d.src)}" alt="">` : '<span class="cz-thumb-empty"></span>'}<div class="cz-fields">
+            <select data-set="decor.${i}.section" aria-label="Section">${['works', 'services', 'about'].map(v => `<option value="${v}"${d.section === v ? ' selected' : ''}>${v[0].toUpperCase() + v.slice(1)}</option>`).join('')}</select>
+            <label class="cz-meta"><input type="checkbox" data-set="decor.${i}.hidden"${d.hidden ? ' checked' : ''}> Hidden</label></div>
+            <div class="cz-ops"><label class="file-btn" style="padding:0 6px">Replace<input type="file" accept="image/*" data-decor-replace="${i}" hidden></label><button type="button" data-decor-del="${i}" aria-label="Remove decoration">✕</button></div></div>
+          ${ctl(`decor.${i}.x`, 'X (%)', -50, 130, 1, d.x)}${ctl(`decor.${i}.y`, 'Y (%)', -50, 130, 1, d.y)}${ctl(`decor.${i}.w`, 'Size (%)', 2, 120, 1, d.w)}
+          ${ctl(`decor.${i}.op`, 'Opacity', 0, 1, 0.01, d.op)}${ctl(`decor.${i}.rot`, 'Rotation (°)', -180, 180, 1, d.rot || 0)}</div>`).join('')}
+        <label class="file-btn">Add a decoration<input type="file" accept="image/*" data-decor-add hidden></label>
       </details>`;
   }
 
@@ -321,7 +539,23 @@
     site.prepend(p);
     renderPanel();
 
+    const onSet = e => {
+      const t = e.target;
+      if (!t.dataset || !t.dataset.set) return false;
+      const path = t.dataset.set;
+      const v = t.type === 'checkbox' ? t.checked : (t.type === 'range' || t.type === 'number') ? Number(t.value) : t.value;
+      if (t.type === 'url' && e.type === 'input') return true;          // URLs apply on change
+      setPath(path, v);
+      $$(`[data-set="${path}"]`, p).forEach(i => { if (i !== t && i.type !== 'checkbox') i.value = v; });
+      renderHero();
+      if (path.startsWith('heroAnim.')) HeroMotion.apply();
+      clearTimeout(p._s); p._s = setTimeout(() => commit(), 250);
+      return true;
+    };
+    p.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.set && (e.target.tagName === 'SELECT' || e.target.type === 'checkbox' || e.target.type === 'url')) onSet(e); });
+
     p.addEventListener('input', e => {
+      if (e.target.dataset && e.target.dataset.set) { if (e.target.tagName !== 'SELECT' && e.target.type !== 'checkbox') onSet(e); return; }
       const f = e.target.closest('[data-f]');
       if (f) {
         const key = f.closest('[data-list]').dataset.list, i = Number(f.closest('.cz-row').dataset.i);
@@ -356,6 +590,21 @@
     });
 
     p.addEventListener('click', e => {
+      const dd = e.target.closest('[data-decor-drag]');
+      if (dd) {
+        const on = document.body.classList.toggle('cz-decor-drag');
+        dd.setAttribute('aria-pressed', String(on)); dd.textContent = on ? 'Stop dragging' : 'Drag decorations';
+        if (typeof status === 'function') status(on ? 'Drag a ribbon or the sphere to move it. Click "Stop dragging" when done.' : 'Decoration dragging off.');
+        return;
+      }
+      if (e.target.closest('[data-hero-replay]')) {
+        // Preview hides the editor chrome and plays the hero from the top.
+        const pv = document.querySelector('[data-preview], .devbar [data-toggle-preview]') || [...document.querySelectorAll('.devbar button')].find(b => /preview/i.test(b.textContent));
+        if (pv) pv.click(); else if (typeof status === 'function') status('Use Preview in the top bar to watch the hero animation.');
+        return;
+      }
+      const del = e.target.closest('[data-decor-del]');
+      if (del) { C().decor.splice(Number(del.dataset.decorDel), 1); renderHero(); renderPanel(); commit('Decoration removed. Undo brings it back.'); return; }
       const hd = e.target.closest('[data-hero-drag]');
       if (hd) {
         const on = document.body.classList.toggle('cz-hero-drag');
@@ -399,6 +648,23 @@
       t.value = '';
       const say = m => typeof status === 'function' && status(m);
       try {
+        if (t.hasAttribute('data-hero-video')) {
+          const f = files[0];
+          if (f.size > 2 * 1024 * 1024) { say(`That video is ${(f.size / 1048576).toFixed(1)}MB; the limit is 2MB. Re-export it smaller, or host it and paste the URL.`); return; }
+          say('Uploading the video…');
+          const res = typeof uploadMedia === 'function' ? await uploadMedia(f) : { ok: false, error: 'the editor is not loaded' };
+          if (!res.ok) throw new Error(res.error || 'upload failed');
+          C().heroAnim.video = res.src; C().heroAnim.poster = '';
+          HeroMotion.apply(); renderPanel(); commit('Hero video replaced.');
+          return;
+        }
+        if (t.hasAttribute('data-decor-add') || t.dataset.decorReplace !== undefined) {
+          const it = await fileToItem(files[0]);
+          if (t.hasAttribute('data-decor-add')) C().decor.push({ id: 'decor-' + Date.now().toString(36), section: 'works', src: it.src, x: 70, y: 20, w: 20, rot: 0, op: 0.6, hidden: false });
+          else C().decor[Number(t.dataset.decorReplace)].src = it.src;
+          renderHero(); renderPanel(); commit('Decoration saved.');
+          return;
+        }
         if (t.dataset.add) {
           const key = t.dataset.add;
           let done = 0;
@@ -450,12 +716,29 @@
     addEventListener('pointermove', move); addEventListener('pointerup', up);
   }, true);
 
+  /* ------------------------------------------------ decoration dragging */
+  document.addEventListener('pointerdown', e => {
+    if (!editingNow() || !document.body.classList.contains('cz-decor-drag')) return;
+    const img = e.target.closest && e.target.closest('.cz-decor');
+    if (!img) return;
+    e.preventDefault(); e.stopPropagation();
+    const i = Number(img.dataset.decor), d = C().decor[i], layer = img.parentElement.getBoundingClientRect();
+    const start = { x: e.clientX, y: e.clientY, dx: +d.x, dy: +d.y };
+    const move = q => {
+      d.x = Math.round((start.dx + (q.clientX - start.x) / layer.width * 100) * 10) / 10;
+      d.y = Math.round((start.dy + (q.clientY - start.y) / layer.height * 100) * 10) / 10;
+      img.style.setProperty('--dx', d.x + '%'); img.style.setProperty('--dy', d.y + '%');
+    };
+    const up = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); if (panelOpen()) renderPanel(); commit(`Decoration moved to ${d.x}% × ${d.y}%.`); };
+    addEventListener('pointermove', move); addEventListener('pointerup', up);
+  }, true);
+
   /* ---------------------------------------------------- editor wiring
    * applyState() (load, undo, redo, rollback) swaps G for a new object, so the
    * collections are redrawn after it. enter() builds the inspector, so the
    * panel mounts after it. Same wrap-the-global pattern as studio-links.js.
    */
-  for (const [name, after] of [['applyState', renderAll], ['enter', () => setTimeout(() => { mountPanel(); renderPanel(); }, 0)]]) {
+  for (const [name, after] of [['applyState', renderAll], ['enter', () => setTimeout(() => { mountPanel(); renderPanel(); HeroMotion.apply(); }, 0)], ['exit', () => HeroMotion.apply()]]) {
     const inner = window[name];
     if (typeof inner !== 'function' || inner.__casino) continue;
     const wrapped = function (...a) {
@@ -468,4 +751,6 @@
   }
 
   renderAll();
+  // For tests and the console; nothing on the page depends on it.
+  window.CasinoPage = { renderAll, hero: HeroMotion, config: C };
 })();
