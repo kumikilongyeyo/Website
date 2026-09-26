@@ -112,7 +112,7 @@ window.STUDIO_PAGE = {
       ],
       "screens": [
         {
-          "src": "/casino.game/assets/screens/screen-pacman.webp",
+          "src": "/casino.game/assets/screens/screen-pacman-crop.webp",
           "w": 235,
           "h": 438
         },
@@ -122,12 +122,12 @@ window.STUDIO_PAGE = {
           "h": 689
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-10.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-10-crop.webp",
           "w": 498,
           "h": 900
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-12.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-12-crop.webp",
           "w": 497,
           "h": 900
         },
@@ -137,7 +137,7 @@ window.STUDIO_PAGE = {
           "h": 689
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-4.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-4-crop.webp",
           "w": 497,
           "h": 900
         },
@@ -147,12 +147,12 @@ window.STUDIO_PAGE = {
           "h": 689
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-7.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-7-crop.webp",
           "w": 497,
           "h": 900
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-13.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-13-crop.webp",
           "w": 497,
           "h": 900
         },
@@ -162,7 +162,7 @@ window.STUDIO_PAGE = {
           "h": 620
         },
         {
-          "src": "/casino.game/assets/screens/screen-pacman-3.webp",
+          "src": "/casino.game/assets/screens/screen-pacman-3-crop.webp",
           "w": 184,
           "h": 312
         },
@@ -177,12 +177,12 @@ window.STUDIO_PAGE = {
           "h": 490
         },
         {
-          "src": "/casino.game/assets/screens/screen-pacman-1.webp",
+          "src": "/casino.game/assets/screens/screen-pacman-1-crop.webp",
           "w": 200,
           "h": 358
         },
         {
-          "src": "/casino.game/assets/screens/screen-gamezone.webp",
+          "src": "/casino.game/assets/screens/screen-gamezone-crop.webp",
           "w": 475,
           "h": 900
         },
@@ -192,7 +192,7 @@ window.STUDIO_PAGE = {
           "h": 430
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-9.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-9-crop.webp",
           "w": 497,
           "h": 900
         },
@@ -212,7 +212,7 @@ window.STUDIO_PAGE = {
           "h": 689
         },
         {
-          "src": "/casino.game/assets/screens/screen-pacman-2.webp",
+          "src": "/casino.game/assets/screens/screen-pacman-2-crop.webp",
           "w": 168,
           "h": 280
         },
@@ -247,7 +247,7 @@ window.STUDIO_PAGE = {
           "h": 689
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-5.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-5-crop.webp",
           "w": 497,
           "h": 900
         },
@@ -262,17 +262,17 @@ window.STUDIO_PAGE = {
           "h": 689
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-2.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-2-crop.webp",
           "w": 497,
           "h": 900
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-3.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-3-crop.webp",
           "w": 498,
           "h": 900
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-8.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-8-crop.webp",
           "w": 497,
           "h": 900
         },
@@ -282,7 +282,7 @@ window.STUDIO_PAGE = {
           "h": 689
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-crop.webp",
           "w": 498,
           "h": 900
         },
@@ -292,12 +292,12 @@ window.STUDIO_PAGE = {
           "h": 689
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-11.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-11-crop.webp",
           "w": 498,
           "h": 900
         },
         {
-          "src": "/casino.game/assets/screens/screen-pacman-5.webp",
+          "src": "/casino.game/assets/screens/screen-pacman-5-crop.webp",
           "w": 200,
           "h": 344
         },
@@ -307,22 +307,22 @@ window.STUDIO_PAGE = {
           "h": 689
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-6.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-6-crop.webp",
           "w": 497,
           "h": 900
         },
         {
-          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-1.webp",
+          "src": "/casino.game/assets/screens/screen-popeye-mock-ups-1-crop.webp",
           "w": 497,
           "h": 900
         },
         {
-          "src": "/casino.game/assets/screens/screen-pacman-4.webp",
+          "src": "/casino.game/assets/screens/screen-pacman-4-crop.webp",
           "w": 197,
           "h": 344
         },
         {
-          "src": "/casino.game/assets/screens/screen-gamezone-9.webp",
+          "src": "/casino.game/assets/screens/screen-gamezone-9-crop.webp",
           "w": 497,
           "h": 900
         }
