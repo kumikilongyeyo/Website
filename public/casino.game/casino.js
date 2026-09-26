@@ -5,8 +5,7 @@
  *     version history already cover them
  *   - the Screens wall: straight columns alternating up/down, a constant drift
  *     plus a boost from scrolling, paused while off screen
- *   - the icon viewer: hover reveals title + info, click opens a dimmed
- *     lightbox with previous/next, arrow keys, Esc and swipe
+ *   - the icons board: a static PDF-style composition on a 12-column grid
  *   - the sticky section nav (scroll spy)
  *   - in the editor, a "Casino page images" panel in the Site tab to add,
  *     reorder, caption and remove images
@@ -53,10 +52,9 @@
     board.innerHTML = C().icons.filter(x => x.src).map((x, i) => {
       // Width in columns of 12 and height in rows; a new upload defaults to 3×4.
       const s = clampInt(x.span, 1, 12, 3), r = clampInt(x.rows, 1, 12, 4);
-      const style = `--s:${s};--r:${r};--sm:${Math.min(6, Math.max(2, Math.ceil(s / 2)))};--d:${Math.min(i * 45, 700)}ms`;
-      return `<button type="button" class="cz-icon" style="${style}" data-icon="${i}" aria-label="${esc(x.title || 'Symbol')}: view larger">
-        <img src="${esc(x.src)}" alt=""${sizeAttrs(x)} loading="lazy" decoding="async">
-        <span class="cz-icon-cap"><strong>${esc(x.title)}</strong><span>${esc(x.info)}</span></span></button>`;
+      const style = `--s:${s};--r:${r};--d:${Math.min(i * 45, 700)}ms`;
+      // Static, like the PDF board: no hover caption, no viewer. The title is the alt text.
+      return `<div class="cz-icon" role="listitem" style="${style}"><img src="${esc(x.src)}" alt="${esc(x.title || 'Slot symbol')}"${sizeAttrs(x)} loading="lazy" decoding="async"></div>`;
     }).join('');
   }
 
@@ -89,7 +87,8 @@
     const wall = $('.cz-wall'), host = $('.cz-wall-cols');
     let cols = [], drift = 0, last = 0, running = false, visible = false, loaded = false, raf = 0;
 
-    function colCount() { return phone.matches ? 2 : Math.max(2, Math.min(6, Number(C().wall.columns) || 4)); }
+    // Phones get 4 columns too (the user asked for the same 4:5 wall on mobile).
+    function colCount() { return phone.matches ? 4 : Math.max(2, Math.min(6, Number(C().wall.columns) || 4)); }
 
     function build() {
       if (!wall || !host) return;
@@ -171,89 +170,6 @@
     return { build };
   })();
 
-  /* --------------------------------------------------------- lightbox */
-  const LB = (() => {
-    const box = $('.cz-lightbox');
-    if (!box) return { open() {} };
-    const img = $('.cz-lb-img', box), title = $('.cz-lb-title', box), info = $('.cz-lb-info', box), count = $('.cz-lb-count', box);
-    let i = 0, opener = null, closing = 0;
-    const items = () => C().icons.filter(x => x.src);
-
-    function show(dir) {
-      const list = items();
-      if (!list.length) return close();
-      i = (i + list.length) % list.length;
-      const it = list[i];
-      const swap = () => {
-        img.src = it.src; img.alt = it.title || 'Symbol';
-        title.textContent = it.title || '';
-        info.textContent = it.info || '';
-        info.hidden = !it.info;
-        count.textContent = `${i + 1} / ${list.length}`;
-      };
-      if (!dir || reduced.matches) return swap();
-      // Old image slides out one way, the new one arrives from the other.
-      box.style.setProperty('--dir', dir);
-      img.classList.add('leaving');
-      setTimeout(() => {
-        swap();
-        img.classList.remove('leaving'); img.classList.add('entering');
-        void img.offsetWidth;
-        img.classList.remove('entering');
-      }, 160);
-    }
-    function open(index, from) {
-      if (editingNow()) return;
-      clearTimeout(closing);
-      i = index; opener = from || null;
-      box.hidden = false;
-      document.body.style.overflow = 'hidden';
-      show(0);
-      requestAnimationFrame(() => box.classList.add('open'));
-      $('.cz-lb-close', box).focus({ preventScroll: true });
-    }
-    function close() {
-      box.classList.remove('open');
-      document.body.style.overflow = '';
-      closing = setTimeout(() => { box.hidden = true; }, reduced.matches ? 0 : 260);
-      if (opener && opener.isConnected) opener.focus({ preventScroll: true });
-    }
-    const step = d => { i += d; show(d); };
-
-    box.addEventListener('click', e => {
-      if (e.target.closest('[data-lb-close]')) return close();
-      const s = e.target.closest('[data-lb-step]');
-      if (s) step(Number(s.dataset.lbStep));
-    });
-    document.addEventListener('keydown', e => {
-      if (box.hidden) return;
-      if (e.key === 'Escape') { e.preventDefault(); close(); }
-      else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
-      else if (e.key === 'Tab') {
-        // Keep focus inside the dialog while it is open.
-        const f = $$('button', box);
-        const k = f.indexOf(document.activeElement);
-        if (e.shiftKey && k <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
-        else if (!e.shiftKey && k === f.length - 1) { e.preventDefault(); f[0].focus(); }
-      }
-    });
-    let x0 = null, y0 = 0;
-    box.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
-    box.addEventListener('touchend', e => {
-      if (x0 === null) return;
-      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
-      x0 = null;
-      if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy) * 1.3) step(dx < 0 ? 1 : -1);
-    });
-    return { open };
-  })();
-
-  document.addEventListener('click', e => {
-    const t = e.target.closest('.cz-icon');
-    if (t) LB.open(Number(t.dataset.icon), t);
-  });
-
   /* ------------------------------------------- first-appearance motion */
   (() => {
     if (reduced.matches || !('IntersectionObserver' in window)) return;
@@ -294,7 +210,7 @@
   const LISTS = [
     { key: 'logos', label: 'Game logos', fields: [['name', 'Game name']], note: 'Shown in the Works grid, in this order. Display only, not clickable.' },
     { key: 'screens', label: 'Screens wall', fields: [], note: 'Gameplay screenshots. They are dealt across the columns in this order.' },
-    { key: 'icons', label: 'Icons & symbols', fields: [['title', 'Title'], ['info', 'Info', true], ['span', 'Width (1–12 columns)', 'num'], ['rows', 'Height (rows)', 'num']], note: 'Hover shows the title and info; click opens the viewer. The board is 12 columns wide: set each symbol’s width and height to lay it out like the PDF.' },
+    { key: 'icons', label: 'Icons & symbols', fields: [['title', 'Name (read out by screen readers)'], ['span', 'Width (1–12 columns)', 'num'], ['rows', 'Height (rows)', 'num']], note: 'A static board, like the PDF. It is 12 columns wide: set each symbol’s width (W) and height (H) to lay it out.' },
     { key: 'tech', label: 'Technologies', fields: [['name', 'Name']], note: 'With no image, the name is shown as text.', allowEmpty: true },
   ];
   const panelOpen = () => !!$('#czPanel');
@@ -355,7 +271,7 @@
         <div class="ctrl"><label for="czCols">Columns</label><div class="scrub"><input id="czColsRange" type="range" min="2" max="6" step="1" value="${c.wall.columns}"><input id="czCols" type="number" min="2" max="6" value="${c.wall.columns}"></div></div>
         <div class="ctrl"><label for="czSpeed">Drift speed</label><div class="scrub"><input id="czSpeedRange" type="range" min="0" max="120" value="${c.wall.speed}"><input id="czSpeed" type="number" min="0" max="200" value="${c.wall.speed}"></div></div>
         <div class="ctrl"><label for="czScroll">Scroll boost</label><div class="scrub"><input id="czScrollRange" type="range" min="0" max="100" value="${c.wall.scroll}"><input id="czScroll" type="number" min="0" max="200" value="${c.wall.scroll}"></div></div>
-        <p class="cz-note">Phones always use 2 columns. Visitors who ask for reduced motion get a still wall.</p>
+        <p class="cz-note">Phones always use 4 columns. Visitors who ask for reduced motion get a still wall.</p>
       </details>`;
   }
 
