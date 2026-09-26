@@ -1,0 +1,219 @@
+/* Direct text transform, the way Figma and Photoshop handle text.
+ *
+ * Select a text object and it gets a bounding box:
+ *   - drag a corner handle to scale the type (font size), with a live readout
+ *   - drag the ✥ grip to move it
+ *   - a floating toolbar above it: − size +, a scrubbable Size label, weight,
+ *     alignment
+ *   - Photoshop shortcuts: ⌘⇧> / ⌘⇧< size ±2px (⌥ for ±10), ⌥← / ⌥→ tracking,
+ *     ⌥↑ / ⌥↓ leading
+ *
+ * Every change goes through StudioModel like the inspector does, so it lands
+ * on the current state and breakpoint (the phone preview edits the phone
+ * size), survives publish, and undoes in one step per gesture.
+ *
+ * Loaded with the other editor modules (EDITOR_MODULES), never for visitors.
+ */
+(() => {
+  'use strict';
+
+  const $ = (s, p = document) => p.querySelector(s);
+  const sel = () => (typeof selected !== 'undefined' ? selected : null);
+  const active = () => document.body.classList.contains('editing') && !document.body.classList.contains('previewing');
+  const isText = el => !!(el && el.isConnected && el.dataset && el.dataset.type === 'text');
+  const target = () => (window.StudioShell ? window.StudioShell.writeTarget() : { state: 'base', breakpoint: null });
+  const say = m => { if (typeof status === 'function') status(m); };
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  /* ------------------------------------------------------------ model io */
+  function read(el, prop, fallback) {
+    const t = target();
+    const v = window.StudioModel.getProp(state(), el.dataset.id, prop, t.state, t.breakpoint);
+    return v === undefined || v === '' ? fallback() : v;
+  }
+  const fontSize = el => Number(read(el, 'fontSize', () => parseFloat(getComputedStyle(el).fontSize))) || 16;
+  const tracking = el => Number(read(el, 'letterSpacing', () => Math.round(parseFloat(getComputedStyle(el).letterSpacing) / parseFloat(getComputedStyle(el).fontSize) * 100) || 0)) || 0;
+  const leading = el => Number(read(el, 'lineHeight', () => { const c = getComputedStyle(el); const lh = parseFloat(c.lineHeight); return lh ? +(lh / parseFloat(c.fontSize)).toFixed(2) : 1.2; })) || 1.2;
+  const offset = (el, k) => Number(read(el, k, () => 0)) || 0;
+
+  let pushTimer = 0;
+  // live: part of a drag, so no history entry yet (the gesture commits once on release).
+  function write(el, props, commitNow, live) {
+    if (el.dataset.locked === '1') { say(`"${el.dataset.node || el.dataset.id}" is locked. Unlock it in Layers to edit it.`); return false; }
+    const m = state();
+    if (!m.nodes[el.dataset.id]) return false;
+    const t = target();
+    for (const k in props) window.StudioModel.setProp(m, el.dataset.id, k, props[k], t.state, t.breakpoint);
+    window.StudioModel.writeCSS(window.StudioModel.emitCSS(m));
+    if (window.StudioInspector && window.StudioInspector.syncFromModel) window.StudioInspector.syncFromModel();
+    clearTimeout(pushTimer);
+    if (live) return true;
+    const go = () => { if (typeof push === 'function') push(); };
+    commitNow ? go() : (pushTimer = setTimeout(go, 300));
+    return true;
+  }
+
+  /* ------------------------------------------------------------ the ui */
+  const CSS = `
+  .tbx-live,.tbx-live *{transition:none!important}
+  .tbx{position:fixed;z-index:880;pointer-events:none;border:1px solid #0d99ff;box-shadow:0 0 0 1px rgba(13,153,255,.25)}
+  .tbx[hidden],.tbx-bar[hidden]{display:none!important}
+  .tbx-h{position:absolute;width:10px;height:10px;background:#fff;border:1.5px solid #0d99ff;border-radius:2px;pointer-events:auto;touch-action:none}
+  .tbx-h[data-h=nw]{left:-6px;top:-6px;cursor:nwse-resize}.tbx-h[data-h=se]{right:-6px;bottom:-6px;cursor:nwse-resize}
+  .tbx-h[data-h=ne]{right:-6px;top:-6px;cursor:nesw-resize}.tbx-h[data-h=sw]{left:-6px;bottom:-6px;cursor:nesw-resize}
+  .tbx-move{position:absolute;left:-1px;top:-26px;height:22px;padding:0 7px;border-radius:5px 5px 0 0;background:#0d99ff;color:#fff;font:600 11px/22px system-ui,sans-serif;pointer-events:auto;cursor:grab;border:0;touch-action:none;white-space:nowrap}
+  .tbx-move:active{cursor:grabbing}
+  .tbx-badge{position:absolute;right:-1px;bottom:-24px;padding:2px 6px;border-radius:4px;background:#0d99ff;color:#fff;font:600 11px/16px system-ui,sans-serif;font-variant-numeric:tabular-nums;pointer-events:none;opacity:0;transition:opacity .15s}
+  .tbx.scaling .tbx-badge{opacity:1}
+  .tbx-bar{position:fixed;z-index:890;display:flex;align-items:center;gap:4px;padding:4px;border-radius:10px;background:#1e1e1e;color:#eee;border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 30px rgba(0,0,0,.45);font:12px/1 system-ui,sans-serif}
+  .tbx-bar button,.tbx-bar select,.tbx-bar input{height:28px;border-radius:6px;background:transparent;color:inherit;border:1px solid transparent;font:inherit}
+  .tbx-bar button{min-width:28px;padding:0 6px;cursor:pointer}
+  .tbx-bar button:hover,.tbx-bar button[aria-pressed=true]{background:rgba(255,255,255,.1)}
+  .tbx-bar button:focus-visible,.tbx-bar input:focus-visible,.tbx-bar select:focus-visible{outline:2px solid #0d99ff;outline-offset:1px}
+  .tbx-bar input{width:52px;text-align:center;background:rgba(255,255,255,.06);font-variant-numeric:tabular-nums}
+  .tbx-bar select{padding:0 4px;background:rgba(255,255,255,.06)}
+  .tbx-bar .tbx-scrub{cursor:ew-resize;padding:0 4px;opacity:.7;user-select:none}
+  .tbx-bar .tbx-sep{width:1px;height:18px;background:rgba(255,255,255,.14);margin:0 2px}
+  .tbx-bar .tbx-hint{opacity:.55;font-size:11px;padding:0 6px;white-space:nowrap}
+  @media (max-width:900px){.tbx-bar .tbx-hint{display:none}}`;
+  const ALIGN_ICON = a => `<svg width="14" height="12" viewBox="0 0 14 12" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">${a === 'left' ? '<path d="M1 2h12M1 6h8M1 10h10"/>' : a === 'center' ? '<path d="M1 2h12M3 6h8M2 10h10"/>' : '<path d="M1 2h12M5 6h8M3 10h10"/>'}</g></svg>`;
+
+  let box, bar, cur = null, raf = 0;
+  function mount() {
+    if (box) return;
+    const st = document.createElement('style'); st.id = 'textboxStyle'; st.textContent = CSS; document.head.appendChild(st);
+    box = document.createElement('div'); box.className = 'tbx'; box.hidden = true; box.setAttribute('aria-hidden', 'true');
+    box.innerHTML = '<button type="button" class="tbx-move" title="Drag to move">✥ Move</button>' + ['nw', 'ne', 'sw', 'se'].map(h => `<span class="tbx-h" data-h="${h}"></span>`).join('') + '<span class="tbx-badge"></span>';
+    bar = document.createElement('div'); bar.className = 'tbx-bar'; bar.hidden = true; bar.setAttribute('role', 'toolbar'); bar.setAttribute('aria-label', 'Text');
+    bar.innerHTML = `<span class="tbx-scrub" title="Drag left or right to change the size">Size</span>
+      <button type="button" data-tb="dec" title="Smaller (⌘⇧<)" aria-label="Smaller">−</button>
+      <input id="tbxSize" type="number" min="4" max="400" step="1" aria-label="Font size in pixels">
+      <button type="button" data-tb="inc" title="Larger (⌘⇧>)" aria-label="Larger">+</button>
+      <span class="tbx-sep"></span>
+      <select id="tbxWeight" aria-label="Weight">${[300, 400, 500, 600, 700, 800, 900].map(w => `<option value="${w}">${w}</option>`).join('')}</select>
+      <span class="tbx-sep"></span>
+      ${['left', 'center', 'right'].map(a => `<button type="button" data-align="${a}" aria-label="Align ${a}" title="Align ${a}">${ALIGN_ICON(a)}</button>`).join('')}
+      <span class="tbx-hint">Drag a corner to resize · ⌘⇧&lt; &gt;</span>`;
+    document.body.append(box, bar);
+    // Keep editor clicks on the toolbar from reaching the page and deselecting.
+    bar.addEventListener('pointerdown', e => e.stopPropagation());
+    bar.addEventListener('click', e => e.stopPropagation());
+    bindBar(); bindHandles();
+  }
+
+  function syncBar() {
+    if (!cur) return;
+    const size = $('#tbxSize'); if (document.activeElement !== size) size.value = Math.round(fontSize(cur));
+    const w = String(read(cur, 'fontWeight', () => getComputedStyle(cur).fontWeight));
+    $('#tbxWeight').value = ['300', '400', '500', '600', '700', '800', '900'].includes(w) ? w : '400';
+    const al = read(cur, 'textAlign', () => getComputedStyle(cur).textAlign);
+    bar.querySelectorAll('[data-align]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.align === al || (al === 'start' && b.dataset.align === 'left'))));
+  }
+
+  function place() {
+    raf = 0;
+    const el = sel();
+    const show = active() && isText(el) && el.getClientRects().length;
+    if (!show) { if (box) { box.hidden = true; bar.hidden = true; } cur = null; return; }
+    mount();
+    if (cur !== el) { cur = el; syncBar(); }
+    const r = el.getBoundingClientRect();
+    box.hidden = false; bar.hidden = false;
+    Object.assign(box.style, { left: r.left - 3 + 'px', top: r.top - 3 + 'px', width: r.width + 6 + 'px', height: r.height + 6 + 'px' });
+    const bw = bar.offsetWidth, bh = bar.offsetHeight, topLimit = 60;
+    let top = r.top - bh - 34; if (top < topLimit) top = r.bottom + 30;
+    bar.style.left = clamp(r.left, 8, innerWidth - bw - 8) + 'px';
+    bar.style.top = clamp(top, topLimit, innerHeight - bh - 8) + 'px';
+    raf = requestAnimationFrame(place);          // follows scrolling, typing and reflow
+  }
+  const kick = () => { if (!raf) raf = requestAnimationFrame(place); };
+
+  /* ------------------------------------------------------------ gestures */
+  function drag(e, onMove, onEnd) {
+    e.preventDefault(); e.stopPropagation();
+    const h = e.currentTarget; try { h.setPointerCapture(e.pointerId); } catch { /* synthetic */ }
+    const move = q => onMove(q), up = q => { h.removeEventListener('pointermove', move); h.removeEventListener('pointerup', up); h.removeEventListener('pointercancel', up); onEnd(q); };
+    h.addEventListener('pointermove', move); h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up);
+  }
+
+  function bindHandles() {
+    box.querySelectorAll('.tbx-h').forEach(h => h.addEventListener('pointerdown', e => {
+      const el = cur; if (!el) return;
+      const r = el.getBoundingClientRect(), size0 = fontSize(el);
+      const sx = h.dataset.h.includes('e') ? 1 : -1, sy = h.dataset.h.includes('s') ? 1 : -1;
+      const len2 = r.width * r.width + r.height * r.height;
+      box.classList.add('scaling'); el.classList.add('tbx-live');
+      drag(e, q => {
+        // Project the pointer onto the box diagonal: dragging a corner away
+        // from its opposite corner grows the type, toward it shrinks it.
+        const dx = q.clientX - e.clientX, dy = q.clientY - e.clientY;
+        const f = 1 + (dx * sx * r.width + dy * sy * r.height) / len2;
+        const size = clamp(Math.round(size0 * f), 4, 400);
+        box.querySelector('.tbx-badge').textContent = size + 'px';
+        write(el, { fontSize: size }, false, true); syncBar();
+      }, () => { box.classList.remove('scaling'); el.classList.remove('tbx-live'); write(el, {}, true); say(`Text size ${Math.round(fontSize(el))}px.`); });
+    }));
+    box.querySelector('.tbx-move').addEventListener('pointerdown', e => {
+      const el = cur; if (!el) return;
+      const x0 = offset(el, 'offsetX'), y0 = offset(el, 'offsetY');
+      const snap = window.StudioShell && window.StudioShell.shell.view && window.StudioShell.shell.view.snap;
+      el.classList.add('tbx-live');
+      drag(e, q => {
+        let x = x0 + q.clientX - e.clientX, y = y0 + q.clientY - e.clientY;
+        if (snap || q.shiftKey) { x = Math.round(x / 8) * 8; y = Math.round(y / 8) * 8; }
+        write(el, { offsetX: Math.round(x), offsetY: Math.round(y) }, false, true);
+      }, () => { el.classList.remove('tbx-live'); write(el, {}, true); say('Moved. Undo puts it back.'); });
+    });
+  }
+
+  function bindBar() {
+    const size = $('#tbxSize');
+    const setSize = (v, now) => { if (cur && Number.isFinite(v)) { write(cur, { fontSize: clamp(Math.round(v), 4, 400) }, now); syncBar(); } };
+    bar.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b || !cur) return;
+      if (b.dataset.tb === 'inc') setSize(fontSize(cur) + (e.altKey ? 10 : 2), true);
+      if (b.dataset.tb === 'dec') setSize(fontSize(cur) - (e.altKey ? 10 : 2), true);
+      if (b.dataset.align) { write(cur, { textAlign: b.dataset.align }, true); syncBar(); }
+    });
+    size.addEventListener('input', () => setSize(Number(size.value)));
+    size.addEventListener('keydown', e => { if (e.key === 'Enter') { setSize(Number(size.value), true); size.blur(); } });
+    $('#tbxWeight').addEventListener('change', e => { if (cur) write(cur, { fontWeight: e.target.value }, true); });
+    // Figma-style scrub: drag the Size label sideways.
+    bar.querySelector('.tbx-scrub').addEventListener('pointerdown', e => {
+      if (!cur) return; const s0 = fontSize(cur);
+      const el = cur; el.classList.add('tbx-live');
+      drag(e, q => { write(el, { fontSize: clamp(Math.round(s0 + (q.clientX - e.clientX) / 2), 4, 400) }, false, true); syncBar(); }, () => { el.classList.remove('tbx-live'); write(el, {}, true); });
+    });
+  }
+
+  /* ------------------------------------------------------------ keys */
+  document.addEventListener('keydown', e => {
+    const el = sel();
+    if (!active() || !isText(el)) return;
+    const mod = e.metaKey || e.ctrlKey;
+    let props = null;
+    if (mod && e.shiftKey && (e.key === '>' || e.key === '.' || e.code === 'Period')) props = { fontSize: clamp(fontSize(el) + (e.altKey ? 10 : 2), 4, 400) };
+    else if (mod && e.shiftKey && (e.key === '<' || e.key === ',' || e.code === 'Comma')) props = { fontSize: clamp(fontSize(el) - (e.altKey ? 10 : 2), 4, 400) };
+    else if (e.altKey && !mod && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) props = { letterSpacing: +(tracking(el) + (e.key === 'ArrowRight' ? 2 : -2)).toFixed(1) };
+    else if (e.altKey && !mod && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) props = { lineHeight: +clamp(leading(el) + (e.key === 'ArrowDown' ? 0.05 : -0.05), 0.5, 3).toFixed(2) };
+    if (!props) return;
+    e.preventDefault(); e.stopPropagation();
+    write(el, props); syncBar();
+    if (props.fontSize) say(`Text size ${props.fontSize}px.`);
+    else if (props.letterSpacing !== undefined) say(`Letter spacing ${props.letterSpacing}.`);
+    else say(`Line height ${props.lineHeight}.`);
+  }, true);
+
+  /* ------------------------------------------------------------ wiring */
+  if (typeof window.select === 'function' && !window.select.__textbox) {
+    const inner = window.select;
+    const wrapped = function (...a) { const r = inner.apply(this, a); kick(); return r; };
+    wrapped.__textbox = true;
+    window.select = wrapped;
+  }
+  new MutationObserver(kick).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  addEventListener('scroll', kick, true);
+  addEventListener('resize', kick);
+  kick();
+  window.StudioTextBox = { refresh: kick };
+})();

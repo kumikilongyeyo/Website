@@ -141,7 +141,7 @@ function err(t=''){if($('.login-error'))$('.login-error').textContent=t}
 // gear is clicked, which is before the password has been typed, so they are
 // already in place by the time the editor opens. A visitor looking at artwork
 // never downloads the inspector, the shell or the asset library.
-const EDITOR_MODULES=['studio-shell.js','studio-inspector.js','studio-assets.js','studio-textfill.js'];
+const EDITOR_MODULES=['studio-shell.js','studio-inspector.js','studio-assets.js','studio-textfill.js','studio-textbox.js'];
 let editorModulesPromise=null;
 function ensureEditorModules(){
   if(editorModulesPromise)return editorModulesPromise;

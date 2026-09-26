@@ -56,6 +56,9 @@
 /studio-textfill.js
   Cache-Control: no-cache, no-store, must-revalidate
 
+/studio-textbox.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
 # The casino page is link-only: shared by Klyde with selected people, kept
 # out of search results. The illustration portfolio at / stays public.
 /casino.game
