@@ -31,6 +31,10 @@
 .cz-body ::selection { background: var(--cz-cyan); color: var(--cz-deep); }
 
 .casino.site { width: 100%; max-width: none; margin: 0; }
+/* The editor's phone/tablet preview caps .site with an inline max-width, while
+ * its side-panel padding stays on the same box; border-box left no width for
+ * the page. Content-box puts the panel room outside the preview width. */
+body.editing[data-viewport="mobile"] .casino.site, body.editing[data-viewport="tablet"] .casino.site { box-sizing: content-box; }
 /* The portfolio's button reset is scoped to its own markup, so reset here too. */
 :where(.cz-body .casino) button { appearance: none; background: transparent; border: 0; color: inherit; font: inherit; padding: 0; cursor: pointer; }
 .cz-wrap { width: min(var(--page-width, 1200px), calc(100% - 2 * var(--cz-gut))); margin-inline: auto; }
@@ -41,6 +45,14 @@
 
 /* Crosshair marks, the "+" registration ticks from the print layout. */
 .cz-cross { position: absolute; left: var(--cx); top: var(--cy); width: 14px; height: 14px; pointer-events: none; z-index: 3; opacity: .6; }
+/* Every "+" mark spins once, the first time it comes into view. */
+@keyframes cz-spin { from { transform: rotate(-180deg) scale(.3); opacity: 0; } 60% { opacity: 1; } to { transform: none; } }
+.cz-anim .cz-spin { opacity: 0; }
+.cz-anim .cz-spin.in { opacity: 1; animation: cz-spin .9s cubic-bezier(.2, .9, .25, 1.15) both; }
+.cz-anim .cz-tech:not(.in) li::before, .cz-anim .cz-tech:not(.in) li::after, .cz-anim .cz-connect-title:not(.in)::after { opacity: 0; }
+.cz-anim .cz-tech.in li::before, .cz-anim .cz-tech.in li::after, .cz-anim .cz-connect-title.in::after { display: inline-block; animation: cz-spin .9s cubic-bezier(.2, .9, .25, 1.15) both; }
+.cz-anim .cz-tech.in li:nth-child(2)::before, .cz-anim .cz-tech.in li:nth-child(2)::after { animation-delay: .12s; }
+.cz-anim .cz-tech.in li:nth-child(3)::before, .cz-anim .cz-tech.in li:nth-child(3)::after { animation-delay: .24s; }
 .cz-cross::before, .cz-cross::after { content: ""; position: absolute; background: #c7b8ff; }
 .cz-cross::before { left: 6px; top: 0; width: 2px; height: 14px; }
 .cz-cross::after { left: 0; top: 6px; width: 14px; height: 2px; }
@@ -49,7 +61,13 @@
 .cz-hero { position: relative; isolation: isolate; min-height: min(max(620px, 100svh), 1000px); display: grid; grid-template-rows: auto 1fr; overflow: hidden; }
 .casino .cz-hero-stage { position: absolute; inset: 0; z-index: -2; min-height: 0; border: 0; border-radius: 0; background: var(--bg); }
 .casino .cz-hero-stage .hero-media { position: absolute; inset: 0; }
-.casino .cz-hero-stage .hero-main { width: 100%; height: 100%; object-fit: cover; object-position: var(--hero-x, 62%) var(--hero-y, 50%); transform: scale(var(--hero-scale, 1)); }
+/* Framing is set in the editor (Casino page images → Hero image), separately
+ * for desktop and phone, so the driver's face can be kept clear of the text. */
+.casino .cz-hero-stage .hero-main { width: 100%; height: 100%; object-fit: cover; object-position: var(--czh-x, 62%) var(--czh-y, 50%); transform: scale(var(--czh-s, 1)); transform-origin: var(--czh-x, 62%) var(--czh-y, 50%); }
+body[data-viewport="mobile"] .casino .cz-hero-stage .hero-main { object-position: var(--czh-mx, 70%) var(--czh-my, 50%); transform: scale(var(--czh-ms, 1)); transform-origin: var(--czh-mx, 70%) var(--czh-my, 50%); }
+body.cz-hero-drag .cz-hero { cursor: grab; }
+body.cz-hero-drag .cz-hero:active { cursor: grabbing; }
+body.cz-hero-drag .cz-hero::after { content: "Drag to move the image"; position: absolute; right: 16px; bottom: 16px; z-index: 5; padding: 6px 10px; border-radius: 6px; background: rgba(0, 0, 0, .7); color: #fff; font: 600 12px/1 var(--body); pointer-events: none; }
 /* Legibility: dark on the left where the headline sits, and a fade into the page. */
 .cz-hero-shade { position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
@@ -66,7 +84,8 @@
   /* On a phone the headline sits over the windshield, so the top half gets its own shade. */
   .cz-hero-shade { background:
     linear-gradient(180deg, rgba(13, 11, 42, .82) 0%, rgba(13, 11, 42, .55) 42%, rgba(13, 11, 42, .1) 62%, rgba(13, 11, 42, .5) 80%, var(--bg) 100%); }
-  .casino .cz-hero-stage .hero-main { object-position: 70% 50%; }
+  .casino .cz-hero-stage .hero-main { object-position: var(--czh-mx, 70%) var(--czh-my, 50%); transform: scale(var(--czh-ms, 1)); transform-origin: var(--czh-mx, 70%) var(--czh-my, 50%); }
+  .cz-cross.tl { display: none; }
 }
 .cz-hero-pitch { margin: 0; text-shadow: 0 1px 8px rgba(0, 0, 0, .7); font-weight: 600; font-size: 15px; line-height: 1.5; color: color-mix(in srgb, var(--cz-ink) 88%, transparent); max-width: 46ch; }
 
@@ -76,7 +95,7 @@ body.editing .cz-nav { top: var(--bar, 52px); }
 .cz-nav-inner { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); width: min(var(--page-width, 1200px), 100%); margin-inline: auto; }
 .cz-nav a { display: block; padding: 18px 8px; text-align: center; font-size: clamp(13px, 1.4vw, 17px); letter-spacing: .06em; text-transform: uppercase; color: var(--cz-muted); transition: color .2s; }
 .cz-nav a:hover, .cz-nav a[aria-current="true"] { color: var(--cz-ink); }
-.cz-nav-bar { position: absolute; top: -1px; left: 0; width: calc(100% / 3); height: 2px; background: linear-gradient(90deg, transparent, var(--cz-ink) 20%, var(--cz-ink) 80%, transparent); transform: translateX(calc(var(--i, 0) * 100%)); transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+.cz-nav-bar { position: absolute; top: -1px; left: 0; width: calc(100% / 3); height: 2px; background: var(--cz-ink); transform: translateX(calc(var(--i, 0) * 100%)); transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
 
 /* -------------------------------------------------------------- sections */
 .cz-section { position: relative; isolation: isolate; padding-block: clamp(64px, 9vw, 120px) clamp(32px, 5vw, 64px); scroll-margin-top: 58px; }
@@ -126,7 +145,7 @@ body.editing .cz-nav { top: var(--bar, 52px); }
 /* The board copies the PDF composition: a 12-column grid where every symbol
  * carries its own width (--s columns) and height (--r rows), set per image in
  * the editor. */
-.cz-board { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: clamp(30px, 4.3vw, 54px); grid-auto-flow: dense; gap: clamp(6px, 1vw, 12px); padding: clamp(14px, 3vw, 40px); border-radius: 28px; background: rgba(255, 255, 255, .035); border: 1px solid rgba(255, 255, 255, .08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+.cz-board { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: clamp(30px, calc(4.3vw * var(--bz, 1)), calc(54px * var(--bz, 1))); grid-auto-flow: dense; gap: clamp(6px, 1vw, 12px); padding: clamp(14px, 3vw, 40px); border-radius: 28px; background: rgba(255, 255, 255, .035); border: 1px solid rgba(255, 255, 255, .08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
 .cz-icon { position: relative; grid-column: span var(--s, 3); grid-row: span var(--r, 4); display: grid; place-items: center; min-width: 0; padding: 6px; }
 /* Absolutely placed, so a tall image can never outgrow a short cell. */
 .cz-icon img { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); object-fit: contain; filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .4)); }
@@ -198,12 +217,22 @@ body.editing .cz-nav { top: var(--bar, 52px); }
 .cz-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .cz-link { display: grid; justify-items: center; gap: 14px; padding: 8px; font-size: 14px; font-weight: 700; color: var(--cz-ink); overflow-wrap: anywhere; text-align: center; transition: color .2s; }
 .cz-link:hover { color: var(--cz-cyan); }
-.cz-link::before { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(135deg, #1f8bff, #39e6ff); color: var(--cz-deep); font-family: Arial, Helvetica, sans-serif; font-weight: 900; font-size: 19px; line-height: 1; transition: transform .25s cubic-bezier(.2, .8, .2, 1); }
+/* Brand marks: Behance and ArtStation are the official glyphs (Simple Icons,
+ * CC0) drawn as a mask; LinkedIn's mark is its "in" on the blue tile. */
+.cz-link::before { content: ""; display: block; width: 40px; height: 40px; border-radius: 8px; transition: transform .25s cubic-bezier(.2, .8, .2, 1); }
 .cz-link:hover::before { transform: translateY(-3px); }
-.cz-link[data-link-key="behance"]::before { content: "Bē"; }
-.cz-link[data-link-key="artstation"]::before { content: "A"; }
-.cz-link[data-link-key="linkedin"]::before { content: "in"; }
-@media (max-width: 640px) { .cz-links { grid-template-columns: 1fr; } }
+.cz-link { position: relative; }
+.cz-link[data-link-key="behance"]::before { background: url("https://cdn.simpleicons.org/behance/ffffff") center / 62% no-repeat, #1769ff; }
+.cz-link[data-link-key="artstation"]::before { background: #13aff0; -webkit-mask: url("https://cdn.jsdelivr.net/npm/simple-icons@13/icons/artstation.svg") center / 100% no-repeat; mask: url("https://cdn.jsdelivr.net/npm/simple-icons@13/icons/artstation.svg") center / 100% no-repeat; border-radius: 0; }
+.cz-link[data-link-key="linkedin"]::before { content: "in"; display: grid; place-items: center; background: #0a66c2; color: #fff; font-family: Arial, Helvetica, sans-serif; font-weight: 700; font-size: 24px; letter-spacing: -.02em; line-height: 1; padding-top: 2px; }
+@media (max-width: 640px) {
+  /* Three full URLs cannot share one phone-width row, so phones show the
+   * platform name under each mark; the link still opens the full URL. */
+  .cz-links { gap: 8px; }
+  .cz-link { font-size: 0; gap: 10px; padding: 4px; }
+  .cz-link::after { content: attr(data-name); font-size: 12px; font-weight: 700; }
+  .cz-link::before { width: 40px; height: 40px; }
+}
 .cz-foot { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 40px; font-size: 12px; color: var(--cz-muted); }
 
 /* ------------------------------------------------- first-appearance motion
@@ -213,15 +242,18 @@ body.editing .cz-nav { top: var(--bar, 52px); }
  */
 .cz-anim .cz-card { opacity: 0; transform: translateY(48px); transition: opacity .7s ease, transform .9s cubic-bezier(.2, .8, .2, 1); }
 .cz-anim .cz-card .cz-card-art img { opacity: 0; transform: translateY(40px) scale(.88); transform-origin: 50% 100%; transition: opacity .6s ease .18s, transform 1s cubic-bezier(.18, 1.25, .4, 1) .18s; }
-.cz-anim .cz-card .cz-card-copy > * { opacity: 0; transform: translateX(calc(var(--from, 1) * 32px)); transition: opacity .6s ease, transform .8s cubic-bezier(.2, .8, .2, 1); }
+/* `translate`, not `transform`: text objects keep their Move-mode offset in transform. */
+.cz-anim .cz-card .cz-card-copy > * { opacity: 0; translate: calc(var(--from, 1) * 32px) 0; transition: opacity .6s ease, translate .8s cubic-bezier(.2, .8, .2, 1); }
 .cz-anim .cz-card .cz-card-copy > :nth-child(1) { transition-delay: .3s; }
 .cz-anim .cz-card .cz-card-copy > :nth-child(2) { transition-delay: .42s; }
 .cz-anim .cz-card-flip { --from: -1; }
-.cz-anim .cz-card.in, .cz-anim .cz-card.in .cz-card-art img, .cz-anim .cz-card.in .cz-card-copy > * { opacity: 1; transform: none; }
+.cz-anim .cz-card.in, .cz-anim .cz-card.in .cz-card-art img { opacity: 1; transform: none; }
+.cz-anim .cz-card.in .cz-card-copy > * { opacity: 1; translate: none; }
 .cz-anim .cz-board .cz-icon { opacity: 0; transform: translateY(18px) scale(.86); transition: opacity .45s ease var(--d, 0ms), transform .6s cubic-bezier(.18, 1.3, .4, 1) var(--d, 0ms); }
 .cz-anim .cz-board.in .cz-icon { opacity: 1; transform: none; }
 /* The editor always shows the resting state. */
-body.editing .cz-card, body.editing .cz-card *, body.editing .cz-board .cz-icon { opacity: 1 !important; transform: none !important; }
+body.editing .cz-card, body.editing .cz-card-art img, body.editing .cz-board .cz-icon, body.editing .cz-spin { opacity: 1 !important; transform: none !important; animation: none !important; }
+body.editing .cz-card-copy > * { opacity: 1 !important; translate: none !important; }
 
 /* --------------------------------------------------------------- motion */
 @media (prefers-reduced-motion: reduce) {

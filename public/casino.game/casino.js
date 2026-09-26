@@ -77,15 +77,28 @@
       : `<span class="cz-tech-name">${esc(t.name || 'Tool')}</span>`}</li>`).join('');
   }
 
+  // Hero framing, desktop and phone, as CSS variables on the hero.
+  const HERO_DEF = { x: 62, y: 50, s: 1, mx: 70, my: 50, ms: 1 };
+  const heroPos = () => ({ ...HERO_DEF, ...(C().hero || {}) });
+  function renderHero() {
+    const h = $('.cz-hero'); if (!h) return;
+    const p = heroPos();
+    h.style.setProperty('--czh-x', p.x + '%'); h.style.setProperty('--czh-y', p.y + '%'); h.style.setProperty('--czh-s', p.s);
+    h.style.setProperty('--czh-mx', p.mx + '%'); h.style.setProperty('--czh-my', p.my + '%'); h.style.setProperty('--czh-ms', p.ms);
+    const b = $('.cz-board'); if (b) b.style.setProperty('--bz', (C().board && C().board.zoom) || 1);
+  }
+
   function renderAll() {
-    renderLogos(); renderIcons(); renderServices(); renderAbout(); Wall.build();
+    renderHero(); renderLogos(); renderIcons(); renderServices(); renderAbout(); Wall.build();
     if (panelOpen()) renderPanel();
   }
 
   /* ------------------------------------------------------------- wall */
   const Wall = (() => {
     const wall = $('.cz-wall'), host = $('.cz-wall-cols');
-    let cols = [], drift = 0, last = 0, running = false, visible = false, loaded = false, raf = 0;
+    // armed: the drift only starts once half the wall has been on screen, so
+    // the starting screens are still in place when a visitor reaches it.
+    let cols = [], drift = 0, last = 0, running = false, visible = false, loaded = false, raf = 0, armed = false;
 
     // Phones get 4 columns too (the user asked for the same 4:5 wall on mobile).
     function colCount() { return phone.matches ? 4 : Math.max(2, Math.min(6, Number(C().wall.columns) || 4)); }
@@ -113,7 +126,10 @@
         const html = copy => mine.map(s => `<div class="cz-shot"${copy ? ' aria-hidden="true"' : ''}><img ${loaded ? 'src' : 'data-src'}="${esc(s.src)}" alt="${copy ? '' : 'Gameplay screen'}"${sizeAttrs(s)} decoding="async"></div>`).join('');
         track.innerHTML = html(false) + html(true);
         col.appendChild(track); host.appendChild(col);
-        cols.push({ track, dir: c % 2 ? 1 : -1, off: (c * 137) % 400, half: 0 });
+        // No per-column offset: when the wall first appears every column starts
+        // on its first screen, so the list order decides what is seen first
+        // (screens 1–4 across the top row, 5–8 below, and so on).
+        cols.push({ track, dir: c % 2 ? 1 : -1, off: 0, half: 0 });
       }
       measure();
       $$('img', host).forEach(im => im.addEventListener('load', measure, { once: true }));
@@ -130,7 +146,9 @@
     // Loop + scroll: constant drift, plus the page's scroll position.
     function place() {
       const rect = wall.getBoundingClientRect();
-      const sc = (innerHeight - rect.top) * (Number(C().wall.scroll) || 0) / 100;
+      // Zero when the wall is centred on screen, which is when it is first seen
+    // whole: the columns rest on their starting screens there.
+    const sc = (innerHeight / 2 - (rect.top + rect.height / 2)) * (Number(C().wall.scroll) || 0) / 100;
       for (const c of cols) {
         if (!c.half) continue;
         let y = ((c.off + drift + sc) % c.half + c.half) % c.half;
@@ -142,7 +160,7 @@
     function frame(t) {
       const dt = last ? Math.min(0.05, (t - last) / 1000) : 0;
       last = t;
-      drift += (Number(C().wall.speed) || 0) * dt;
+      if (armed) drift += (Number(C().wall.speed) || 0) * dt;
       place();
       raf = requestAnimationFrame(frame);
     }
@@ -159,8 +177,9 @@
       new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) load(); }, { rootMargin: '900px 0px' }).observe(wall);
       new IntersectionObserver(es => {
         visible = es.some(e => e.isIntersecting);
+        if (es.some(e => e.intersectionRatio >= 0.5)) armed = true;
         visible ? start() : stop();
-      }).observe(wall);
+      }, { threshold: [0, 0.5] }).observe(wall);
       addEventListener('scroll', () => { if (!running && visible) place(); }, { passive: true });
       addEventListener('resize', () => { measure(); place(); });
       phone.addEventListener('change', build);
@@ -179,10 +198,11 @@
       e.target.classList.add('in');
       io.unobserve(e.target);
     }), { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
-    $$('.cz-card, .cz-board').forEach(el => io.observe(el));
+    const targets = '.cz-card, .cz-board, .cz-spin, .cz-tech, .cz-connect-title';
+    $$(targets).forEach(el => io.observe(el));
     // Anything already on screen at load (a deep link, a refresh mid-page)
     // must not wait for a scroll to appear.
-    requestAnimationFrame(() => $$('.cz-card, .cz-board').forEach(el => {
+    requestAnimationFrame(() => $$(targets).forEach(el => {
       const r = el.getBoundingClientRect();
       if (r.top < innerHeight && r.bottom > 0) el.classList.add('in');
     }));
@@ -209,7 +229,7 @@
   /* ------------------------------------------------------ editor panel */
   const LISTS = [
     { key: 'logos', label: 'Game logos', fields: [['name', 'Game name']], note: 'Shown in the Works grid, in this order. Display only, not clickable.' },
-    { key: 'screens', label: 'Screens wall', fields: [], note: 'Gameplay screenshots. They are dealt across the columns in this order.' },
+    { key: 'screens', label: 'Screens wall', fields: [], note: 'What visitors see first: the wall starts on screens 1–4 across the top row, then 5–8 below it. Reorder with ↑ ↓ to choose. The label on each row shows where it starts.' },
     { key: 'icons', label: 'Icons & symbols', fields: [['title', 'Name (read out by screen readers)'], ['span', 'Width (1–12 columns)', 'num'], ['rows', 'Height (rows)', 'num']], note: 'A static board, like the PDF. It is 12 columns wide: set each symbol’s width (W) and height (H) to lay it out.' },
     { key: 'tech', label: 'Technologies', fields: [['name', 'Name']], note: 'With no image, the name is shown as text.', allowEmpty: true },
   ];
@@ -232,6 +252,12 @@
     return { src: res.src, w, h, name: file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ') };
   }
 
+  // Where a screen sits when the wall first appears, on desktop.
+  function startSlot(i) {
+    const n = Math.max(2, Math.min(6, Number(C().wall.columns) || 4));
+    return `Row ${Math.floor(i / n) + 1}, col ${(i % n) + 1}`;
+  }
+
   function rowHTML(list, it, i) {
     const nums = list.fields.filter(f => f[2] === 'num');
     const fields = list.fields.filter(f => f[2] !== 'num').map(([k, label, long]) => long
@@ -241,7 +267,7 @@
     const file = (it.src || '').split('/').pop();
     return `<div class="cz-row" data-i="${i}">
       ${it.src ? `<img src="${esc(it.src)}" alt="">` : '<span class="cz-thumb-empty"></span>'}
-      <div class="cz-fields">${fields || `<span class="cz-meta" title="${esc(it.src)}">${esc(file)}</span>`}</div>
+      <div class="cz-fields">${fields || `<span class="cz-meta" title="${esc(it.src)}">${list.key === 'screens' ? `<b>${startSlot(i)}</b> · ` : ''}${esc(file)}</span>`}</div>
       <div class="cz-ops"><button type="button" data-op="up" aria-label="Move up">↑</button><button type="button" data-op="down" aria-label="Move down">↓</button><button type="button" data-op="del" aria-label="Remove">✕</button></div></div>`;
   }
 
@@ -267,6 +293,16 @@
           <div class="cz-row">${c.avatar.src ? `<img src="${esc(c.avatar.src)}" alt="">` : '<span class="cz-thumb-empty"></span>'}<div class="cz-fields"><span class="cz-meta">Profile photo</span></div>
             <div class="cz-ops"><label class="file-btn" style="padding:0 6px">Replace<input type="file" accept="image/*" data-avatar hidden></label></div></div>
         </div></details>
+      <details data-key="hero"${openKeys.includes('hero') ? ' open' : ''}><summary>Hero image position</summary>
+        <p class="cz-note">Keep the driver clear of the headline. Turn on dragging and drag the image, or use the sliders. Desktop and phone are framed separately; the editor's phone preview edits the phone framing.</p>
+        <button type="button" class="file-btn" data-hero-drag aria-pressed="${document.body.classList.contains('cz-hero-drag')}">${document.body.classList.contains('cz-hero-drag') ? 'Stop dragging' : 'Drag the hero image'}</button>
+        ${[['x', 'Desktop X', 0, 100], ['y', 'Desktop Y', 0, 100], ['s', 'Desktop zoom', 1, 2, .01], ['mx', 'Phone X', 0, 100], ['my', 'Phone Y', 0, 100], ['ms', 'Phone zoom', 1, 2, .01]].map(([k, l, lo, hi, st]) =>
+          `<div class="ctrl"><label for="czHero_${k}">${l}</label><div class="scrub"><input id="czHero_${k}Range" data-hero="${k}" type="range" min="${lo}" max="${hi}" step="${st || 1}" value="${heroPos()[k]}"><input id="czHero_${k}" data-hero="${k}" type="number" min="${lo}" max="${hi}" step="${st || 1}" value="${heroPos()[k]}"></div></div>`).join('')}
+      </details>
+      <details data-key="board"${openKeys.includes('board') ? ' open' : ''}><summary>Icons board size</summary>
+        <p class="cz-note">The glass board grows with its symbols. Make it taller here, or give a symbol more W/H in the list above.</p>
+        <div class="ctrl"><label for="czBoard">Row height</label><div class="scrub"><input id="czBoardRange" data-board type="range" min="0.6" max="1.8" step="0.05" value="${(c.board && c.board.zoom) || 1}"><input id="czBoard" data-board type="number" min="0.6" max="1.8" step="0.05" value="${(c.board && c.board.zoom) || 1}"></div></div>
+      </details>
       <details data-key="wall"${openKeys.includes('wall') ? ' open' : ''}><summary>Screens wall motion</summary>
         <div class="ctrl"><label for="czCols">Columns</label><div class="scrub"><input id="czColsRange" type="range" min="2" max="6" step="1" value="${c.wall.columns}"><input id="czCols" type="number" min="2" max="6" value="${c.wall.columns}"></div></div>
         <div class="ctrl"><label for="czSpeed">Drift speed</label><div class="scrub"><input id="czSpeedRange" type="range" min="0" max="120" value="${c.wall.speed}"><input id="czSpeed" type="number" min="0" max="200" value="${c.wall.speed}"></div></div>
@@ -293,6 +329,20 @@
         clearTimeout(p._t); p._t = setTimeout(() => { renderLogos(); renderIcons(); renderAbout(); commit(); }, 250);
         return;
       }
+      if (e.target.dataset.hero) {
+        const k = e.target.dataset.hero, v = Number(e.target.value);
+        C().hero = { ...heroPos(), [k]: v };
+        $$(`[data-hero="${k}"]`, p).forEach(i => { if (i !== e.target) i.value = v; });
+        renderHero(); clearTimeout(p._h); p._h = setTimeout(() => commit(), 250);
+        return;
+      }
+      if (e.target.hasAttribute('data-board')) {
+        const v = Number(e.target.value);
+        C().board = { ...(C().board || {}), zoom: v };
+        $$('[data-board]', p).forEach(i => { if (i !== e.target) i.value = v; });
+        renderHero(); clearTimeout(p._b); p._b = setTimeout(() => commit(), 250);
+        return;
+      }
       const pairs = { czCols: 'columns', czSpeed: 'speed', czScroll: 'scroll' };
       for (const id in pairs) {
         if (e.target.id === id || e.target.id === id + 'Range') {
@@ -306,6 +356,14 @@
     });
 
     p.addEventListener('click', e => {
+      const hd = e.target.closest('[data-hero-drag]');
+      if (hd) {
+        const on = document.body.classList.toggle('cz-hero-drag');
+        hd.setAttribute('aria-pressed', String(on)); hd.textContent = on ? 'Stop dragging' : 'Drag the hero image';
+        if (typeof status === 'function') status(on ? 'Drag the hero image to reposition it. Click "Stop dragging" when done.' : 'Hero dragging off.');
+        if (on) $('.cz-hero').scrollIntoView({ block: 'start', behavior: 'instant' });
+        return;
+      }
       const op = e.target.closest('[data-op]');
       if (op) {
         const key = op.closest('[data-list]').dataset.list, i = Number(op.closest('.cz-row').dataset.i), arr = C()[key];
@@ -334,6 +392,8 @@
 
     p.addEventListener('change', async e => {
       const t = e.target;
+      // Start positions depend on the column count; refresh them once the slider is released.
+      if (t.id === 'czCols' || t.id === 'czColsRange') { renderPanel(); return; }
       if (!(t instanceof HTMLInputElement) || t.type !== 'file' || !t.files.length) return;
       const files = [...t.files];
       t.value = '';
@@ -362,6 +422,33 @@
       }
     });
   }
+
+  /* ------------------------------------------------ hero image dragging
+   * Only while "Drag the hero image" is on. Captured before the editor's own
+   * Move-mode handler, which would otherwise select and move an object.
+   */
+  document.addEventListener('pointerdown', e => {
+    if (!editingNow() || !document.body.classList.contains('cz-hero-drag')) return;
+    const hero = e.target.closest && e.target.closest('.cz-hero');
+    if (!hero || e.target.closest('.inspector, .devbar, .layers')) return;
+    e.preventDefault(); e.stopPropagation();
+    const phoneView = innerWidth <= 720 || document.body.dataset.viewport === 'mobile';
+    const kx = phoneView ? 'mx' : 'x', ky = phoneView ? 'my' : 'y';
+    const r = hero.getBoundingClientRect();
+    const start = { x: e.clientX, y: e.clientY, px: heroPos()[kx], py: heroPos()[ky] };
+    const clamp = v => Math.max(0, Math.min(100, Math.round(v * 10) / 10));
+    const move = q => {
+      // Dragging right reveals more of the left of the picture, so the focus moves left.
+      C().hero = { ...heroPos(), [kx]: clamp(start.px - (q.clientX - start.x) / r.width * 100), [ky]: clamp(start.py - (q.clientY - start.y) / r.height * 100) };
+      renderHero();
+    };
+    const up = () => {
+      removeEventListener('pointermove', move); removeEventListener('pointerup', up);
+      if (panelOpen()) renderPanel();
+      commit(`Hero ${phoneView ? 'phone' : 'desktop'} framing: ${heroPos()[kx]}% × ${heroPos()[ky]}%.`);
+    };
+    addEventListener('pointermove', move); addEventListener('pointerup', up);
+  }, true);
 
   /* ---------------------------------------------------- editor wiring
    * applyState() (load, undo, redo, rollback) swaps G for a new object, so the
