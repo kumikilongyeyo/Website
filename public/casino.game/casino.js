@@ -16,6 +16,12 @@
 (() => {
   'use strict';
 
+  // A reload must start at the top, on the hero's first frame. Browsers restore
+  // the old scroll position by default, which landed visitors mid-animation
+  // with the text already shown. A #works style link still jumps as asked.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (!location.hash) scrollTo(0, 0);
+
   const $ = (s, p = document) => p.querySelector(s);
   const $$ = (s, p = document) => [...p.querySelectorAll(s)];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -455,7 +461,7 @@
     return `<div class="cz-row" data-i="${i}">
       ${it.src ? `<img src="${esc(it.src)}" alt="">` : '<span class="cz-thumb-empty"></span>'}
       <div class="cz-fields">${fields || `<span class="cz-meta" title="${esc(it.src)}">${list.key === 'screens' ? `<b>${startSlot(i)}</b> · ` : ''}${esc(file)}</span>`}</div>
-      <div class="cz-ops"><button type="button" data-op="up" aria-label="Move up">↑</button><button type="button" data-op="down" aria-label="Move down">↓</button><button type="button" data-op="del" aria-label="Remove">✕</button></div></div>`;
+      <div class="cz-ops"><button type="button" data-op="del" aria-label="Remove">✕</button></div></div>`;
   }
 
   function renderPanel() {
@@ -465,8 +471,9 @@
     const openKeys = $$('details[open]', box).map(d => d.dataset.key);
     box.innerHTML = LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
         <summary>${l.label} (${c[l.key].length})</summary>
-        <p class="cz-note">${l.note}</p>
-        <div class="cz-list" data-list="${l.key}">${c[l.key].map((it, i) => rowHTML(l, it, i)).join('')}</div>
+        <p class="cz-note">${l.note} Click to select, Shift-click for a range, ⌘/Ctrl-click to add one, then drag to reorder. Delete removes the selection.</p>
+        <div class="cz-selbar" data-selbar="${l.key}" hidden></div>
+        <div class="cz-list" data-list="${l.key}" aria-label="${l.label}: click to select, Shift-click for a range, ⌘ or Ctrl-click to add one, then drag to reorder">${c[l.key].map((it, i) => rowHTML(l, it, i)).join('')}</div>
         <div class="cz-add"><label class="file-btn">Add images<input type="file" accept="image/*" multiple data-add="${l.key}" hidden></label>
           <input type="url" placeholder="…or paste an image URL" data-url="${l.key}"><button type="button" data-add-url="${l.key}">Add</button></div>
       </details>`).join('') +
@@ -527,7 +534,104 @@
           ${ctl(`decor.${i}.op`, 'Opacity', 0, 1, 0.01, d.op)}${ctl(`decor.${i}.rot`, 'Rotation (°)', -180, 180, 1, d.rot || 0)}</div>`).join('')}
         <label class="file-btn">Add a decoration<input type="file" accept="image/*" data-decor-add hidden></label>
       </details>`;
+    // Re-rendering the panel keeps what was selected (and drops indices that no longer exist).
+    Object.keys(SEL).forEach(k => { SEL[k].forEach(i => { if (i >= (c[k] || []).length) SEL[k].delete(i); }); paintSel(k); });
   }
+
+  /* ------------------------------------------ list selection + dragging */
+  const SEL = {}, ANCHOR = {};
+  const selOf = key => (SEL[key] = SEL[key] || new Set());
+  function paintSel(key) {
+    const box = $(`#czPanel .cz-list[data-list="${key}"]`); if (!box) return;
+    const sel = selOf(key);
+    $$('.cz-row', box).forEach(r => r.classList.toggle('sel', sel.has(Number(r.dataset.i))));
+    const bar = $(`#czPanel [data-selbar="${key}"]`);
+    if (bar) { bar.hidden = !sel.size; bar.innerHTML = sel.size ? `<span>${sel.size} selected</span><button type="button" data-sel-remove="${key}">Remove</button><button type="button" data-sel-clear="${key}">Clear</button>` : ''; }
+  }
+  function clickSelect(key, i, shift, meta) {
+    const sel = selOf(key);
+    if (shift && ANCHOR[key] !== undefined) {
+      if (!meta) sel.clear();
+      const [a, b] = [ANCHOR[key], i].sort((x, y) => x - y);
+      for (let k = a; k <= b; k++) sel.add(k);
+    } else if (meta) { sel.has(i) ? sel.delete(i) : sel.add(i); ANCHOR[key] = i; }
+    else { sel.clear(); sel.add(i); ANCHOR[key] = i; }
+    paintSel(key);
+  }
+  function removeSelected(key) {
+    const sel = selOf(key); if (!sel.size) return;
+    const n = sel.size;
+    C()[key] = C()[key].filter((_, i) => !sel.has(i));
+    sel.clear(); delete ANCHOR[key];
+    renderAll(); commit(`Removed ${n} image${n > 1 ? 's' : ''}. Undo brings ${n > 1 ? 'them' : 'it'} back.`);
+  }
+
+  let drag = null;
+  function dropIndex(box, y) {
+    const rows = $$('.cz-row', box);
+    for (const r of rows) { const b = r.getBoundingClientRect(); if (y < b.top + b.height / 2) return { i: Number(r.dataset.i), before: r }; }
+    return { i: rows.length, before: null };
+  }
+  function onDragMove(e) {
+    if (!drag) return;
+    if (!drag.started) {
+      if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 5) return;
+      drag.started = true;
+      const sel = selOf(drag.key);
+      if (!sel.has(drag.i)) { sel.clear(); sel.add(drag.i); ANCHOR[drag.key] = drag.i; paintSel(drag.key); }
+      $$('.cz-row', drag.box).forEach(r => r.classList.toggle('dragging', sel.has(Number(r.dataset.i))));
+      drag.ghost = Object.assign(document.createElement('div'), { className: 'cz-drag-ghost', textContent: `Moving ${sel.size} image${sel.size > 1 ? 's' : ''}` });
+      drag.line = Object.assign(document.createElement('div'), { className: 'cz-drop' });
+      document.body.appendChild(drag.ghost);
+    }
+    drag.ghost.style.left = e.clientX + 14 + 'px'; drag.ghost.style.top = e.clientY + 10 + 'px';
+    const t = dropIndex(drag.box, e.clientY);
+    drag.target = t.i;
+    t.before ? drag.box.insertBefore(drag.line, t.before) : drag.box.appendChild(drag.line);
+    // Scroll the inspector while dragging near its top or bottom edge.
+    const sc = drag.box.closest('.inspect-scroll');
+    if (sc) { const b = sc.getBoundingClientRect(); if (e.clientY < b.top + 40) sc.scrollTop -= 14; else if (e.clientY > b.bottom - 40) sc.scrollTop += 14; }
+  }
+  function onDragEnd() {
+    if (!drag) return;
+    const d = drag; drag = null;
+    removeEventListener('pointermove', onDragMove); removeEventListener('pointerup', onDragEnd);
+    if (!d.started) return clickSelect(d.key, d.i, d.shift, d.meta);
+    d.ghost.remove(); d.line.remove();
+    const arr = C()[d.key], sel = [...selOf(d.key)].sort((a, b) => a - b);
+    const moving = sel.map(i => arr[i]), rest = arr.filter((_, i) => !selOf(d.key).has(i));
+    const at = d.target - sel.filter(i => i < d.target).length;
+    C()[d.key] = [...rest.slice(0, at), ...moving, ...rest.slice(at)];
+    const next = selOf(d.key); next.clear(); moving.forEach((_, k) => next.add(at + k)); ANCHOR[d.key] = at;
+    renderAll(); paintSel(d.key);
+    commit(`Moved ${moving.length} image${moving.length > 1 ? 's' : ''}.`);
+  }
+  document.addEventListener('keydown', e => {
+    if (!panelOpen() || e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+    const key = Object.keys(SEL).find(k => SEL[k].size);
+    if (!key) return;
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeSelected(key); }
+    else if (e.key === 'Escape') { SEL[key].clear(); paintSel(key); }
+  });
+
+  /* ---------------------------------------- finding the right controls */
+  const JUMPS = [['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
+  function openSection(key) {
+    const tab = $('.inspect-tab[data-tab="site"]'); if (tab && !tab.classList.contains('active')) tab.click();
+    mountPanel();
+    const d = $(`#czPanel details[data-key="${key}"]`); if (!d) return;
+    d.open = true;
+    d.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    d.classList.add('cz-flash'); setTimeout(() => d.classList.remove('cz-flash'), 1200);
+  }
+  // In the editor, clicking a part of the page opens its settings.
+  const CANVAS = [['.cz-logos', 'logos'], ['.cz-wall', 'screens'], ['.cz-board', 'icons'], ['.cz-tech', 'tech'], ['.cz-card-art', 'slots'], ['.cz-avatar', 'slots']];
+  document.addEventListener('click', e => {
+    if (!editingNow() || document.body.classList.contains('previewing') || !e.target.closest) return;
+    if (e.target.closest('.inspector, .layers, .devbar, .savebar, [data-node]')) return;
+    const hit = CANVAS.find(([sel]) => e.target.closest(sel));
+    if (hit) setTimeout(() => openSection(hit[1]), 0);
+  });
 
   function mountPanel() {
     if (panelOpen()) return;
@@ -535,7 +639,8 @@
     if (!site) return;
     const p = document.createElement('div');
     p.className = 'panel cz-panel'; p.id = 'czPanel';
-    p.innerHTML = '<h4>Casino page images</h4><p class="editor-note">Everything here is saved with Publish, like the rest of the page. Uploads are compressed to under 2MB.</p><div class="cz-body-lists"></div>';
+    p.innerHTML = `<h4>Casino page</h4><p class="editor-note">Everything here is saved with Publish, like the rest of the page. Uploads are compressed to under 2MB. Tip: click the wall, logos, icons or tools on the page to jump to their settings.</p>
+      <div class="cz-jump" role="group" aria-label="Jump to">${JUMPS.map(([k, l]) => `<button type="button" data-jump="${k}">${l}</button>`).join('')}</div><div class="cz-body-lists"></div>`;
     site.prepend(p);
     renderPanel();
 
@@ -589,7 +694,22 @@
       }
     });
 
+    p.addEventListener('pointerdown', e => {
+      const row = e.target.closest('.cz-list[data-list] .cz-row');
+      if (!row || e.button !== 0 || e.target.closest('input, textarea, button, label, select')) return;
+      e.preventDefault();
+      const box = row.closest('[data-list]');
+      drag = { key: box.dataset.list, box, i: Number(row.dataset.i), x: e.clientX, y: e.clientY, shift: e.shiftKey, meta: e.metaKey || e.ctrlKey, started: false };
+      addEventListener('pointermove', onDragMove); addEventListener('pointerup', onDragEnd);
+    });
+
     p.addEventListener('click', e => {
+      const jb = e.target.closest('[data-jump]');
+      if (jb) { openSection(jb.dataset.jump); return; }
+      const sr = e.target.closest('[data-sel-remove]');
+      if (sr) { removeSelected(sr.dataset.selRemove); return; }
+      const sc = e.target.closest('[data-sel-clear]');
+      if (sc) { selOf(sc.dataset.selClear).clear(); paintSel(sc.dataset.selClear); return; }
       const dd = e.target.closest('[data-decor-drag]');
       if (dd) {
         const on = document.body.classList.toggle('cz-decor-drag');
@@ -616,7 +736,7 @@
       const op = e.target.closest('[data-op]');
       if (op) {
         const key = op.closest('[data-list]').dataset.list, i = Number(op.closest('.cz-row').dataset.i), arr = C()[key];
-        if (op.dataset.op === 'del') arr.splice(i, 1);
+        if (op.dataset.op === 'del') { arr.splice(i, 1); selOf(key).clear(); }
         else {
           const j = op.dataset.op === 'up' ? i - 1 : i + 1;
           if (j < 0 || j >= arr.length) return;

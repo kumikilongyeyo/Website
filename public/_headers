@@ -1,5 +1,4 @@
 /*
-  X-Robots-Tag: noindex, nofollow
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
@@ -56,6 +55,14 @@
 
 /studio-textfill.js
   Cache-Control: no-cache, no-store, must-revalidate
+
+# The casino page is link-only: shared by Klyde with selected people, kept
+# out of search results. The illustration portfolio at / stays public.
+/casino.game
+  X-Robots-Tag: noindex, nofollow
+
+/casino.game/*
+  X-Robots-Tag: noindex, nofollow
 
 # The casino game art page (/casino.game/). Same rule as the portfolio: the
 # page and its scripts always revalidate, the images cache for a week.
