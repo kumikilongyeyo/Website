@@ -8,7 +8,7 @@ export const CURRENT_KEY = version => 'site-config:' + version;
 export const VERSION_KEY = (version, id) => `version:${version}:${id}`;
 export const INDEX_KEY = version => `version-index:${version}`;
 
-export const VERSIONS = ['studio', 'gallery'];
+export const VERSIONS = ['studio', 'gallery', 'casino'];
 export const MAX_BODY = 800000;
 // Twenty snapshots at ~10-30KB each is well inside the 1GB KV allowance, and
 // publish costs three writes against a 1,000/day budget.

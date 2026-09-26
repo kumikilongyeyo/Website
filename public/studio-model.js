@@ -183,6 +183,48 @@
     return [];
   }
 
+  /* ------------------------------------------------------------- text fill
+   * Gradient lettering: the gradient is painted as the element's own
+   * background and clipped to the glyphs. Safe to use the host background here
+   * because node backgrounds live on a separate .bg-layer child.
+   *
+   * The box shrinks to the text (fit-content). Otherwise a centred heading in
+   * a wide column would show only the middle slice of the gradient. Its glow
+   * is a drop-shadow filter, not text-shadow: a text-shadow paints OVER a
+   * clipped background and muddies the gradient.
+   */
+  function textFillDecls(f, props) {
+    if (!f || f.mode !== 'gradient') return [];
+    const g = gradientCSS({ type: 'linear', angle: num(f.angle, 90), stops: f.stops || [] });
+    if (!g) return [];
+    const first = ((f.stops || [])[0] || {}).color || 'currentColor';
+    const out = [
+      `background-image:${g}`,
+      '-webkit-background-clip:text',
+      'background-clip:text',
+      '-webkit-text-fill-color:transparent',
+      `caret-color:${first}`,
+    ];
+    if (f.fit !== false) {
+      out.push('width:fit-content', 'max-width:100%');
+      // The box shrinks, so alignment has to move to the margins. f.align is
+      // the alignment the text had when the gradient was switched on, for
+      // headings whose centring comes from the page's CSS, not a typed prop.
+      const align = (props && props.textAlign) || f.align;
+      if (align === 'center') out.push('margin-inline:auto');
+      else if (align === 'right') out.push('margin-left:auto');
+    }
+    return out;
+  }
+  function textGlow(f) {
+    if (!f || f.mode !== 'gradient') return null;
+    const parts = [];
+    // A dark lift under the letters, for gradient text set over busy artwork.
+    if (f.shadow && f.shadow.enabled) parts.push(`drop-shadow(0 ${num(f.shadow.y, 4)}px ${num(f.shadow.size, 10)}px rgba(0,0,0,${num(f.shadow.strength, 60) / 100}))`);
+    if (f.glow && f.glow.enabled) parts.push(`drop-shadow(0 0 ${num(f.glow.size, 14)}px ${f.glow.color || 'rgba(57,230,255,.55)'})`);
+    return parts.length ? parts.join(' ') : null;
+  }
+
   /* ------------------------------------------------------ declaration build */
   function declsFor(props) {
     if (!props) return [];
@@ -193,6 +235,7 @@
       if (key === 'borderEnabled') { if (!v) out.push('border-style:none'); continue; }
       if (key === 'background') { out.push(...backgroundDecls(v)); continue; }
       if (key in FILTER_PROPS) continue;                       // handled below
+      if (key === 'textFill') { out.push(...textFillDecls(v, props)); continue; }
       const fn = CSS_MAP[key];
       if (fn) out.push(fn(v));
     }
@@ -203,10 +246,12 @@
 
     // One combined filter declaration, only when something deviates.
     const active = Object.keys(FILTER_PROPS).filter(k => props[k] !== undefined && num(props[k]) !== FILTER_DEFAULTS[k]);
-    if (active.length) {
+    const glow = textGlow(props.textFill);
+    if (active.length || glow) {
       const parts = Object.keys(FILTER_PROPS)
-        .filter(k => props[k] !== undefined)
+        .filter(k => active.length && props[k] !== undefined)
         .map(k => FILTER_PROPS[k](props[k]));
+      if (glow) parts.push(glow);
       if (parts.length) out.push(`filter:${parts.join(' ')}`);
     }
     return out;
@@ -592,12 +637,24 @@
         fallback.appendChild(el);
       }
     }
-    // Second pass fixes sibling order within each parent.
+    // Second pass fixes sibling order within each parent. Objects are
+    // reordered only among themselves, in the slots objects already occupy:
+    // appending each one to the end of its parent (the old approach) pushed
+    // every object past its plain-markup neighbours, so a heading ended up
+    // below the paragraph it introduces on any page that mixes the two.
+    const hosts = new Map();
     for (const id of order) {
       const el = findNode(root, id);
-      if (!el || el.classList.contains('tile')) continue;
-      const host = el.parentElement;
-      if (host) host.appendChild(el);
+      if (!el || el.classList.contains('tile') || !el.parentElement) continue;
+      if (!hosts.has(el.parentElement)) hosts.set(el.parentElement, []);
+      const list = hosts.get(el.parentElement);
+      if (!list.includes(el)) list.push(el);
+    }
+    for (const [host, want] of hosts) {
+      const have = [...host.children].filter(c => want.includes(c));
+      if (have.length !== want.length || have.every((c, i) => c === want[i])) continue;
+      const slots = have.map(c => { const m = document.createComment(''); host.insertBefore(m, c); return m; });
+      want.forEach((el, i) => slots[i].replaceWith(el));
     }
   }
 

@@ -1548,7 +1548,7 @@
       const btn = $('#versionsRefresh');
       btn.disabled = true; btn.textContent = 'Loading…';
       try {
-        const r = await fetch('/api/versions', { credentials: 'same-origin' });
+        const r = await fetch('/api/versions?version=' + encodeURIComponent(VERSION), { credentials: 'same-origin' });
         if (!r.ok) {
           let body = null; try { body = await r.json(); } catch { /* not JSON */ }
           return note((body && body.error) || `Could not load history (server returned ${r.status}).`, true);
@@ -1610,7 +1610,7 @@
           method: 'POST',
           credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ version: 'studio', id: v.id }),
+          body: JSON.stringify({ version: VERSION, id: v.id }),
         });
         let body = null; try { body = await r.json(); } catch { /* not JSON */ }
         if (!r.ok || !body || !body.ok) {
@@ -1630,13 +1630,13 @@
      * exactly what will go. The live version is never offered. */
     async function remove(v) {
       if (!window.confirm(`Permanently delete the snapshot from ${when(v.publishedAt)}?\n\nThis cannot be undone. The live site is not affected.`)) return;
-      await send(`/api/versions?version=studio&id=${encodeURIComponent(v.id)}`, 'Removed that snapshot.');
+      await send(`/api/versions?version=${encodeURIComponent(VERSION)}&id=${encodeURIComponent(v.id)}`, 'Removed that snapshot.');
     }
 
     async function removeOthers() {
       if (!$$('#versionList .version-row').length) return note('Load the history first.', true);
       if (!window.confirm('Permanently delete every snapshot except the one currently live?\n\nThis cannot be undone. The live site is not affected, and your next publish starts the history again.')) return;
-      await send('/api/versions?version=studio&scope=others', 'Cleared the old snapshots.');
+      await send(`/api/versions?version=${encodeURIComponent(VERSION)}&scope=others`, 'Cleared the old snapshots.');
     }
 
     async function send(url, okMessage) {

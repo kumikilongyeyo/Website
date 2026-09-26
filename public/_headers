@@ -53,6 +53,29 @@
 /studio-presets.js
   Cache-Control: no-cache, no-store, must-revalidate
 
+/studio-textfill.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# The casino game art page (/casino.game/). Same rule as the portfolio: the
+# page and its scripts always revalidate, the images cache for a week.
+/casino.game/
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/casino.game/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/casino.game/casino.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/casino.game/casino.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/casino.game/casino-page.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/casino.game/assets/*
+  Cache-Control: public, max-age=604800
+
 /assets/*
   Cache-Control: public, max-age=604800
 
