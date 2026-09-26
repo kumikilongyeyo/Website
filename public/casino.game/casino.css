@@ -67,7 +67,11 @@ body.editing[data-viewport="mobile"] .casino.site, body.editing[data-viewport="t
 .cz-cross::after { left: 0; top: 6px; width: 14px; height: 2px; }
 
 /* ------------------------------------------------------------------ hero */
-.cz-hero { position: relative; isolation: isolate; min-height: min(max(620px, var(--cz-vh, 100svh)), 1000px); display: grid; grid-template-rows: auto 1fr; overflow: hidden; }
+.cz-hero { position: relative; isolation: isolate; min-height: min(max(620px, var(--cz-vh, 100svh)), 1000px); display: grid; grid-template-rows: auto 1fr; grid-template-columns: minmax(0, 1fr); overflow: hidden; }
+/* A size set wider than the screen (e.g. 592px from the old 600px phone
+ * preview) is capped, instead of stretching the hero and pushing the top bar
+ * off the side of a phone. */
+.casino [data-node] { max-width: 100%; }
 /* Scroll mode: the hero stays pinned while the page scrolls through --pin of
  * extra height, and that scroll drives the video. */
 .cz-mode-scroll .cz-hero-pin { height: calc(var(--cz-vh, 100svh) * (1 + var(--pin, 1.2))); }

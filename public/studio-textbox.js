@@ -156,6 +156,8 @@
       <select id="tbxWeight" aria-label="Weight">${[300, 400, 500, 600, 700, 800, 900].map(w => `<option value="${w}">${w}</option>`).join('')}</select>
       <span class="tbx-sep"></span>
       ${['left', 'center', 'right'].map(a => `<button type="button" data-align="${a}" aria-label="Align ${a}" title="Align ${a}">${ALIGN_ICON(a)}</button>`).join('')}
+      <span class="tbx-sep"></span>
+      <button type="button" data-tb="reset" title="Put it back in its default position for this size" aria-label="Reset position">⟲</button>
       <span class="tbx-vp" hidden></span>
       <span class="tbx-hint">Drag a corner to resize · ⌘⇧&lt; &gt;</span>`;
     document.body.append(box, bar);
@@ -264,6 +266,7 @@
       if (b.dataset.tb === 'inc') setSize(fontSize(cur) + (e.altKey ? 10 : 2), true);
       if (b.dataset.tb === 'dec') setSize(fontSize(cur) - (e.altKey ? 10 : 2), true);
       if (b.dataset.align) { write(cur, { textAlign: b.dataset.align }, true); syncBar(); }
+      if (b.dataset.tb === 'reset') { write(cur, { offsetX: 0, offsetY: 0 }, true); const t = target(); say(`Position reset${t.breakpoint ? ' for the ' + t.breakpoint + ' size' : ''}.`); }
     });
     size.addEventListener('input', () => setSize(Number(size.value)));
     size.addEventListener('keydown', e => { if (e.key === 'Enter') { setSize(Number(size.value), true); size.blur(); } });
