@@ -28,7 +28,7 @@
 <link rel="stylesheet" href="/casino.game/casino.css">
 <!-- The hero ships in its starting state (first frame, no text) so nothing
      flashes before the script arms it; without scripts, show it finished. -->
-<noscript><style>.cz-hero-anim .cz-hero-title,.cz-hero-anim .cz-hero-name,.cz-hero-anim .cz-hero-pitch,.cz-hero-anim .cz-hero-shade{opacity:1!important;translate:none!important}.cz-hero-anim .cz-hero-rule{transform:none!important}.cz-video-mode .hero-main{visibility:visible!important}.cz-hero-video{display:none!important}.cz-mode-scroll .cz-hero-pin{height:auto!important}.cz-mode-scroll .cz-hero{position:relative!important}</style></noscript>
+<noscript><style>.cz-hero-anim .cz-hero-title,.cz-hero-anim .cz-hero-name,.cz-hero-anim .cz-hero-pitch,.cz-hero-anim .cz-hero-shade{opacity:1!important;translate:none!important}.cz-hero-anim .cz-hero-rule{scale:none!important}.cz-hero-anim .cz-hero-top>*,.cz-hero-anim .cz-cross{opacity:1!important}.cz-video-mode .hero-main{visibility:visible!important}.cz-hero-video{display:none!important}.cz-mode-scroll .cz-hero-pin{height:auto!important}.cz-mode-scroll .cz-hero{position:relative!important}</style></noscript>
 </head>
 <body class="cz-body" data-version="casino" data-header-sticky="0">
 <div class="site casino">
@@ -50,11 +50,11 @@
     <div class="cz-hero-foot">
       <p class="cz-hero-name" data-node="Hero name" data-id="cz-hero-name" data-type="text">Klyde Jerrel Sosa</p>
       <p class="cz-hero-pitch" data-node="Hero pitch" data-id="cz-hero-pitch" data-type="text">I focus on delivering high quality, production ready art assets that directly supports the team to build your game vision</p>
-      <span class="cz-hero-rule" aria-hidden="true"></span>
+      <div class="cz-hero-rule" data-node="Hero line" data-id="cz-hero-rule" data-type="divider" aria-hidden="true"></div>
     </div>
   </div>
-  <span class="cz-cross cz-spin tl" style="--cx:1.2%;--cy:3.2%" aria-hidden="true"></span>
-  <span class="cz-cross cz-spin" style="--cx:95%;--cy:78%" aria-hidden="true"></span>
+  <span class="cz-cross tl" style="--cx:1.2%;--cy:3.2%" aria-hidden="true"></span>
+  <span class="cz-cross" style="--cx:95%;--cy:78%" aria-hidden="true"></span>
   <span class="cz-scroll-hint" aria-hidden="true">Scroll</span>
 </section>
 </div>

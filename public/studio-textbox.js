@@ -21,6 +21,8 @@
   const sel = () => (typeof selected !== 'undefined' ? selected : null);
   const active = () => document.body.classList.contains('editing') && !document.body.classList.contains('previewing');
   const isText = el => !!(el && el.isConnected && el.dataset && el.dataset.type === 'text');
+  const isLine = el => !!(el && el.isConnected && el.dataset && el.dataset.type === 'divider');
+  const numOr = (v, f) => { const n = typeof v === 'number' ? v : (typeof v === 'string' && /^-?[\d.]+(px)?$/.test(v.trim()) ? parseFloat(v) : NaN); return Number.isFinite(n) ? n : f(); };
   const target = () => (window.StudioShell ? window.StudioShell.writeTarget() : { state: 'base', breakpoint: null });
   const say = m => { if (typeof status === 'function') status(m); };
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -31,10 +33,64 @@
     const v = window.StudioModel.getProp(state(), el.dataset.id, prop, t.state, t.breakpoint);
     return v === undefined || v === '' ? fallback() : v;
   }
-  const fontSize = el => Number(read(el, 'fontSize', () => parseFloat(getComputedStyle(el).fontSize))) || 16;
-  const tracking = el => Number(read(el, 'letterSpacing', () => Math.round(parseFloat(getComputedStyle(el).letterSpacing) / parseFloat(getComputedStyle(el).fontSize) * 100) || 0)) || 0;
-  const leading = el => Number(read(el, 'lineHeight', () => { const c = getComputedStyle(el); const lh = parseFloat(c.lineHeight); return lh ? +(lh / parseFloat(c.fontSize)).toFixed(2) : 1.2; })) || 1.2;
-  const offset = (el, k) => Number(read(el, k, () => 0)) || 0;
+  // Stored values can be CSS expressions (a frozen clamp()); then the on-screen
+  // computed value is the starting point for a nudge.
+  const cFont = el => parseFloat(getComputedStyle(el).fontSize) || 16;
+  const cTrack = el => Math.round(parseFloat(getComputedStyle(el).letterSpacing) / cFont(el) * 100) || 0;
+  const cLead = el => { const lh = parseFloat(getComputedStyle(el).lineHeight); return lh ? +(lh / cFont(el)).toFixed(2) : 1.2; };
+  const fontSize = el => numOr(read(el, 'fontSize', () => cFont(el)), () => cFont(el));
+  const tracking = el => numOr(read(el, 'letterSpacing', () => cTrack(el)), () => cTrack(el));
+  const leading = el => numOr(read(el, 'lineHeight', () => cLead(el)), () => cLead(el));
+  const offset = (el, k) => numOr(read(el, k, () => 0), () => 0);
+
+  /* What a size shows when it has no model value: the page stylesheet's own
+   * declaration (e.g. clamp(34px, 5.6cqw, 72px)), so freezing a phone size
+   * before a desktop edit keeps it exactly as the page defines it. */
+  const CSS_OF = { fontSize: 'font-size', fontWeight: 'font-weight', lineHeight: 'line-height', textAlign: 'text-align', color: 'color', letterSpacing: 'letter-spacing', fontFamily: 'font-family', width: 'width', height: 'height', opacity: 'opacity' };
+  const ZERO = { offsetX: 0, offsetY: 0, rotate: 0 };
+  const WIDTH = { tablet: 900, mobile: 390 };
+  function specificity(sel) {
+    const t = sel.replace(/::?[\w-]+(\([^)]*\))?/g, m => (m.startsWith('::') ? ' e' : ' c'));
+    return (t.match(/#[\w-]+/g) || []).length * 100 + (t.match(/\.[\w-]+|\[[^\]]+\]| c/g) || []).length * 10 + (t.match(/(^|[\s>+~])[a-z]+/gi) || []).length;
+  }
+  function pageValue(el, cssProp, bp) {
+    let best = null, bestSpec = -1;
+    const walk = (rules, applies) => {
+      for (const rule of rules) {
+        if (rule.cssRules && !rule.selectorText) {
+          const cond = rule.conditionText || (rule.media && rule.media.mediaText) || '';
+          const m = /max-width:\s*(\d+)px/.exec(cond), mn = /min-width:\s*(\d+)px/.exec(cond);
+          const ok = !cond || /prefers|hover|print/.test(cond) ? !/prefers|hover|print/.test(cond) : (!m || WIDTH[bp] <= +m[1]) && (!mn || WIDTH[bp] >= +mn[1]);
+          walk(rule.cssRules, applies && ok);
+          continue;
+        }
+        if (!applies || !rule.selectorText || !rule.style) continue;
+        const v = rule.style.getPropertyValue(cssProp); if (!v) continue;
+        for (const part of rule.selectorText.split(',')) {
+          let hit = false; try { hit = el.matches(part.trim()); } catch { /* pseudo selector */ }
+          if (!hit) continue;
+          const sp = specificity(part);
+          if (sp >= bestSpec) { best = v.trim(); bestSpec = sp; }
+        }
+      }
+    };
+    for (const sh of document.styleSheets) {
+      if (sh.ownerNode && sh.ownerNode.id === 'studio-generated') continue;
+      let rules; try { rules = sh.cssRules; } catch { continue; }
+      walk(rules, true);
+    }
+    return best;
+  }
+  function resolveDefault(id, prop, bp) {
+    if (prop in ZERO) return ZERO[prop];
+    const cssProp = CSS_OF[prop]; if (!cssProp) return undefined;
+    const el = window.StudioModel.findNode(document, id); if (!el) return undefined;
+    const v = pageValue(el, cssProp, bp); if (!v) return undefined;
+    if (prop === 'letterSpacing' && /^-?[\d.]+em$/.test(v)) return Math.round(parseFloat(v) * 1000) / 10;
+    if (prop === 'fontSize' && /^[\d.]+px$/.test(v)) return parseFloat(v);
+    return v;
+  }
+  if (window.StudioModel && window.StudioModel.setDefaultResolver) window.StudioModel.setDefaultResolver(resolveDefault);
 
   let pushTimer = 0;
   // live: part of a drag, so no history entry yet (the gesture commits once on release).
@@ -56,11 +112,16 @@
   /* ------------------------------------------------------------ the ui */
   const CSS = `
   .tbx-live,.tbx-live *{transition:none!important}
+  body.tbx-on .of-handle{display:none!important}
   .tbx{position:fixed;z-index:880;pointer-events:none;border:1px solid #0d99ff;box-shadow:0 0 0 1px rgba(13,153,255,.25)}
   .tbx[hidden],.tbx-bar[hidden]{display:none!important}
   .tbx-h{position:absolute;width:10px;height:10px;background:#fff;border:1.5px solid #0d99ff;border-radius:2px;pointer-events:auto;touch-action:none}
   .tbx-h[data-h=nw]{left:-6px;top:-6px;cursor:nwse-resize}.tbx-h[data-h=se]{right:-6px;bottom:-6px;cursor:nwse-resize}
   .tbx-h[data-h=ne]{right:-6px;top:-6px;cursor:nesw-resize}.tbx-h[data-h=sw]{left:-6px;bottom:-6px;cursor:nesw-resize}
+  .tbx.line .tbx-h[data-h=nw],.tbx.line .tbx-h[data-h=ne]{display:none}
+  .tbx.line .tbx-h[data-h=sw]{left:-6px;top:50%;bottom:auto;margin-top:-5px;cursor:ew-resize}
+  .tbx.line .tbx-h[data-h=se]{right:-6px;top:50%;bottom:auto;margin-top:-5px;cursor:ew-resize}
+  .tbx.line{min-height:10px}
   .tbx-move{position:absolute;left:-1px;top:-26px;height:22px;padding:0 7px;border-radius:5px 5px 0 0;background:#0d99ff;color:#fff;font:600 11px/22px system-ui,sans-serif;pointer-events:auto;cursor:grab;border:0;touch-action:none;white-space:nowrap}
   .tbx-move:active{cursor:grabbing}
   .tbx-badge{position:absolute;right:-1px;bottom:-24px;padding:2px 6px;border-radius:4px;background:#0d99ff;color:#fff;font:600 11px/16px system-ui,sans-serif;font-variant-numeric:tabular-nums;pointer-events:none;opacity:0;transition:opacity .15s}
@@ -125,15 +186,16 @@
   function place() {
     raf = 0;
     const el = sel();
-    const show = active() && isText(el) && el.getClientRects().length;
+    const show = active() && (isText(el) || isLine(el)) && el.getClientRects().length;
+    document.body.classList.toggle('tbx-on', !!show);
     if (!show) { if (box) { box.hidden = true; bar.hidden = true; } cur = null; return; }
     mount();
-    if (cur !== el) { cur = el; syncBar(); }
+    if (cur !== el) { cur = el; box.classList.toggle('line', isLine(el)); syncBar(); }
     const r = el.getBoundingClientRect();
     // Scrolled out of view: hide rather than pin a toolbar to the screen edge
     // for text you can no longer see. The loop keeps running to bring it back.
     if (r.bottom < 0 || r.top > innerHeight) { box.hidden = true; bar.hidden = true; raf = requestAnimationFrame(place); return; }
-    box.hidden = false; bar.hidden = false;
+    box.hidden = false; bar.hidden = isLine(el);
     const t = target(), vp = bar.querySelector('.tbx-vp'), label = t.breakpoint ? `Editing ${t.breakpoint} size` : t.state !== 'base' ? `Editing ${t.state}` : '';
     if (vp.textContent !== label) { vp.textContent = label; vp.hidden = !label; syncBar(); }
     Object.assign(box.style, { left: r.left - 3 + 'px', top: r.top - 3 + 'px', width: r.width + 6 + 'px', height: r.height + 6 + 'px' });
@@ -156,6 +218,17 @@
   function bindHandles() {
     box.querySelectorAll('.tbx-h').forEach(h => h.addEventListener('pointerdown', e => {
       const el = cur; if (!el) return;
+      if (isLine(el)) {
+        // A line's ends set its length, as a % of its container.
+        const r0 = el.getBoundingClientRect(), pw = el.parentElement.getBoundingClientRect().width || 1, dir = h.dataset.h.includes('e') ? 1 : -1;
+        el.classList.add('tbx-live'); box.classList.add('scaling');
+        drag(e, q => {
+          const w = clamp(Math.round((r0.width + (q.clientX - e.clientX) * dir) / pw * 100), 2, 100);
+          box.querySelector('.tbx-badge').textContent = w + '%';
+          write(el, { width: w + '%' }, false, true);
+        }, () => { el.classList.remove('tbx-live'); box.classList.remove('scaling'); write(el, {}, true); if (window.StudioObjects && window.StudioObjects.syncDivider) window.StudioObjects.syncDivider(); say('Line length set.'); });
+        return;
+      }
       const r = el.getBoundingClientRect(), size0 = fontSize(el);
       const sx = h.dataset.h.includes('e') ? 1 : -1, sy = h.dataset.h.includes('s') ? 1 : -1;
       const len2 = r.width * r.width + r.height * r.height;
@@ -206,7 +279,7 @@
   /* ------------------------------------------------------------ keys */
   document.addEventListener('keydown', e => {
     const el = sel();
-    if (!active() || !isText(el)) return;
+    if (!active() || !isText(el)) return;          // shortcuts are for type; lines use the box and panel
     const mod = e.metaKey || e.ctrlKey;
     let props = null;
     if (mod && e.shiftKey && (e.key === '>' || e.key === '.' || e.code === 'Period')) props = { fontSize: clamp(fontSize(el) + (e.altKey ? 10 : 2), 4, 400) };

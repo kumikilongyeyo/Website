@@ -32,7 +32,8 @@
   const VIEWPORTS = {
     desktop: { label: 'Desktop', width: null },
     tablet:  { label: 'Tablet',  width: 900 },
-    mobile:  { label: 'Mobile',  width: 600 },
+    // An iPhone's width (390pt), so the preview matches what a phone shows.
+    mobile:  { label: 'Mobile',  width: 390 },
   };
 
   const shell = {

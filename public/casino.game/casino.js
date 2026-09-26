@@ -101,7 +101,9 @@
     const w = $('.cz-wall'), wl = C().wall;
     if (w) { w.style.setProperty('--fade', wl.fade + '%'); w.style.setProperty('--blur', wl.blur + 'px'); w.style.setProperty('--band', wl.band + '%'); }
     const a = C().heroAnim;
-    h.style.setProperty('--pin', (Number(a.pin) || 120) + 'vh');
+    // On the pin wrapper, which is what uses it (it is the hero's parent, so
+    // setting it on the hero never reached it). A factor of the screen height.
+    const pinEl = $('.cz-hero-pin'); if (pinEl) pinEl.style.setProperty('--pin', (Number(a.pin) || 120) / 100);
     h.style.setProperty('--line-delay', (Number(a.lineDelay) || 0) + 's');
     h.style.setProperty('--line-dur', (Number(a.lineDur) || 2.4) + 's');
     h.style.setProperty('--line-w', (Number(a.lineWidth) || 1) + 'px');

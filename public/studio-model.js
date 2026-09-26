@@ -71,7 +71,10 @@
    * branching code) is what makes the property set auditable and what lets the
    * same table serve base, hover, pressed and every breakpoint.
    */
-  const PX = p => v => `${p}:${num(v)}px`;
+  // A number is px; a CSS expression (e.g. a clamp() carried over from the
+  // page's stylesheet when a size was frozen) passes through as written.
+  const isExpr = v => typeof v === 'string' && v.trim() !== '' && isNaN(parseFloat(v));
+  const PX = p => v => (isExpr(v) ? `${p}:${v}` : `${p}:${num(v)}px`);
   const RAW = p => v => `${p}:${v}`;
   const VAR = p => v => `${p}:${v}`;
 
@@ -81,7 +84,7 @@
     fontSize:       PX('font-size'),
     fontWeight:     RAW('font-weight'),
     fontStyle:      RAW('font-style'),
-    letterSpacing:  v => `letter-spacing:${num(v) / 100}em`,
+    letterSpacing:  v => (isExpr(v) ? `letter-spacing:${v}` : `letter-spacing:${num(v) / 100}em`),
     wordSpacing:    PX('word-spacing'),
     lineHeight:     RAW('line-height'),
     textAlign:      RAW('text-align'),
@@ -875,10 +878,38 @@
     return 'none';
   }
 
+  /* Separate sizes. Breakpoints cascade (desktop -> tablet -> phone), so a
+   * desktop edit used to change every phone that had no value of its own.
+   * Before writing at one size, each smaller size that is still inheriting
+   * this property is frozen at what it shows now: the model value it
+   * inherits, or else the page stylesheet's own value (from the resolver the
+   * editor registers). So desktop and phone edits never leak into each other.
+   * model.site.linkedSizes = true restores the plain cascade.
+   */
+  let defaultResolver = null;
+  function setDefaultResolver(fn) { defaultResolver = typeof fn === 'function' ? fn : null; }
+  const BELOW = { base: ['tablet', 'mobile'], tablet: ['mobile'], mobile: [] };
+  function inherited(n, prop, bp) {
+    const r = n.responsive || {};
+    if (bp === 'mobile' && r.tablet && r.tablet[prop] !== undefined) return r.tablet[prop];
+    return n.states && n.states.base ? n.states.base[prop] : undefined;
+  }
+  function freezeBelow(model, id, n, prop, breakpoint) {
+    if (model.site && model.site.linkedSizes) return;
+    for (const bp of BELOW[breakpoint || 'base']) {
+      const ov = (n.responsive = n.responsive || {})[bp] = (n.responsive[bp] || {});
+      if (ov[prop] !== undefined) continue;
+      let cur = inherited(n, prop, bp);
+      if (cur === undefined && defaultResolver) cur = defaultResolver(id, prop, bp);
+      if (cur !== undefined) ov[prop] = clone(cur);
+    }
+  }
+
   function setProp(model, id, prop, value, state, breakpoint) {
     const n = model && model.nodes && model.nodes[id];
     if (!n) return false;
     const drop = value === undefined || value === null || value === '';
+    if ((!state || state === 'base') && !drop) freezeBelow(model, id, n, prop, breakpoint);
     if (breakpoint) {
       n.responsive = n.responsive || {};
       n.responsive[breakpoint] = n.responsive[breakpoint] || {};
@@ -894,7 +925,7 @@
 
   window.StudioModel = {
     CURRENT_SCHEMA, STATES, BREAKPOINTS, NODE_TYPES, CSS_MAP, FILTER_PROPS,
-    blank, migrate, fromDOM, apply, emitCSS, writeCSS, previewState,
+    blank, migrate, fromDOM, apply, emitCSS, writeCSS, previewState, setDefaultResolver,
     getProp, setProp, propOrigin, parseInlineStyle, gradientCSS, declsFor, EPHEMERAL, adoptInline,
     createElementFor, restoreStructure, findNode, contentImage, DECORATIVE_IMG,
   };
