@@ -233,11 +233,23 @@ body.editing:not(.previewing) .cz-shot { cursor: default; }
 .cz-card-flip { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
 .cz-card-flip .cz-card-art { order: 2; }
 .cz-card-art { align-self: stretch; position: relative; min-height: 100%; }
-.cz-card-art img { position: absolute; bottom: 0; left: 50%; translate: -50% 0; width: auto; height: calc(100% + 120px); max-width: 118%; object-fit: contain; object-position: bottom; filter: drop-shadow(0 20px 30px rgba(0, 0, 0, .45)); }
+/* --ax/--ay/--as: the character's own offset and size, set by dragging it in
+ * the editor (desktop and phone separately). `translate`/`scale` rather than
+ * transform, so they compose with the entrance animation. */
+.cz-card-art img { position: absolute; bottom: 0; left: 50%; translate: calc(-50% + var(--ax, 0px)) var(--ay, 0px); scale: var(--as, 1); transform-origin: 50% 100%; width: auto; height: calc(100% + 120px); max-width: 118%; object-fit: contain; object-position: bottom; filter: drop-shadow(0 20px 30px rgba(0, 0, 0, .45)); }
 .cz-card-copy { padding: clamp(24px, 4vw, 48px); }
 .cz-card-flip .cz-card-copy { text-align: left; }
 .cz-card:not(.cz-card-flip) .cz-card-copy { text-align: right; }
 .cz-card.no-art { grid-template-columns: 1fr; }
+body[data-viewport="mobile"] .cz-card-art img { translate: calc(-50% + var(--amx, 0px)) var(--amy, 0px); scale: var(--ams, 1); }
+body.editing:not(.previewing) .cz-card-art img { cursor: move; }
+.cz-artbox { position: fixed; z-index: 880; pointer-events: none; border: 1px solid #0d99ff; box-shadow: 0 0 0 1px rgba(13, 153, 255, .25); }
+.cz-artbox[hidden] { display: none !important; }
+.cz-artbox span { position: absolute; width: 10px; height: 10px; background: #fff; border: 1.5px solid #0d99ff; border-radius: 2px; pointer-events: auto; touch-action: none; }
+.cz-artbox [data-h=nw] { left: -6px; top: -6px; cursor: nwse-resize; } .cz-artbox [data-h=se] { right: -6px; bottom: -6px; cursor: nwse-resize; }
+.cz-artbox [data-h=ne] { right: -6px; top: -6px; cursor: nesw-resize; } .cz-artbox [data-h=sw] { left: -6px; bottom: -6px; cursor: nesw-resize; }
+.cz-artbox b { position: absolute; left: -1px; top: -24px; padding: 3px 7px; border-radius: 5px 5px 0 0; background: #0d99ff; color: #fff; font: 600 11px/16px system-ui, sans-serif; white-space: nowrap; }
+.cz-art-live, .cz-art-live * { transition: none !important; }
 .cz-card.no-art .cz-card-art { display: none; }
 .cz-card.no-art .cz-card-copy { text-align: center; }
 .cz-card-title { margin: 0 0 14px; font-family: var(--display); font-weight: 400; font-size: clamp(30px, 4.6vw, 58px); line-height: 1; letter-spacing: .04em; }
@@ -249,7 +261,7 @@ body.editing:not(.previewing) .cz-shot { cursor: default; }
   .cz-card, .cz-card-flip { grid-template-columns: 1fr; }
   .cz-card-flip .cz-card-art { order: 0; }
   .cz-card-art { height: 240px; min-height: 0; }
-  .cz-card-art img { height: calc(100% + 60px); }
+  .cz-card-art img { height: calc(100% + 60px); translate: calc(-50% + var(--amx, 0px)) var(--amy, 0px); scale: var(--ams, 1); }
   .cz-card .cz-card-copy { text-align: left !important; }
   .cz-card .cz-card-title, .cz-card .cz-card-body { margin-left: 0 !important; }
 }

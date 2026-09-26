@@ -293,17 +293,26 @@
 
     // Responsive overrides share the same property table (§26), so a value can
     // be overridden per breakpoint without duplicating the DOM.
+    // Each breakpoint is emitted twice: as a media query for real devices, and
+    // under body[data-viewport] for the editor's Tablet/Mobile preview. The
+    // preview only narrows the page, so a media query never matches there and
+    // every tablet/phone edit was saved but invisible while editing. The
+    // mobile preview also gets the tablet rules, as a real phone would.
+    const PREVIEW = { tablet: ['tablet', 'mobile'], mobile: ['mobile'] };
     for (const bp of ['tablet', 'mobile']) {
-      const inner = [];
+      const inner = [], preview = [];
+      const pv = PREVIEW[bp].map(v => `body[data-viewport="${v}"] .site`);
       for (const id in model.nodes) {
         const n = model.nodes[id];
         const ov = n.responsive && n.responsive[bp];
+        const k = `[data-id="${cssEscape(id)}"]`;
+        const add = body => { inner.push(`.site ${k}{${body}}`); preview.push(`${pv.map(p => `${p} ${k}`).join(',')}{${body}}`); };
         const decls = declsFor(ov);
-        if (decls.length) inner.push(`.site [data-id="${cssEscape(id)}"]{${decls.join(';')}}`);
-        if (ov && ov.hidden === true) inner.push(`.site [data-id="${cssEscape(id)}"]{display:none}`);
-        if (ov && ov.hidden === false) inner.push(`.site [data-id="${cssEscape(id)}"]{display:revert}`);
+        if (decls.length) add(decls.join(';'));
+        if (ov && ov.hidden === true) add('display:none');
+        if (ov && ov.hidden === false) add('display:revert');
       }
-      if (inner.length) out.push(`@media(max-width:${BREAKPOINTS[bp]}px){${inner.join('')}}`);
+      if (inner.length) out.push(`@media(max-width:${BREAKPOINTS[bp]}px){${inner.join('')}}`, preview.join(''));
     }
     return out.join('\n');
   }

@@ -75,7 +75,8 @@
       const it = list[Number(card.dataset.slot)] || {};
       const art = $('.cz-card-art', card);
       card.classList.toggle('no-art', !it.src);
-      art.innerHTML = it.src ? `<img src="${esc(it.src)}" alt=""${sizeAttrs(it)} loading="lazy" decoding="async">` : '';
+      const q = { x: 0, y: 0, s: 1, mx: 0, my: 0, ms: 1, ...(it.pos || {}) };
+      art.innerHTML = it.src ? `<img src="${esc(it.src)}" alt=""${sizeAttrs(it)} loading="lazy" decoding="async" draggable="false" style="--ax:${+q.x}px;--ay:${+q.y}px;--as:${+q.s};--amx:${+q.mx}px;--amy:${+q.my}px;--ams:${+q.ms}">` : '';
     });
   }
 
@@ -224,8 +225,24 @@
       phone.addEventListener('change', build);
       reduced.addEventListener('change', () => (reduced.matches ? stop() : visible && start()));
       if (matchMedia('(hover: hover)').matches) {
-        wall.addEventListener('pointerenter', () => { if (!editingNow() || document.body.classList.contains('previewing')) pause(true); });
-        wall.addEventListener('pointerleave', () => { if (!document.querySelector('.cz-lightbox:not([hidden])')) pause(false); });
+        // Pauses only while the pointer is really over the wall. After the
+        // viewer closes the wall always resumes; moving over it again is
+        // what re-pauses it (the viewer covering the wall already fired
+        // pointerleave, so waiting for one left it frozen for good).
+        // When the viewer closes over a still pointer, the browser reports the
+        // pointer as entering the wall again; that must not re-freeze it.
+        // Only a real movement (a few px from where the viewer closed) does.
+        const hoverable = () => !editingNow() || document.body.classList.contains('previewing');
+        const viewerOpen = () => !!document.querySelector('.cz-lightbox:not([hidden])');
+        let calm = null;                                  // {x, y} while waiting for a real move after close
+        wall.addEventListener('pointerenter', () => { if (hoverable() && !viewerOpen() && !calm) pause(true); });
+        wall.addEventListener('pointermove', e => {
+          if (!hoverable() || viewerOpen()) return;
+          if (calm) { if (Math.hypot(e.clientX - calm.x, e.clientY - calm.y) < 8) return; calm = null; }
+          if (!paused) pause(true);
+        });
+        wall.addEventListener('pointerleave', () => { calm = null; if (!viewerOpen()) pause(false); });
+        addEventListener('cz-viewer-closed', e => { calm = { x: e.detail.x, y: e.detail.y }; pause(false); });
       }
       document.addEventListener('visibilitychange', () => (document.hidden ? stop() : visible && start()));
     }
@@ -267,10 +284,12 @@
     function close() {
       box.classList.remove('open'); document.body.style.overflow = '';
       closing = setTimeout(() => { box.hidden = true; }, reduced.matches ? 0 : 260);
-      if (!document.querySelector('.cz-wall:hover')) Wall.pause(false);
+      dispatchEvent(new CustomEvent('cz-viewer-closed', { detail: { x: lastX, y: lastY } }));
       if (opener && opener.isConnected) opener.focus({ preventScroll: true });
     }
     const step = d => { i += d; show(d); };
+    let lastX = -99, lastY = -99;
+    addEventListener('pointermove', e => { lastX = e.clientX; lastY = e.clientY; }, { passive: true });
     box.addEventListener('click', e => {
       if (e.target.closest('[data-lb-close]')) return close();
       const s = e.target.closest('[data-lb-step]'); if (s) step(Number(s.dataset.lbStep));
@@ -563,11 +582,15 @@
           <input type="url" placeholder="…or paste an image URL" data-url="${l.key}"><button type="button" data-add-url="${l.key}">Add</button></div>
       </details>`).join('') +
       `<details data-key="slots"${openKeys.includes('slots') ? ' open' : ''}><summary>Service art & profile photo</summary>
-        <p class="cz-note">Character art for the three service cards, and the About photo. A card with no art centres its text.</p>
+        <p class="cz-note">Character art for the three service cards, and the About photo. On the page, click a character to drag it or resize it from a corner; desktop and phone are positioned separately. A card with no art centres its text.</p>
         <div class="cz-list">${['2D Game Art', 'Asset Optimization', 'UI / UX'].map((n, i) => {
           const it = c.services[i] || {};
+          const q = { x: 0, y: 0, s: 1, mx: 0, my: 0, ms: 1, ...(it.pos || {}) };
+          if (!it.pos && it.src) it.pos = q;
           return `<div class="cz-row">${it.src ? `<img src="${esc(it.src)}" alt="">` : '<span class="cz-thumb-empty"></span>'}<div class="cz-fields"><span class="cz-meta">${n}</span></div>
-            <div class="cz-ops"><label class="file-btn" style="padding:0 6px">Replace<input type="file" accept="image/*" data-slot="${i}" hidden></label><button type="button" data-clear-slot="${i}" aria-label="Remove ${n} art">✕</button></div></div>`;
+            <div class="cz-ops"><label class="file-btn" style="padding:0 6px">Replace<input type="file" accept="image/*" data-slot="${i}" hidden></label><button type="button" data-clear-slot="${i}" aria-label="Remove ${n} art">✕</button></div></div>
+            ${it.src ? ctl(`services.${i}.pos.x`, 'Desktop X (px)', -400, 400, 1, q.x) + ctl(`services.${i}.pos.y`, 'Desktop Y (px)', -300, 300, 1, q.y) + ctl(`services.${i}.pos.s`, 'Desktop size', 0.2, 3, 0.01, q.s)
+              + ctl(`services.${i}.pos.mx`, 'Phone X (px)', -300, 300, 1, q.mx) + ctl(`services.${i}.pos.my`, 'Phone Y (px)', -300, 300, 1, q.my) + ctl(`services.${i}.pos.ms`, 'Phone size', 0.2, 3, 0.01, q.ms) : ''}`;
         }).join('')}
           <div class="cz-row">${c.avatar.src ? `<img src="${esc(c.avatar.src)}" alt="">` : '<span class="cz-thumb-empty"></span>'}<div class="cz-fields"><span class="cz-meta">Profile photo</span></div>
             <div class="cz-ops"><label class="file-btn" style="padding:0 6px">Replace<input type="file" accept="image/*" data-avatar hidden></label></div></div>
@@ -738,6 +761,7 @@
       setPath(path, v);
       $$(`[data-set="${path}"]`, p).forEach(i => { if (i !== t && i.type !== 'checkbox') i.value = v; });
       renderHero();
+      if (path.startsWith('services.')) renderServices();
       if (path.startsWith('heroAnim.')) HeroMotion.apply();
       clearTimeout(p._s); p._s = setTimeout(() => commit(), 250);
       return true;
@@ -920,6 +944,72 @@
     };
     addEventListener('pointermove', move); addEventListener('pointerup', up);
   }, true);
+
+  /* -------------------------------------------- service character box
+   * In the editor, click a character to select it: drag it to move, drag a
+   * corner to resize. Desktop and phone are positioned separately (the
+   * Mobile preview edits the phone position). Saved in services[i].pos.
+   */
+  const ArtBox = (() => {
+    let box = null, card = null, raf = 0;
+    const phoneView = () => innerWidth <= 720 || document.body.dataset.viewport === 'mobile';
+    const posOf = i => { const it = C().services[i] || (C().services[i] = { src: '' }); return (it.pos = { x: 0, y: 0, s: 1, mx: 0, my: 0, ms: 1, ...(it.pos || {}) }); };
+    const keys = () => (phoneView() ? ['mx', 'my', 'ms'] : ['x', 'y', 's']);
+    function paint(img, q) {
+      img.style.setProperty('--ax', q.x + 'px'); img.style.setProperty('--ay', q.y + 'px'); img.style.setProperty('--as', q.s);
+      img.style.setProperty('--amx', q.mx + 'px'); img.style.setProperty('--amy', q.my + 'px'); img.style.setProperty('--ams', q.ms);
+    }
+    function mount() {
+      if (box) return;
+      box = document.createElement('div'); box.className = 'cz-artbox'; box.hidden = true;
+      box.innerHTML = '<b></b>' + ['nw', 'ne', 'sw', 'se'].map(h => `<span data-h="${h}"></span>`).join('');
+      document.body.appendChild(box);
+      box.querySelectorAll('span').forEach(h => h.addEventListener('pointerdown', e => {
+        const img = card && $('.cz-card-art img', card); if (!img) return;
+        e.preventDefault(); e.stopPropagation(); h.setPointerCapture(e.pointerId);
+        const i = Number(card.dataset.slot), q = posOf(i), [, , ks] = keys(), s0 = q[ks], r = img.getBoundingClientRect();
+        const sx = h.dataset.h.includes('e') ? 1 : -1, sy = h.dataset.h.includes('s') ? 1 : -1, len2 = r.width * r.width + r.height * r.height;
+        img.classList.add('cz-art-live');
+        const move = m => { const f = 1 + ((m.clientX - e.clientX) * sx * r.width + (m.clientY - e.clientY) * sy * r.height) / len2; q[ks] = Math.round(Math.max(0.2, Math.min(3, s0 * f)) * 100) / 100; paint(img, q); };
+        const up = () => { h.removeEventListener('pointermove', move); h.removeEventListener('pointerup', up); img.classList.remove('cz-art-live'); commit(`Character size ${Math.round(q[ks] * 100)}%${phoneView() ? ' on phones' : ''}.`); if (panelOpen()) renderPanel(); };
+        h.addEventListener('pointermove', move); h.addEventListener('pointerup', up);
+      }));
+    }
+    function place() {
+      raf = 0;
+      const img = card && card.isConnected && $('.cz-card-art img', card);
+      if (!img || !editingNow() || document.body.classList.contains('previewing')) { if (box) box.hidden = true; card = null; return; }
+      const r = img.getBoundingClientRect();
+      Object.assign(box.style, { left: r.left - 2 + 'px', top: r.top - 2 + 'px', width: r.width + 4 + 'px', height: r.height + 4 + 'px' });
+      box.hidden = false;
+      box.querySelector('b').textContent = `Character · ${phoneView() ? 'phone' : 'desktop'} · drag to move, corners to resize`;
+      raf = requestAnimationFrame(place);
+    }
+    function select(c) {
+      mount(); card = c;
+      // One selection at a time: picking a character drops the text selection
+      // (and its toolbar). `selected` is the editor's global.
+      if (typeof selected !== 'undefined' && selected) { selected.classList.remove('selected'); selected = null; }
+      if (!raf) raf = requestAnimationFrame(place);
+    }
+    document.addEventListener('pointerdown', e => {
+      if (!editingNow() || document.body.classList.contains('previewing') || !e.target.closest) return;
+      if (box && box.contains(e.target)) return;
+      const img = e.target.closest('.cz-card-art img');
+      if (!img) { if (card && !e.target.closest('.inspector, .devbar, .layers, .savebar')) card = null; return; }
+      e.preventDefault(); e.stopPropagation();
+      const c = img.closest('.cz-card'); select(c);
+      const i = Number(c.dataset.slot), q = posOf(i), [kx, ky] = keys(), x0 = q[kx], y0 = q[ky];
+      img.classList.add('cz-art-live');
+      const move = m => { q[kx] = Math.round(x0 + m.clientX - e.clientX); q[ky] = Math.round(y0 + m.clientY - e.clientY); paint(img, q); };
+      const up = m => {
+        removeEventListener('pointermove', move); removeEventListener('pointerup', up); img.classList.remove('cz-art-live');
+        if (Math.abs(m.clientX - e.clientX) + Math.abs(m.clientY - e.clientY) > 2) { commit(`Character moved${phoneView() ? ' (phone)' : ''}.`); if (panelOpen()) renderPanel(); }
+      };
+      addEventListener('pointermove', move); addEventListener('pointerup', up);
+    }, true);
+    return { select };
+  })();
 
   /* ------------------------------------------------ decoration dragging */
   document.addEventListener('pointerdown', e => {

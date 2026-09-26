@@ -74,6 +74,8 @@
   .tbx-bar select{padding:0 4px;background:rgba(255,255,255,.06)}
   .tbx-bar .tbx-scrub{cursor:ew-resize;padding:0 4px;opacity:.7;user-select:none}
   .tbx-bar .tbx-sep{width:1px;height:18px;background:rgba(255,255,255,.14);margin:0 2px}
+  .tbx-bar .tbx-vp{padding:3px 7px;border-radius:5px;background:#0d99ff;color:#fff;font-weight:600;font-size:11px;white-space:nowrap}
+  .tbx-bar select:disabled{opacity:.45}
   .tbx-bar .tbx-hint{opacity:.55;font-size:11px;padding:0 6px;white-space:nowrap}
   @media (max-width:900px){.tbx-bar .tbx-hint{display:none}}`;
   const ALIGN_ICON = a => `<svg width="14" height="12" viewBox="0 0 14 12" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">${a === 'left' ? '<path d="M1 2h12M1 6h8M1 10h10"/>' : a === 'center' ? '<path d="M1 2h12M3 6h8M2 10h10"/>' : '<path d="M1 2h12M5 6h8M3 10h10"/>'}</g></svg>`;
@@ -93,6 +95,7 @@
       <select id="tbxWeight" aria-label="Weight">${[300, 400, 500, 600, 700, 800, 900].map(w => `<option value="${w}">${w}</option>`).join('')}</select>
       <span class="tbx-sep"></span>
       ${['left', 'center', 'right'].map(a => `<button type="button" data-align="${a}" aria-label="Align ${a}" title="Align ${a}">${ALIGN_ICON(a)}</button>`).join('')}
+      <span class="tbx-vp" hidden></span>
       <span class="tbx-hint">Drag a corner to resize · ⌘⇧&lt; &gt;</span>`;
     document.body.append(box, bar);
     // Keep editor clicks on the toolbar from reaching the page and deselecting.
@@ -105,7 +108,16 @@
     if (!cur) return;
     const size = $('#tbxSize'); if (document.activeElement !== size) size.value = Math.round(fontSize(cur));
     const w = String(read(cur, 'fontWeight', () => getComputedStyle(cur).fontWeight));
-    $('#tbxWeight').value = ['300', '400', '500', '600', '700', '800', '900'].includes(w) ? w : '400';
+    const ws = $('#tbxWeight');
+    ws.value = ['300', '400', '500', '600', '700', '800', '900'].includes(w) ? w : '400';
+    // A face that ships a single weight (Archivo Black) cannot get bolder or
+    // lighter; say so rather than offer a menu that silently does nothing.
+    const fam = getComputedStyle(cur).fontFamily.split(',')[0].replace(/["']/g, '').trim();
+    const weights = new Set([...document.fonts].filter(f => f.family.replace(/["']/g, '') === fam && f.status === 'loaded').map(f => String(f.weight)));
+    const single = weights.size === 1 && ![...weights][0].includes(' ');
+    ws.disabled = single;
+    ws.title = single ? `${fam} comes in one weight only` : 'Weight';
+
     const al = read(cur, 'textAlign', () => getComputedStyle(cur).textAlign);
     bar.querySelectorAll('[data-align]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.align === al || (al === 'start' && b.dataset.align === 'left'))));
   }
@@ -118,7 +130,12 @@
     mount();
     if (cur !== el) { cur = el; syncBar(); }
     const r = el.getBoundingClientRect();
+    // Scrolled out of view: hide rather than pin a toolbar to the screen edge
+    // for text you can no longer see. The loop keeps running to bring it back.
+    if (r.bottom < 0 || r.top > innerHeight) { box.hidden = true; bar.hidden = true; raf = requestAnimationFrame(place); return; }
     box.hidden = false; bar.hidden = false;
+    const t = target(), vp = bar.querySelector('.tbx-vp'), label = t.breakpoint ? `Editing ${t.breakpoint} size` : t.state !== 'base' ? `Editing ${t.state}` : '';
+    if (vp.textContent !== label) { vp.textContent = label; vp.hidden = !label; syncBar(); }
     Object.assign(box.style, { left: r.left - 3 + 'px', top: r.top - 3 + 'px', width: r.width + 6 + 'px', height: r.height + 6 + 'px' });
     const bw = bar.offsetWidth, bh = bar.offsetHeight, topLimit = 60;
     let top = r.top - bh - 34; if (top < topLimit) top = r.bottom + 30;
