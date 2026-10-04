@@ -488,6 +488,12 @@ window.STUDIO_PAGE = {
           "src": "/casino.game/assets/services/uiux-baller.webp",
           "w": 1018,
           "h": 981
+        },
+        {
+          "src": "/casino.game/assets/services/game-demo-phone.webp",
+          "w": 1000,
+          "h": 962,
+          "pos": { "x": 0, "y": 26, "s": 1.12, "mx": 0, "my": 0, "ms": 1 }
         }
       ],
       "avatar": {
@@ -505,7 +511,11 @@ window.STUDIO_PAGE = {
         {
         "src": "/casino.game/assets/tech/chatgpt.webp",
         "name": "ChatGPT"
-      }
+      },
+        {
+          "src": "/casino.game/assets/tech/claude.webp",
+          "name": "Claude"
+        }
       ],
       "wall": {
         "columns": 4,
@@ -529,6 +539,19 @@ window.STUDIO_PAGE = {
         "lineDur": 2.4,
         "lineMode": "time",
         "lineWidth": 1
+      },
+      // The playable demo at the top of Works: the live game, framed. Nothing
+      // of the game loads until a visitor presses Play; until then it is the
+      // poster. features/tags are the lines beside it; chips are the "jump
+      // straight to a feature" buttons (they need the game's embed bridge).
+      "demo": {
+        "on": true,
+        "name": "Jeepney Jackpot",
+        "url": "https://jeepney-jackpot.pages.dev/?brand=0",
+        "poster": "/casino.game/assets/demo/jeepney-jackpot-start.webp",
+        "features": ["4×3 reels + multiplier reel", "EX NUDGE collect feature", "Bonus wheel with a 1,000× Grand", "Spine MEGA WIN banner"],
+        "tags": ["Key art", "Symbols", "UI / UX", "Spine animation"],
+        "chips": true
       },
       // Background decorations: position and size are % of their section.
       "decor": [
@@ -565,8 +588,10 @@ window.STUDIO_PAGE = {
       'cz-svc1-title': fill(blue, 90, ['rgba(57,230,255,.30)', '#39e6ff', 10, 30], 0, 'right'),
       'cz-svc2-title': fill(['#ff6ad5', '#b44dff'], 90, ['rgba(255,106,213,.30)', '#ff6ad5', 10, 30]),
       'cz-svc3-title': fill(['#ffffff', '#b8c7ff'], 180, null, 0, 'right'),
+      'cz-svc4-title': fill(['#ffcf6e', '#f4728f'], 90, ['rgba(255,140,120,.30)', '#ff8c78', 10, 30]),
       'cz-about-name': fill(blue, 90),
       'cz-exp-title': fill(['#ffffff', '#b8c7ff'], 180),
+      'cz-demo-title': fill(['#ffffff', '#b8c7ff'], 180),
       'cz-tech-title': fill(['#ff5fd2', '#b44dff'], 90, ['rgba(255,95,210,.55)', '#ff5fd2', 14, 55], 0, 'center'),
     };
   })(),

@@ -69,11 +69,19 @@
 
 # The casino game art page (/casino.game/). Same rule as the portfolio: the
 # page and its scripts always revalidate, the images cache for a week.
+# Its policy is the site's plus ONE thing: it may frame the playable demo
+# (the Works card). The site-wide policy is detached first; two
+# Content-Security-Policy headers would both apply, and the stricter one
+# would still block the frame.
 /casino.game/
   Cache-Control: no-cache, no-store, must-revalidate
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self'; form-action 'self'; frame-src https://jeepney-jackpot.pages.dev; frame-ancestors 'self'; base-uri 'none'; object-src 'none'; upgrade-insecure-requests
 
 /casino.game/index.html
   Cache-Control: no-cache, no-store, must-revalidate
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self'; form-action 'self'; frame-src https://jeepney-jackpot.pages.dev; frame-ancestors 'self'; base-uri 'none'; object-src 'none'; upgrade-insecure-requests
 
 /casino.game/casino.css
   Cache-Control: no-cache, no-store, must-revalidate

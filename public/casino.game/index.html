@@ -75,6 +75,35 @@
     <h2 class="cz-title" id="cz-works-title" data-node="Works heading" data-id="cz-works-title" data-type="text" data-motion="rise">WORKS</h2>
     <p class="cz-sub" data-node="Works subtitle" data-id="cz-works-sub" data-type="text">Bringing Casino Game Concepts to Life</p>
   </div>
+  <!-- Playable demo: the poster until Play; then the live game in an iframe
+       (desktop) or a full-screen player (phones). casino.js renders the
+       features, role tags and chips from G.casino.demo. -->
+  <div class="cz-wrap">
+    <article class="cz-demo" aria-labelledby="cz-demo-title">
+      <div class="cz-demo-copy">
+        <p class="cz-demo-kick" data-node="Demo kicker" data-id="cz-demo-kick" data-type="text">PLAYABLE DEMO</p>
+        <h3 class="cz-demo-title" id="cz-demo-title" data-node="Demo title" data-id="cz-demo-title" data-type="text">JEEPNEY<br> JACKPOT</h3>
+        <p class="cz-demo-body" data-node="Demo text" data-id="cz-demo-body" data-type="text">A playable slot I made the art for: the key art, every symbol, the UI and the Spine win animations. Spin it right here.</p>
+        <ul class="cz-demo-feats" aria-label="Game features"></ul>
+        <ul class="cz-demo-tags" aria-label="My role"></ul>
+        <div class="cz-demo-actions">
+          <button type="button" class="cz-demo-btn" data-demo-play>Play demo</button>
+          <button type="button" class="cz-demo-btn ghost" data-demo-full>Full screen</button>
+        </div>
+        <div class="cz-demo-try">
+          <p class="cz-demo-try-label">Jump straight to a feature</p>
+          <div class="cz-demo-chips" role="group" aria-label="Play a feature"></div>
+        </div>
+      </div>
+      <div class="cz-demo-device">
+        <div class="cz-demo-screen">
+          <img class="cz-demo-poster" alt="" width="720" height="1280" loading="lazy" decoding="async">
+          <button type="button" class="cz-demo-veil" data-demo-play><span class="cz-demo-play" aria-hidden="true"></span><span class="cz-demo-hint">Tap to play · sound on</span></button>
+        </div>
+      </div>
+    </article>
+  </div>
+
   <div class="cz-wrap">
     <ul class="cz-logos" aria-label="Game logos"></ul>
   </div>
@@ -122,6 +151,13 @@
       <div class="cz-card-copy">
         <h3 class="cz-card-title" data-node="Service 3 title" data-id="cz-svc3-title" data-type="text">UI / UX</h3>
         <p class="cz-card-body" data-node="Service 3 text" data-id="cz-svc3-body" data-type="text">I create user-friendly UI/UX that prioritizes the player experience, with every design decision guided by a customer-first mindset.</p>
+      </div>
+    </article>
+    <article class="cz-card cz-card-flip" data-slot="3">
+      <div class="cz-card-art"></div>
+      <div class="cz-card-copy">
+        <h3 class="cz-card-title" data-node="Service 4 title" data-id="cz-svc4-title" data-type="text">GAME DEMO</h3>
+        <p class="cz-card-body" data-node="Service 4 text" data-id="cz-svc4-body" data-type="text">I build playable game demos with working screens, animations, game feel, and visual effects giving clients a hands-on preview of the game before full production.</p>
       </div>
     </article>
   </div>
@@ -172,6 +208,13 @@
 </footer>
 </div>
 
+
+<!-- The demo on phones: full screen, so the game's touch handling never
+     traps the page's scrolling. The iframe is created on open, removed on close. -->
+<div class="cz-player" role="dialog" aria-modal="true" aria-label="Playable demo" hidden>
+  <div class="cz-player-bar"><span class="cz-player-name"></span><button type="button" class="cz-player-close" data-player-close aria-label="Close the demo">×</button></div>
+  <div class="cz-player-stage"></div>
+</div>
 
 <div class="cz-lightbox" role="dialog" aria-modal="true" aria-label="Gameplay screen" hidden>
   <div class="cz-lb-backdrop" data-lb-close></div>

@@ -7,6 +7,7 @@
  *     plus a boost from scrolling, paused while off screen
  *   - the icons board: a static PDF-style composition on a 12-column grid
  *   - the sticky section nav (scroll spy)
+ *   - the playable demo card at the top of Works (the live game, framed)
  *   - in the editor, a "Casino page images" panel in the Site tab to add,
  *     reorder, caption and remove images
  *
@@ -19,7 +20,8 @@
   // A reload must start at the top, on the hero's first frame. Browsers restore
   // the old scroll position by default, which landed visitors mid-animation
   // with the text already shown. A #works style link still jumps as asked.
-  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  // window.history: the editor declares its own global `history` (the undo list).
+  if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
   if (!location.hash) scrollTo(0, 0);
 
   const $ = (s, p = document) => p.querySelector(s);
@@ -43,8 +45,25 @@
     c.heroAnim = { ...(def.heroAnim || {}), ...(c.heroAnim || {}) };
     if (!Array.isArray(c.decor)) c.decor = JSON.parse(JSON.stringify(def.decor || []));
     c.cardAnim = { on: true, dur: 0.9, artDelay: 0.18, textDelay: 0.3, ...(c.cardAnim || {}) };
+    // Additions made after the page was first published. A published config
+    // carries its own copy of every list, so a new default would never reach
+    // it; each addition is applied once and recorded in c.added, so removing
+    // it in the editor afterwards sticks.
+    c.added = Array.isArray(c.added) ? c.added : [];
+    for (const [key, add] of ADDITIONS) if (!c.added.includes(key)) { add(c, def); c.added.push(key); }
+    c.demo = { on: true, name: '', url: '', poster: '', features: [], tags: [], chips: true, ...JSON.parse(JSON.stringify(def.demo || {})), ...(c.demo || {}) };
     return c;
   };
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const ADDITIONS = [
+    ['tech:claude', (c, def) => {
+      const it = (def.tech || []).find(t => /claude/i.test(t.name || ''));
+      if (it && !c.tech.some(t => /claude/i.test(t.name || t.src || ''))) c.tech.push(clone(it));
+    }],
+    ['services:3', (c, def) => {
+      if ((!c.services[3] || !c.services[3].src) && def.services && def.services[3]) c.services[3] = clone(def.services[3]);
+    }],
+  ];
   const editingNow = () => document.body.classList.contains('editing');
   const commit = msg => { if (typeof push === 'function') push(); if (msg && typeof status === 'function') status(msg); };
   const sizeAttrs = it => (it.w && it.h ? ` width="${+it.w}" height="${+it.h}"` : '');
@@ -85,9 +104,23 @@
     const img = $('.cz-avatar img');
     if (img) { const src = C().avatar.src; if (src) img.src = src; else img.removeAttribute('src'); }
     const ul = $('.cz-tech');
-    if (ul) ul.innerHTML = C().tech.map(t => `<li>${t.src
+    if (!ul) return;
+    const list = C().tech, n = list.length;
+    // Up to 5 tools in one row on desktop; phones 2 per row (3 or fewer stay in one).
+    const cols = n <= 5 ? n : Math.ceil(n / 2), mcols = n <= 3 ? n : 2;
+    ul.style.setProperty('--cols', Math.max(1, cols)); ul.style.setProperty('--mcols', Math.max(1, mcols));
+    ul.innerHTML = list.map(t => `<li>${t.src
       ? `<img src="${esc(t.src)}" alt="${esc(t.name || 'Tool')}" loading="lazy" decoding="async">`
-      : `<span class="cz-tech-name">${esc(t.name || 'Tool')}</span>`}</li>`).join('');
+      : `<span class="cz-tech-name">${esc(t.name || 'Tool')}</span>`}</li>`).join('') + (n ? techGrid('d', cols, n) + techGrid('m', mcols, n) : '');
+  }
+  // The blueprint lines: one per column and row edge, and a "+" on every crossing.
+  function techGrid(kind, cols, n) {
+    const rows = Math.ceil(n / cols);
+    let h = '', k = 0;
+    for (let x = 0; x <= cols; x++) h += `<i class="cz-gl v" style="--p:${x / cols}"></i>`;
+    for (let y = 0; y <= rows; y++) h += `<i class="cz-gl h" style="--p:${y / rows}"></i>`;
+    for (let y = 0; y <= rows; y++) for (let x = 0; x <= cols; x++) h += `<i class="cz-gx" style="--x:${x / cols};--y:${y / rows};--d:${(0.3 + k++ * 0.07).toFixed(2)}s"></i>`;
+    return `<li class="cz-grid ${kind}" aria-hidden="true">${h}</li>`;
   }
 
   // Hero framing, desktop and phone, as CSS variables on the hero.
@@ -126,7 +159,7 @@
   }
 
   function renderAll() {
-    renderHero(); renderLogos(); renderIcons(); renderServices(); renderAbout(); Wall.build(); HeroMotion.apply();
+    renderHero(); renderLogos(); renderIcons(); renderServices(); renderAbout(); Demo.render(); Wall.build(); HeroMotion.apply();
     if (panelOpen()) renderPanel();
   }
 
@@ -328,6 +361,155 @@
     const shot = e.target.closest && e.target.closest('.cz-shot');
     if (shot) LB.open(Number(shot.dataset.shot), shot);
   });
+
+  /* ------------------------------------------------------ playable demo
+   * The poster until Play. Desktop: the game loads in an iframe inside the
+   * phone, and "Full screen" makes that same screen fullscreen (moving an
+   * iframe would reload the game). Phones: Play opens .cz-player, a full-screen
+   * player outside the page, so the game's touch handling never traps the
+   * page's scrolling; closing it removes the game.
+   *
+   * The chips ask the game for a feature through its embed bridge
+   * (slot-4x3-engine src/ui/EmbedBridge.ts): the game says "hello" once it
+   * listens, the page answers with the waiting feature. A game without the
+   * bridge just plays normally. Scrolled out of sight, the game is told to go
+   * quiet.
+   */
+  const Demo = (() => {
+    const card = $('.cz-demo');
+    if (!card) return { render() {} };
+    const screen = $('.cz-demo-screen', card), poster = $('.cz-demo-poster', card), hint = $('.cz-demo-hint', card);
+    const player = $('.cz-player'), stage = player && $('.cz-player-stage', player);
+    const CHIPS = [['ex', 'EX NUDGE'], ['mega', 'MEGA WIN'], ['wheel', 'Bonus wheel']];
+    const HINT = 'Tap to play · sound on';
+    let inline = null, pending = null, opener = null, chipTimer = 0;
+    const cfg = () => C().demo;
+    const site = () => $('.casino.site');
+    // The same breakpoint as the CSS: the page's own width, so the editor's phone preview agrees.
+    const narrow = () => (site() ? site().clientWidth : innerWidth) <= 720;
+    const origin = () => { try { return new URL(cfg().url, location.href).origin; } catch { return ''; } };
+    const blocked = () => editingNow() && !document.body.classList.contains('previewing');
+    const active = () => (player && !player.hidden ? $('iframe', stage) : inline);
+
+    function render() {
+      const d = cfg();
+      card.hidden = !d.on || !d.url;
+      if (d.poster && poster.getAttribute('src') !== d.poster) poster.src = d.poster;
+      poster.alt = `${d.name || 'The game'}: start screen`;
+      $('.cz-demo-feats', card).innerHTML = (d.features || []).filter(Boolean).map(f => `<li>${esc(f)}</li>`).join('');
+      $('.cz-demo-tags', card).innerHTML = (d.tags || []).filter(Boolean).map(t => `<li>${esc(t)}</li>`).join('');
+      card.classList.toggle('has-chips', !!d.chips);
+      $('.cz-demo-chips', card).innerHTML = CHIPS.map(([id, l]) => `<button type="button" class="cz-demo-chip" data-demo-feature="${id}">${l}</button>`).join('');
+      if (player) $('.cz-player-name', player).textContent = `${d.name || 'Game'} · demo`;
+      // A new game URL (the editor) drops the one that is running.
+      if (inline && inline.dataset.src !== d.url) stopInline();
+    }
+
+    function frame() {
+      const d = cfg(), f = document.createElement('iframe');
+      f.src = d.url; f.dataset.src = d.url;
+      f.title = `${d.name || 'Game'}: playable demo`;
+      f.allow = 'autoplay; fullscreen';
+      f.setAttribute('allowfullscreen', '');
+      return f;
+    }
+
+    function play(feature) {
+      if (blocked() || card.hidden) return;
+      if (feature) { pending = feature; waitChip(feature); }
+      if (narrow()) return openPlayer();
+      if (inline) return send();
+      card.classList.add('loading');
+      hint.textContent = 'Loading the game…';
+      inline = frame();
+      // The game's own loading screen is the same art as the poster: fade it in over it.
+      inline.addEventListener('load', () => setTimeout(() => {
+        if (!inline) return;
+        inline.classList.add('live');
+        card.classList.remove('loading'); card.classList.add('playing');
+        hint.textContent = HINT;
+      }, 250), { once: true });
+      screen.appendChild(inline);
+    }
+    function stopInline() {
+      if (inline) inline.remove();
+      inline = null; pending = null; waitChip(null);
+      card.classList.remove('loading', 'playing');
+      hint.textContent = HINT;
+    }
+
+    function full() {
+      if (blocked() || card.hidden) return;
+      if (narrow()) return openPlayer();
+      const req = screen.requestFullscreen || screen.webkitRequestFullscreen;
+      if (!req) { stopInline(); return openPlayer(); }
+      // Inside the click, before anything async, or the browser refuses it.
+      let r;
+      try { r = req.call(screen); } catch { r = Promise.reject(); }
+      if (!inline) play();
+      if (r && r.catch) r.catch(() => { stopInline(); openPlayer(); });
+    }
+
+    /* Phones: the full-screen player. The back button closes it too. */
+    function openPlayer() {
+      if (!player) return;
+      opener = document.activeElement;
+      stage.innerHTML = '';
+      stage.appendChild(frame());
+      player.hidden = false;
+      document.body.style.overflow = 'hidden';
+      window.history.pushState({ czPlayer: 1 }, '');
+      $('.cz-player-close', player).focus({ preventScroll: true });
+    }
+    function closePlayer(fromHistory) {
+      if (!player || player.hidden) return;
+      player.hidden = true;
+      stage.innerHTML = '';
+      document.body.style.overflow = '';
+      pending = null; waitChip(null);
+      if (!fromHistory && window.history.state && window.history.state.czPlayer) window.history.back();
+      if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+    }
+    addEventListener('popstate', () => closePlayer(true));
+
+    /* The chip glows until the game says the feature's spin has started. */
+    function waitChip(id) {
+      clearTimeout(chipTimer);
+      $$('.cz-demo-chip', card).forEach(b => b.classList.toggle('waiting', b.dataset.demoFeature === id));
+      if (id) chipTimer = setTimeout(() => waitChip(null), 20000);
+    }
+    function send() {
+      const f = active();
+      if (!pending || !f || !f.dataset.hello || !f.contentWindow) return;
+      f.contentWindow.postMessage({ jj: 'feature', id: pending }, origin());
+      pending = null;
+    }
+    addEventListener('message', e => {
+      const f = active();
+      if (!f || e.source !== f.contentWindow || e.origin !== origin()) return;
+      const d = e.data || {};
+      if (d.jj === 'hello' || d.jj === 'ready') { f.dataset.hello = '1'; send(); }
+      else if (d.jj === 'played') waitChip(null);
+    });
+
+    // Out of sight on the page (scrolled past), the game goes quiet; back in view, it resumes.
+    new IntersectionObserver(es => {
+      const seen = es.some(x => x.isIntersecting);
+      if (inline && inline.contentWindow && inline.dataset.hello) inline.contentWindow.postMessage({ jj: 'visible', on: seen }, origin());
+    }).observe(screen);
+
+    card.addEventListener('click', e => {
+      const chip = e.target.closest('[data-demo-feature]');
+      if (chip) return play(chip.dataset.demoFeature);
+      if (e.target.closest('[data-demo-full]')) return full();
+      if (e.target.closest('[data-demo-play]')) play();
+    });
+    if (player) {
+      player.addEventListener('click', e => { if (e.target.closest('[data-player-close]')) closePlayer(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !player.hidden) { e.preventDefault(); closePlayer(); } });
+    }
+    return { render, play, stop: stopInline, close: closePlayer };
+  })();
 
   /* -------------------------------------------------------- hero motion
    * scroll:   the hero is pinned; scrolling scrubs the drive-in video, and the
@@ -583,7 +765,19 @@
     if (!box) return;
     const c = C();
     const openKeys = $$('details[open]', box).map(d => d.dataset.key);
-    box.innerHTML = LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
+    const dm = c.demo;
+    box.innerHTML = `<details data-key="demo"${openKeys.includes('demo') ? ' open' : ''}><summary>Playable demo</summary>
+        <p class="cz-note">The card at the top of Works. Visitors see the poster until they press Play; only then does the game load. The title, kicker and paragraph are edited on the page like any text.</p>
+        <label class="cz-meta"><input type="checkbox" data-set="demo.on"${dm.on ? ' checked' : ''}> Show the demo card</label>
+        <div class="ctrl stack"><label for="czDemoName">Game name (the player bar, screen readers)</label><input id="czDemoName" type="text" data-set="demo.name" value="${esc(dm.name)}"></div>
+        <div class="ctrl stack"><label for="czDemoUrl">Game URL</label><input id="czDemoUrl" type="url" data-set="demo.url" value="${esc(dm.url)}"></div>
+        <p class="cz-note">The page may only frame the game's own site (https://jeepney-jackpot.pages.dev); another host also needs adding to frame-src in _headers. <code>?brand=0</code> skips the studio logo.</p>
+        <div class="cz-row">${dm.poster ? `<img src="${esc(dm.poster)}" alt="">` : '<span class="cz-thumb-empty"></span>'}<div class="cz-fields"><span class="cz-meta">Poster (the game's start screen, 9:16)</span></div>
+          <div class="cz-ops"><label class="file-btn" style="padding:0 6px">Replace<input type="file" accept="image/*" data-demo-poster hidden></label></div></div>
+        <div class="ctrl stack"><label for="czDemoFeats">Features (one per line)</label><textarea id="czDemoFeats" rows="4" data-demo-list="features">${esc((dm.features || []).join('\n'))}</textarea></div>
+        <div class="ctrl stack"><label for="czDemoTags">My role (one per line)</label><textarea id="czDemoTags" rows="4" data-demo-list="tags">${esc((dm.tags || []).join('\n'))}</textarea></div>
+        <label class="cz-meta"><input type="checkbox" data-set="demo.chips"${dm.chips ? ' checked' : ''}> Feature buttons (EX NUDGE, MEGA WIN, Bonus wheel)</label>
+      </details>` + LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
         <summary>${l.label} (${c[l.key].length})</summary>
         <p class="cz-note">${l.note} Click to select, Shift-click for a range, ⌘/Ctrl-click to add one, then drag to reorder. Delete removes the selection.</p>
         <div class="cz-selbar" data-selbar="${l.key}" hidden></div>
@@ -592,8 +786,8 @@
           <input type="url" placeholder="…or paste an image URL" data-url="${l.key}"><button type="button" data-add-url="${l.key}">Add</button></div>
       </details>`).join('') +
       `<details data-key="slots"${openKeys.includes('slots') ? ' open' : ''}><summary>Service art & profile photo</summary>
-        <p class="cz-note">Character art for the three service cards, and the About photo. On the page, click a character to drag it or resize it from a corner; desktop and phone are positioned separately. A card with no art centres its text.</p>
-        <div class="cz-list">${['2D Game Art', 'Asset Optimization', 'UI / UX'].map((n, i) => {
+        <p class="cz-note">Character art for the four service cards, and the About photo. On the page, click a character to drag it or resize it from a corner; desktop and phone are positioned separately. A card with no art centres its text.</p>
+        <div class="cz-list">${['2D Game Art', 'Asset Optimization', 'UI / UX', 'Game Demo'].map((n, i) => {
           const it = c.services[i] || {};
           const q = { x: 0, y: 0, s: 1, mx: 0, my: 0, ms: 1, ...(it.pos || {}) };
           if (!it.pos && it.src) it.pos = q;
@@ -741,7 +935,7 @@
   });
 
   /* ---------------------------------------- finding the right controls */
-  const JUMPS = [['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
+  const JUMPS = [['demo', 'Demo'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
   function openSection(key) {
     const tab = $('.inspect-tab[data-tab="site"]'); if (tab && !tab.classList.contains('active')) tab.click();
     mountPanel();
@@ -751,7 +945,7 @@
     d.classList.add('cz-flash'); setTimeout(() => d.classList.remove('cz-flash'), 1200);
   }
   // In the editor, clicking a part of the page opens its settings.
-  const CANVAS = [['.cz-logos', 'logos'], ['.cz-wall', 'screens'], ['.cz-board', 'icons'], ['.cz-tech', 'tech'], ['.cz-card-art', 'slots'], ['.cz-avatar', 'slots']];
+  const CANVAS = [['.cz-demo-device', 'demo'], ['.cz-demo-feats', 'demo'], ['.cz-demo-tags', 'demo'], ['.cz-demo-try', 'demo'], ['.cz-logos', 'logos'], ['.cz-wall', 'screens'], ['.cz-board', 'icons'], ['.cz-tech', 'tech'], ['.cz-card-art', 'slots'], ['.cz-avatar', 'slots']];
   document.addEventListener('click', e => {
     if (!editingNow() || document.body.classList.contains('previewing') || !e.target.closest) return;
     if (e.target.closest('.inspector, .layers, .devbar, .savebar, [data-node]')) return;
@@ -781,6 +975,7 @@
       renderHero();
       if (path.startsWith('services.')) renderServices();
       if (path.startsWith('heroAnim.')) HeroMotion.apply();
+      if (path.startsWith('demo.')) Demo.render();
       clearTimeout(p._s); p._s = setTimeout(() => commit(), 250);
       return true;
     };
@@ -788,6 +983,12 @@
 
     p.addEventListener('input', e => {
       if (e.target.dataset && e.target.dataset.set) { if (e.target.tagName !== 'SELECT' && e.target.type !== 'checkbox') onSet(e); return; }
+      const dl = e.target.closest('[data-demo-list]');
+      if (dl) {
+        C().demo[dl.dataset.demoList] = dl.value.split('\n').map(x => x.trim()).filter(Boolean);
+        clearTimeout(p._d); p._d = setTimeout(() => { Demo.render(); commit(); }, 250);
+        return;
+      }
       const f = e.target.closest('[data-f]');
       if (f) {
         const key = f.closest('[data-list]').dataset.list, i = Number(f.closest('.cz-row').dataset.i);
@@ -912,6 +1113,12 @@
           HeroMotion.apply(); renderPanel(); commit('Hero video replaced.');
           return;
         }
+        if (t.hasAttribute('data-demo-poster')) {
+          const it = await fileToItem(files[0]);
+          C().demo.poster = it.src;
+          Demo.render(); renderPanel(); commit('Demo poster replaced.');
+          return;
+        }
         if (t.hasAttribute('data-decor-add') || t.dataset.decorReplace !== undefined) {
           const it = await fileToItem(files[0]);
           if (t.hasAttribute('data-decor-add')) C().decor.push({ id: 'decor-' + Date.now().toString(36), section: 'works', src: it.src, x: 70, y: 20, w: 20, rot: 0, op: 0.6, hidden: false });
@@ -1022,7 +1229,7 @@
       // One selection at a time: picking a character drops the text selection
       // (and its toolbar). `selected` is the editor's global.
       if (typeof selected !== 'undefined' && selected) { selected.classList.remove('selected'); selected = null; }
-      const names = ['2D Game Art', 'Asset Optimization', 'UI / UX'], sl = document.querySelector('.inspector .sel'), st = document.querySelector('.inspector .sel-type');
+      const names = ['2D Game Art', 'Asset Optimization', 'UI / UX', 'Game Demo'], sl = document.querySelector('.inspector .sel'), st = document.querySelector('.inspector .sel-type');
       if (sl) sl.textContent = `Character · ${names[Number(c.dataset.slot)] || 'service card'}`; if (st) st.textContent = 'IMAGE';
       if (!raf) raf = requestAnimationFrame(place);
     }
@@ -1095,5 +1302,5 @@
 
   renderAll();
   // For tests and the console; nothing on the page depends on it.
-  window.CasinoPage = { renderAll, hero: HeroMotion, config: C };
+  window.CasinoPage = { renderAll, hero: HeroMotion, demo: Demo, config: C };
 })();
