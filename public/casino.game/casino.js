@@ -51,10 +51,12 @@
     // it in the editor afterwards sticks.
     c.added = Array.isArray(c.added) ? c.added : [];
     for (const [key, add] of ADDITIONS) if (!c.added.includes(key)) { add(c, def); c.added.push(key); }
-    c.demo = { on: true, name: '', url: '', poster: '', features: [], tags: [], chips: true, ...JSON.parse(JSON.stringify(def.demo || {})), ...(c.demo || {}) };
+    for (const k of DEMO_KEYS) c[k] = { on: true, name: '', url: '', poster: '', features: [], tags: [], chips: true, ...JSON.parse(JSON.stringify(def[k] || {})), ...(c[k] || {}) };
     return c;
   };
   const clone = o => JSON.parse(JSON.stringify(o));
+  // The playable demo cards: G.casino.demo (Jeepney Jackpot) and G.casino.demo2 (Mayan Empire).
+  const DEMO_KEYS = ['demo', 'demo2'];
   const ADDITIONS = [
     ['tech:claude', (c, def) => {
       const it = (def.tech || []).find(t => /claude/i.test(t.name || ''));
@@ -362,34 +364,38 @@
     if (shot) LB.open(Number(shot.dataset.shot), shot);
   });
 
-  /* ------------------------------------------------------ playable demo
-   * The poster until Play. Desktop: the game loads in an iframe inside the
-   * phone, and "Full screen" makes that same screen fullscreen (moving an
+  /* ------------------------------------------------------ playable demos
+   * One instance per .cz-demo card (data-demo = its key in G.casino: demo,
+   * demo2). The poster until Play. Desktop: the game loads in an iframe inside
+   * the phone, and "Full screen" makes that same screen fullscreen (moving an
    * iframe would reload the game). Phones: Play opens .cz-player, a full-screen
-   * player outside the page, so the game's touch handling never traps the
-   * page's scrolling; closing it removes the game.
+   * player outside the page (shared by the cards), so the game's touch handling
+   * never traps the page's scrolling; closing it removes the game. Starting one
+   * card stops the other, so two games never run at once.
    *
    * The chips ask the game for a feature through its embed bridge
-   * (slot-4x3-engine src/ui/EmbedBridge.ts): the game says "hello" once it
-   * listens, the page answers with the waiting feature. A game without the
-   * bridge just plays normally. Scrolled out of sight, the game is told to go
-   * quiet.
+   * (Jeepney: slot-4x3-engine src/ui/EmbedBridge.ts; Mayan: js/embed-bridge.js):
+   * the game says "hello" once it listens, the page answers with the waiting
+   * feature. A game without the bridge just plays normally. Scrolled out of
+   * sight, the game is told to go quiet.
    */
-  const Demo = (() => {
-    const card = $('.cz-demo');
-    if (!card) return { render() {} };
+  const player = $('.cz-player'), stage = player && $('.cz-player-stage', player);
+  let playerOwner = null;
+  const DEMO_CHIPS = { demo: [['ex', 'EX NUDGE'], ['mega', 'MEGA WIN'], ['wheel', 'Bonus wheel']] };
+  const demoChips = key => { const l = C()[key] && C()[key].chipList; return Array.isArray(l) && l.length ? l : DEMO_CHIPS[key] || []; };
+  const HINT = 'Tap to play · sound on';
+  function makeDemo(card) {
+    const key = card.dataset.demo || 'demo';
     const screen = $('.cz-demo-screen', card), poster = $('.cz-demo-poster', card), hint = $('.cz-demo-hint', card);
-    const player = $('.cz-player'), stage = player && $('.cz-player-stage', player);
-    const CHIPS = [['ex', 'EX NUDGE'], ['mega', 'MEGA WIN'], ['wheel', 'Bonus wheel']];
-    const HINT = 'Tap to play · sound on';
     let inline = null, pending = null, opener = null, chipTimer = 0;
-    const cfg = () => C().demo;
+    const cfg = () => C()[key];
     const site = () => $('.casino.site');
     // The same breakpoint as the CSS: the page's own width, so the editor's phone preview agrees.
     const narrow = () => (site() ? site().clientWidth : innerWidth) <= 720;
     const origin = () => { try { return new URL(cfg().url, location.href).origin; } catch { return ''; } };
     const blocked = () => editingNow() && !document.body.classList.contains('previewing');
-    const active = () => (player && !player.hidden ? $('iframe', stage) : inline);
+    const mine = () => player && !player.hidden && playerOwner === key;
+    const active = () => (mine() ? $('iframe', stage) : inline);
 
     function render() {
       const d = cfg();
@@ -399,8 +405,8 @@
       $('.cz-demo-feats', card).innerHTML = (d.features || []).filter(Boolean).map(f => `<li>${esc(f)}</li>`).join('');
       $('.cz-demo-tags', card).innerHTML = (d.tags || []).filter(Boolean).map(t => `<li>${esc(t)}</li>`).join('');
       card.classList.toggle('has-chips', !!d.chips);
-      $('.cz-demo-chips', card).innerHTML = CHIPS.map(([id, l]) => `<button type="button" class="cz-demo-chip" data-demo-feature="${id}">${l}</button>`).join('');
-      if (player) $('.cz-player-name', player).textContent = `${d.name || 'Game'} · demo`;
+      $('.cz-demo-chips', card).innerHTML = demoChips(key).map(([id, l]) => `<button type="button" class="cz-demo-chip" data-demo-feature="${esc(id)}">${esc(l)}</button>`).join('');
+      if (mine()) $('.cz-player-name', player).textContent = `${d.name || 'Game'} · demo`;
       // A new game URL (the editor) drops the one that is running.
       if (inline && inline.dataset.src !== d.url) stopInline();
     }
@@ -419,6 +425,7 @@
       if (feature) { pending = feature; waitChip(feature); }
       if (narrow()) return openPlayer();
       if (inline) return send();
+      Demos.forEach(o => { if (o !== api) o.stop(); });
       card.classList.add('loading');
       hint.textContent = 'Loading the game…';
       inline = frame();
@@ -453,17 +460,21 @@
     /* Phones: the full-screen player. The back button closes it too. */
     function openPlayer() {
       if (!player) return;
+      Demos.forEach(o => { if (o !== api) { o.stop(); o.close(); } });
       opener = document.activeElement;
+      playerOwner = key;
       stage.innerHTML = '';
       stage.appendChild(frame());
+      $('.cz-player-name', player).textContent = `${cfg().name || 'Game'} · demo`;
       player.hidden = false;
       document.body.style.overflow = 'hidden';
       window.history.pushState({ czPlayer: 1 }, '');
       $('.cz-player-close', player).focus({ preventScroll: true });
     }
     function closePlayer(fromHistory) {
-      if (!player || player.hidden) return;
+      if (!mine()) return;
       player.hidden = true;
+      playerOwner = null;
       stage.innerHTML = '';
       document.body.style.overflow = '';
       pending = null; waitChip(null);
@@ -504,12 +515,20 @@
       if (e.target.closest('[data-demo-full]')) return full();
       if (e.target.closest('[data-demo-play]')) play();
     });
-    if (player) {
-      player.addEventListener('click', e => { if (e.target.closest('[data-player-close]')) closePlayer(); });
-      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !player.hidden) { e.preventDefault(); closePlayer(); } });
-    }
-    return { render, play, stop: stopInline, close: closePlayer };
-  })();
+    const api = { key, render, play, stop: stopInline, close: closePlayer };
+    return api;
+  }
+  const Demos = $$('.cz-demo').map(makeDemo);
+  if (player) {
+    player.addEventListener('click', e => { if (e.target.closest('[data-player-close]')) Demos.forEach(d => d.close()); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !player.hidden) { e.preventDefault(); Demos.forEach(d => d.close()); } });
+  }
+  const Demo = {
+    render() { Demos.forEach(d => d.render()); },
+    play(feature, key = 'demo') { const d = Demos.find(x => x.key === key); if (d) d.play(feature); },
+    stop() { Demos.forEach(d => d.stop()); },
+    close() { Demos.forEach(d => d.close()); },
+  };
 
   /* -------------------------------------------------------- hero motion
    * scroll:   the hero is pinned; scrolling scrubs the drive-in video, and the
@@ -765,19 +784,24 @@
     if (!box) return;
     const c = C();
     const openKeys = $$('details[open]', box).map(d => d.dataset.key);
-    const dm = c.demo;
-    box.innerHTML = `<details data-key="demo"${openKeys.includes('demo') ? ' open' : ''}><summary>Playable demo</summary>
-        <p class="cz-note">The card at the top of Works. Visitors see the poster until they press Play; only then does the game load. The title, kicker and paragraph are edited on the page like any text.</p>
-        <label class="cz-meta"><input type="checkbox" data-set="demo.on"${dm.on ? ' checked' : ''}> Show the demo card</label>
-        <div class="ctrl stack"><label for="czDemoName">Game name (the player bar, screen readers)</label><input id="czDemoName" type="text" data-set="demo.name" value="${esc(dm.name)}"></div>
-        <div class="ctrl stack"><label for="czDemoUrl">Game URL</label><input id="czDemoUrl" type="url" data-set="demo.url" value="${esc(dm.url)}"></div>
-        <p class="cz-note">The page may only frame the game's own site (https://jeepney-jackpot.pages.dev); another host also needs adding to frame-src in _headers. <code>?brand=0</code> skips the studio logo.</p>
+    const demoPanel = (key, label, note) => {
+      const dm = c[key], id = key === 'demo' ? '' : key;
+      const chips = demoChips(key).map(x => x[1]).join(', ');
+      return `<details data-key="${key}"${openKeys.includes(key) ? ' open' : ''}><summary>${label}</summary>
+        <p class="cz-note">${note} Visitors see the poster until they press Play; only then does the game load. The title, kicker and paragraph are edited on the page like any text.</p>
+        <label class="cz-meta"><input type="checkbox" data-set="${key}.on"${dm.on ? ' checked' : ''}> Show the demo card</label>
+        <div class="ctrl stack"><label for="czDemoName${id}">Game name (the player bar, screen readers)</label><input id="czDemoName${id}" type="text" data-set="${key}.name" value="${esc(dm.name)}"></div>
+        <div class="ctrl stack"><label for="czDemoUrl${id}">Game URL</label><input id="czDemoUrl${id}" type="url" data-set="${key}.url" value="${esc(dm.url)}"></div>
+        <p class="cz-note">The page may only frame the games' own site (https://jeepney-jackpot.pages.dev); another host also needs adding to frame-src in _headers. <code>?brand=0</code> skips the Jeepney studio logo.</p>
         <div class="cz-row">${dm.poster ? `<img src="${esc(dm.poster)}" alt="">` : '<span class="cz-thumb-empty"></span>'}<div class="cz-fields"><span class="cz-meta">Poster (the game's start screen, 9:16)</span></div>
-          <div class="cz-ops"><label class="file-btn" style="padding:0 6px">Replace<input type="file" accept="image/*" data-demo-poster hidden></label></div></div>
-        <div class="ctrl stack"><label for="czDemoFeats">Features (one per line)</label><textarea id="czDemoFeats" rows="4" data-demo-list="features">${esc((dm.features || []).join('\n'))}</textarea></div>
-        <div class="ctrl stack"><label for="czDemoTags">My role (one per line)</label><textarea id="czDemoTags" rows="4" data-demo-list="tags">${esc((dm.tags || []).join('\n'))}</textarea></div>
-        <label class="cz-meta"><input type="checkbox" data-set="demo.chips"${dm.chips ? ' checked' : ''}> Feature buttons (EX NUDGE, MEGA WIN, Bonus wheel)</label>
-      </details>` + LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
+          <div class="cz-ops"><label class="file-btn" style="padding:0 6px">Replace<input type="file" accept="image/*" data-demo-poster="${key}" hidden></label></div></div>
+        <div class="ctrl stack"><label for="czDemoFeats${id}">Features (one per line)</label><textarea id="czDemoFeats${id}" rows="4" data-demo-list="features" data-demo-key="${key}">${esc((dm.features || []).join('\n'))}</textarea></div>
+        <div class="ctrl stack"><label for="czDemoTags${id}">My role (one per line)</label><textarea id="czDemoTags${id}" rows="4" data-demo-list="tags" data-demo-key="${key}">${esc((dm.tags || []).join('\n'))}</textarea></div>
+        <label class="cz-meta"><input type="checkbox" data-set="${key}.chips"${dm.chips ? ' checked' : ''}> Feature buttons (${esc(chips)})</label>
+      </details>`;
+    };
+    box.innerHTML = demoPanel('demo', 'Playable demo', 'The first card at the top of Works.') +
+      demoPanel('demo2', 'Playable demo 2', 'The second (mirrored) card under it.') + LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
         <summary>${l.label} (${c[l.key].length})</summary>
         <p class="cz-note">${l.note} Click to select, Shift-click for a range, ⌘/Ctrl-click to add one, then drag to reorder. Delete removes the selection.</p>
         <div class="cz-selbar" data-selbar="${l.key}" hidden></div>
@@ -935,7 +959,7 @@
   });
 
   /* ---------------------------------------- finding the right controls */
-  const JUMPS = [['demo', 'Demo'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
+  const JUMPS = [['demo', 'Demo'], ['demo2', 'Demo 2'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
   function openSection(key) {
     const tab = $('.inspect-tab[data-tab="site"]'); if (tab && !tab.classList.contains('active')) tab.click();
     mountPanel();
@@ -950,7 +974,8 @@
     if (!editingNow() || document.body.classList.contains('previewing') || !e.target.closest) return;
     if (e.target.closest('.inspector, .layers, .devbar, .savebar, [data-node]')) return;
     const hit = CANVAS.find(([sel]) => e.target.closest(sel));
-    if (hit) setTimeout(() => openSection(hit[1]), 0);
+    const sec = hit && hit[1] === 'demo' ? (e.target.closest('.cz-demo').dataset.demo || 'demo') : hit && hit[1];
+    if (hit) setTimeout(() => openSection(sec), 0);
   });
 
   function mountPanel() {
@@ -975,7 +1000,7 @@
       renderHero();
       if (path.startsWith('services.')) renderServices();
       if (path.startsWith('heroAnim.')) HeroMotion.apply();
-      if (path.startsWith('demo.')) Demo.render();
+      if (/^demo2?\./.test(path)) Demo.render();
       clearTimeout(p._s); p._s = setTimeout(() => commit(), 250);
       return true;
     };
@@ -985,7 +1010,7 @@
       if (e.target.dataset && e.target.dataset.set) { if (e.target.tagName !== 'SELECT' && e.target.type !== 'checkbox') onSet(e); return; }
       const dl = e.target.closest('[data-demo-list]');
       if (dl) {
-        C().demo[dl.dataset.demoList] = dl.value.split('\n').map(x => x.trim()).filter(Boolean);
+        C()[dl.dataset.demoKey || 'demo'][dl.dataset.demoList] = dl.value.split('\n').map(x => x.trim()).filter(Boolean);
         clearTimeout(p._d); p._d = setTimeout(() => { Demo.render(); commit(); }, 250);
         return;
       }
@@ -1115,7 +1140,7 @@
         }
         if (t.hasAttribute('data-demo-poster')) {
           const it = await fileToItem(files[0]);
-          C().demo.poster = it.src;
+          C()[t.dataset.demoPoster || 'demo'].poster = it.src;
           Demo.render(); renderPanel(); commit('Demo poster replaced.');
           return;
         }

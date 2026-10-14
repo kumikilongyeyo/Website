@@ -553,6 +553,19 @@ window.STUDIO_PAGE = {
         "tags": ["Key art", "Symbols", "UI / UX", "Spine animation"],
         "chips": true
       },
+      // The second demo card (mirrored): Mayan Empire, hosted beside
+      // Jeepney Jackpot (same origin, so frame-src already allows it).
+      // chipList = [feature id, label]; the ids are the game's demo forces.
+      "demo2": {
+        "on": true,
+        "name": "Mayan Empire",
+        "url": "https://jeepney-jackpot.pages.dev/mwt-5eb90827e29c/",
+        "poster": "/casino.game/assets/demo/mayan-wild-throw-start.webp",
+        "features": ["6 reels of ways + a top reel", "Screech Wilds that make Wilds", "Multiplier doubles to x1024", "Free spins from x18 / x36"],
+        "tags": ["Symbols", "Frame & UI", "Spine animation", "VFX"],
+        "chips": true,
+        "chipList": [["screech", "Screech Wild"], ["fs18", "Free spins x18"], ["fs36", "Free spins x36"]]
+      },
       // Background decorations: position and size are % of their section.
       "decor": [
         { "id": "ribbon-a", "section": "works", "src": "/casino.game/assets/decor/ribbon-a.webp", "x": 66, "y": 30, "w": 40, "rot": 0, "op": 0.42, "hidden": false },
@@ -592,6 +605,7 @@ window.STUDIO_PAGE = {
       'cz-about-name': fill(blue, 90),
       'cz-exp-title': fill(['#ffffff', '#b8c7ff'], 180),
       'cz-demo-title': fill(['#ffffff', '#b8c7ff'], 180),
+      'cz-demo2-title': fill(['#ffffff', '#b8c7ff'], 180),
       'cz-tech-title': fill(['#ff5fd2', '#b44dff'], 90, ['rgba(255,95,210,.55)', '#ff5fd2', 14, 55], 0, 'center'),
     };
   })(),
