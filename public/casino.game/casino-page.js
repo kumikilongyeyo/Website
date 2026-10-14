@@ -112,6 +112,36 @@ window.STUDIO_PAGE = {
       ],
       "screens": [
         {
+          "src": "/casino.game/assets/screens/screen-popeye-1000-space.webp",
+          "w": 506,
+          "h": 900
+        },
+        {
+          "src": "/casino.game/assets/screens/screen-popeye-arabian-pg.webp",
+          "w": 504,
+          "h": 900
+        },
+        {
+          "src": "/casino.game/assets/screens/screen-fortune-eugene-coins.webp",
+          "w": 452,
+          "h": 900
+        },
+        {
+          "src": "/casino.game/assets/screens/screen-super-wimpy-ace.webp",
+          "w": 515,
+          "h": 900
+        },
+        {
+          "src": "/casino.game/assets/screens/screen-olive-circus.webp",
+          "w": 556,
+          "h": 900
+        },
+        {
+          "src": "/casino.game/assets/screens/screen-popeye-magic-lamp.webp",
+          "w": 506,
+          "h": 900
+        },
+        {
           "src": "/casino.game/assets/screens/screen-pacman-crop.webp",
           "w": 235,
           "h": 438
