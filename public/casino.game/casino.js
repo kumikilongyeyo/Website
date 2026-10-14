@@ -55,7 +55,7 @@
     return c;
   };
   const clone = o => JSON.parse(JSON.stringify(o));
-  // The playable demo cards: G.casino.demo (Jeepney Jackpot) and G.casino.demo2 (Mayan Empire).
+  // The playable demo cards: G.casino.demo2 (Mayan Empire, first on the page) and G.casino.demo (Jeepney Jackpot).
   const DEMO_KEYS = ['demo', 'demo2'];
   const ADDITIONS = [
     ['tech:claude', (c, def) => {
@@ -800,8 +800,8 @@
         <label class="cz-meta"><input type="checkbox" data-set="${key}.chips"${dm.chips ? ' checked' : ''}> Feature buttons (${esc(chips)})</label>
       </details>`;
     };
-    box.innerHTML = demoPanel('demo', 'Playable demo', 'The first card at the top of Works.') +
-      demoPanel('demo2', 'Playable demo 2', 'The second (mirrored) card under it.') + LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
+    box.innerHTML = demoPanel('demo2', 'Playable demo: Mayan Empire', 'The first card at the top of Works.') +
+      demoPanel('demo', 'Playable demo: Jeepney Jackpot', 'The second (mirrored) card under it.') + LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
         <summary>${l.label} (${c[l.key].length})</summary>
         <p class="cz-note">${l.note} Click to select, Shift-click for a range, ⌘/Ctrl-click to add one, then drag to reorder. Delete removes the selection.</p>
         <div class="cz-selbar" data-selbar="${l.key}" hidden></div>
@@ -959,7 +959,7 @@
   });
 
   /* ---------------------------------------- finding the right controls */
-  const JUMPS = [['demo', 'Demo'], ['demo2', 'Demo 2'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
+  const JUMPS = [['demo2', 'Mayan demo'], ['demo', 'Jeepney demo'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
   function openSection(key) {
     const tab = $('.inspect-tab[data-tab="site"]'); if (tab && !tab.classList.contains('active')) tab.click();
     mountPanel();

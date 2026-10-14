@@ -553,7 +553,7 @@ window.STUDIO_PAGE = {
         "tags": ["Key art", "Symbols", "UI / UX", "Spine animation"],
         "chips": true
       },
-      // The second demo card (mirrored): Mayan Empire, hosted beside
+      // The FIRST demo card on the page: Mayan Empire, hosted beside
       // Jeepney Jackpot (same origin, so frame-src already allows it).
       // chipList = [feature id, label]; the ids are the game's demo forces.
       "demo2": {

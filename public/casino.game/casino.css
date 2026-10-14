@@ -191,7 +191,7 @@ body.cz-decor-drag .cz-decor:active { cursor: grabbing; }
 .cz-demo { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) min(380px, 34cqw); gap: clamp(32px, 6cqw, 80px); align-items: center; max-width: 1040px; margin: 0 auto clamp(56px, 8cqw, 96px); padding: clamp(28px, 4.6cqw, 56px) clamp(24px, 5cqw, 64px); border-radius: 28px; border: 1px solid rgba(255, 255, 255, .14); box-shadow: 0 30px 60px rgba(0, 0, 0, .25), inset 0 1px 0 rgba(255, 255, 255, .08); }
 .cz-demo::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--cz-glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 .cz-demo[hidden] { display: none; }
-/* The second demo card is mirrored: the phone on the left. */
+/* The second demo card (Jeepney Jackpot) is mirrored: the phone on the left. */
 .cz-demo.flip { grid-template-columns: min(380px, 34cqw) minmax(0, 1fr); }
 .cz-demo.flip .cz-demo-device { order: -1; }
 .cz-demo-copy { min-width: 0; }

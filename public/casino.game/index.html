@@ -78,34 +78,9 @@
   <!-- Playable demo: the poster until Play; then the live game in an iframe
        (desktop) or a full-screen player (phones). casino.js renders the
        features, role tags and chips from G.casino.demo. -->
+  <!-- Mayan Empire (G.casino.demo2) comes first; Jeepney Jackpot (G.casino.demo) is the mirrored card under it. -->
   <div class="cz-wrap">
-    <article class="cz-demo" aria-labelledby="cz-demo-title">
-      <div class="cz-demo-copy">
-        <p class="cz-demo-kick" data-node="Demo kicker" data-id="cz-demo-kick" data-type="text">PLAYABLE DEMO</p>
-        <h3 class="cz-demo-title" id="cz-demo-title" data-node="Demo title" data-id="cz-demo-title" data-type="text">JEEPNEY<br> JACKPOT</h3>
-        <p class="cz-demo-body" data-node="Demo text" data-id="cz-demo-body" data-type="text">A playable slot I made the art for: the key art, every symbol, the UI and the Spine win animations. Spin it right here.</p>
-        <ul class="cz-demo-feats" aria-label="Game features"></ul>
-        <ul class="cz-demo-tags" aria-label="My role"></ul>
-        <div class="cz-demo-actions">
-          <button type="button" class="cz-demo-btn" data-demo-play>Play demo</button>
-          <button type="button" class="cz-demo-btn ghost" data-demo-full>Full screen</button>
-        </div>
-        <div class="cz-demo-try">
-          <p class="cz-demo-try-label">Jump straight to a feature</p>
-          <div class="cz-demo-chips" role="group" aria-label="Play a feature"></div>
-        </div>
-      </div>
-      <div class="cz-demo-device">
-        <div class="cz-demo-screen">
-          <img class="cz-demo-poster" alt="" width="720" height="1280" loading="lazy" decoding="async">
-          <button type="button" class="cz-demo-veil" data-demo-play><span class="cz-demo-play" aria-hidden="true"></span><span class="cz-demo-hint">Tap to play · sound on</span></button>
-        </div>
-      </div>
-    </article>
-  </div>
-  <!-- The second playable demo (G.casino.demo2): the same card, mirrored. -->
-  <div class="cz-wrap">
-    <article class="cz-demo flip" data-demo="demo2" aria-labelledby="cz-demo2-title">
+    <article class="cz-demo" data-demo="demo2" aria-labelledby="cz-demo2-title">
       <div class="cz-demo-copy">
         <p class="cz-demo-kick" data-node="Demo 2 kicker" data-id="cz-demo2-kick" data-type="text">PLAYABLE DEMO</p>
         <h3 class="cz-demo-title" id="cz-demo2-title" data-node="Demo 2 title" data-id="cz-demo2-title" data-type="text">MAYAN<br> EMPIRE</h3>
@@ -130,6 +105,31 @@
     </article>
   </div>
 
+  <div class="cz-wrap">
+    <article class="cz-demo flip" data-demo="demo" aria-labelledby="cz-demo-title">
+      <div class="cz-demo-copy">
+        <p class="cz-demo-kick" data-node="Demo kicker" data-id="cz-demo-kick" data-type="text">PLAYABLE DEMO</p>
+        <h3 class="cz-demo-title" id="cz-demo-title" data-node="Demo title" data-id="cz-demo-title" data-type="text">JEEPNEY<br> JACKPOT</h3>
+        <p class="cz-demo-body" data-node="Demo text" data-id="cz-demo-body" data-type="text">A playable slot I made the art for: the key art, every symbol, the UI and the Spine win animations. Spin it right here.</p>
+        <ul class="cz-demo-feats" aria-label="Game features"></ul>
+        <ul class="cz-demo-tags" aria-label="My role"></ul>
+        <div class="cz-demo-actions">
+          <button type="button" class="cz-demo-btn" data-demo-play>Play demo</button>
+          <button type="button" class="cz-demo-btn ghost" data-demo-full>Full screen</button>
+        </div>
+        <div class="cz-demo-try">
+          <p class="cz-demo-try-label">Jump straight to a feature</p>
+          <div class="cz-demo-chips" role="group" aria-label="Play a feature"></div>
+        </div>
+      </div>
+      <div class="cz-demo-device">
+        <div class="cz-demo-screen">
+          <img class="cz-demo-poster" alt="" width="720" height="1280" loading="lazy" decoding="async">
+          <button type="button" class="cz-demo-veil" data-demo-play><span class="cz-demo-play" aria-hidden="true"></span><span class="cz-demo-hint">Tap to play · sound on</span></button>
+        </div>
+      </div>
+    </article>
+  </div>
   <div class="cz-wrap">
     <ul class="cz-logos" aria-label="Game logos"></ul>
   </div>
