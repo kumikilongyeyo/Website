@@ -78,6 +78,16 @@
   <!-- Playable demo: the poster until Play; then the live game in an iframe
        (desktop) or a full-screen player (phones). casino.js renders the
        features, role tags and chips from G.casino.demo. -->
+  <!-- The demos show as a row of game tiles; hovering one offers "Find out more"
+       (the card below, in a modal) and "Play game" (the same modal, game started).
+       casino.js builds the tiles from the cards, in page order. -->
+  <div class="cz-wrap">
+    <div class="cz-dtiles" role="list" aria-label="Playable demos"></div>
+  </div>
+  <div class="cz-dmodal" role="dialog" aria-modal="true" aria-label="Playable demo" hidden>
+  <div class="cz-dmodal-backdrop" data-dmodal-close></div>
+  <div class="cz-dmodal-box">
+  <button type="button" class="cz-dmodal-close" data-dmodal-close aria-label="Close">×</button>
   <!-- Mayan Empire (G.casino.demo2) comes first; Jeepney Jackpot (G.casino.demo) is the mirrored card under it. -->
   <div class="cz-wrap">
     <article class="cz-demo" data-demo="demo2" aria-labelledby="cz-demo2-title">
@@ -129,6 +139,8 @@
         </div>
       </div>
     </article>
+  </div>
+  </div>
   </div>
   <div class="cz-wrap">
     <ul class="cz-logos" aria-label="Game logos"></ul>

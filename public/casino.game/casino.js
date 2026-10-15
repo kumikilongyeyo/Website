@@ -519,12 +519,70 @@
     return api;
   }
   const Demos = $$('.cz-demo').map(makeDemo);
+
+  /* The tiles row and the modal. The modal moves to <body> so position: fixed
+   * answers to the viewport, not to the page's size container. One card shows
+   * at a time; closing stops its game. */
+  const dmodal = $('.cz-dmodal'), dtiles = $('.cz-dtiles');
+  let dmodalOpener = null;
+  if (dmodal) document.body.appendChild(dmodal);
+  function renderTiles() {
+    if (!dtiles) return;
+    dtiles.innerHTML = Demos.map(o => {
+      const d = C()[o.key] || {}, card = $(`.cz-demo[data-demo="${o.key}"]`);
+      if (!card || card.hidden) return '';
+      const name = d.name || ($('.cz-demo-title', card) || {}).textContent || 'Game';
+      return `<div class="cz-dtile" role="listitem" data-tile="${esc(o.key)}">
+        <div class="cz-dtile-art">${d.poster ? `<img src="${esc(d.poster)}" alt="${esc(name)}" loading="lazy" decoding="async">` : ''}<span class="cz-dtile-badge">Demo</span></div>
+        <div class="cz-dtile-info">
+          <p class="cz-dtile-name">${esc(name)}</p>
+          <div class="cz-dtile-btns">
+            <button type="button" class="cz-dtile-btn more" data-tile-more>Find out more<span aria-hidden="true">›</span></button>
+            <button type="button" class="cz-dtile-btn play" data-tile-play><span aria-hidden="true">▶</span>Play game</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  function openDemo(key, start) {
+    const o = Demos.find(x => x.key === key);
+    if (!o || !dmodal) return;
+    // Phones: Play goes straight to the full-screen player, as before.
+    const site = $('.casino.site');
+    if (start && (site ? site.clientWidth : innerWidth) <= 720) return o.play();
+    Demos.forEach(x => { if (x !== o) x.stop(); });
+    $$('.cz-demo', dmodal).forEach(c => c.classList.toggle('cz-dshow', c.dataset.demo === key));
+    dmodalOpener = document.activeElement;
+    dmodal.hidden = false;
+    document.body.classList.add('cz-dmodal-open');
+    $('.cz-dmodal-box', dmodal).scrollTop = 0;
+    $('.cz-dmodal-close', dmodal).focus({ preventScroll: true });
+    if (start) o.play();
+  }
+  function closeDemo() {
+    if (!dmodal || dmodal.hidden) return;
+    Demo.stop();
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    dmodal.hidden = true;
+    document.body.classList.remove('cz-dmodal-open');
+    if (dmodalOpener && dmodalOpener.isConnected) dmodalOpener.focus({ preventScroll: true });
+  }
+  if (dtiles) dtiles.addEventListener('click', e => {
+    const tile = e.target.closest('[data-tile]');
+    if (!tile) return;
+    if (e.target.closest('[data-tile-play]')) return openDemo(tile.dataset.tile, true);
+    openDemo(tile.dataset.tile, false);
+  });
+  if (dmodal) dmodal.addEventListener('click', e => { if (e.target.closest('[data-dmodal-close]')) closeDemo(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && dmodal && !dmodal.hidden && (!player || player.hidden) && !document.fullscreenElement) { e.preventDefault(); closeDemo(); }
+  });
   if (player) {
     player.addEventListener('click', e => { if (e.target.closest('[data-player-close]')) Demos.forEach(d => d.close()); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !player.hidden) { e.preventDefault(); Demos.forEach(d => d.close()); } });
   }
   const Demo = {
-    render() { Demos.forEach(d => d.render()); },
+    render() { Demos.forEach(d => d.render()); renderTiles(); },
     play(feature, key = 'demo') { const d = Demos.find(x => x.key === key); if (d) d.play(feature); },
     stop() { Demos.forEach(d => d.stop()); },
     close() { Demos.forEach(d => d.close()); },

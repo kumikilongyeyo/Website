@@ -512,3 +512,63 @@ body.editing:not(.cz-replaying) .cz-card-copy > * { opacity: 1 !important; trans
 .cz-nums label { display: flex; align-items: center; gap: 3px; font-size: 10px; opacity: .8; }
 .cz-nums input { width: 44px; font-size: 11px; padding: 3px 4px; border-radius: 4px; background: rgba(0, 0, 0, .3); color: inherit; border: 1px solid rgba(255, 255, 255, .12); }
 .cz-note { font-size: 10px; opacity: .65; margin: 4px 0; line-height: 1.4; }
+
+/* ---------------------------------------------------------- demo tiles
+ * The playable demos as a row of game tiles. Hover (or focus) lifts the tile
+ * and opens its info strip: the name, "Find out more" and "Play game". */
+.cz-dtiles { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(18px, 3cqw, 36px); margin: 0 auto clamp(40px, 6cqw, 72px); }
+.cz-dtile { position: relative; width: clamp(220px, 24cqw, 280px); border-radius: 22px; padding: 8px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 20px 40px rgba(0, 0, 0, .3); transition: transform .3s cubic-bezier(.2, .8, .2, 1), background .3s, border-color .3s, box-shadow .3s; }
+.cz-dtile-art { position: relative; aspect-ratio: 3 / 4; border-radius: 16px; overflow: hidden; background: #090b18; }
+.cz-dtile-art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+.cz-dtile-badge { position: absolute; top: 10px; right: 10px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--cz-deep); background: #7ef0a8; padding: 4px 9px; border-radius: 999px; box-shadow: 0 0 14px rgba(126, 240, 168, .6); }
+.cz-dtile-info { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .3s cubic-bezier(.2, .8, .2, 1), opacity .25s; }
+.cz-dtile-info > * { min-height: 0; overflow: hidden; }
+.cz-dtile-info { position: absolute; left: 8px; right: 8px; top: 100%; margin-top: -8px; padding: 0 6px; border-radius: 0 0 16px 16px; background: inherit; z-index: 2; }
+.cz-dtile-name { margin: 12px 0 10px; text-align: center; font-weight: 800; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--cz-ink); }
+.cz-dtile-btns { display: flex; gap: 8px; padding-bottom: 12px; }
+.cz-dtile-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; border-radius: 10px; padding: 0 8px; font-weight: 800; font-size: 12px; letter-spacing: .04em; white-space: nowrap; transition: transform .2s, filter .2s; }
+.cz-dtile-btn:hover { transform: translateY(-1px); filter: brightness(1.12); }
+.cz-dtile-btn:active { transform: scale(.96); }
+.cz-dtile-btn.more { color: var(--cz-ink); background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .2); }
+.cz-dtile-btn.more span { font-size: 16px; line-height: 1; }
+.cz-dtile-btn.play { color: var(--cz-deep); background: linear-gradient(90deg, #2f6bff, var(--cz-cyan)); box-shadow: 0 6px 18px rgba(57, 230, 255, .35); }
+.cz-dtile:hover, .cz-dtile:focus-within { z-index: 3; transform: translateY(-10px); background: #1f1c48; border-color: rgba(57, 230, 255, .55); box-shadow: 0 30px 60px rgba(0, 0, 0, .45), 0 0 40px rgba(57, 230, 255, .25); }
+.cz-dtile:hover .cz-dtile-info, .cz-dtile:focus-within .cz-dtile-info { grid-template-rows: 1fr; opacity: 1; border: 1px solid rgba(57, 230, 255, .55); border-top: 0; box-shadow: 0 30px 40px rgba(0, 0, 0, .4); }
+.cz-dtile:hover .cz-dtile-art img, .cz-dtile:focus-within .cz-dtile-art img { transform: scale(1.05); }
+/* Touch screens have no hover: the strip is always open, under the art. */
+@media (hover: none) {
+  .cz-dtile-info, .cz-dtile:hover .cz-dtile-info { position: static; margin: 0; padding: 0; grid-template-rows: 1fr; opacity: 1; border: 0; box-shadow: none; background: none; }
+  .cz-dtile:hover { transform: none; }
+}
+@container cz (max-width: 720px) {
+  .cz-dtiles { gap: 12px; }
+  .cz-dtile { width: calc(50% - 6px); padding: 6px; border-radius: 16px; }
+  .cz-dtile-art { border-radius: 12px; }
+  .cz-dtile-btns { flex-direction: column; gap: 6px; }
+  .cz-dtile-name { font-size: 12px; margin: 10px 0 8px; }
+}
+
+/* The modal: one demo card (the old big card, info + phone) at a time. */
+.cz-dmodal { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 24px 16px; }
+.cz-dmodal[hidden] { display: none !important; }
+.cz-dmodal-backdrop { position: absolute; inset: 0; background: rgba(6, 5, 20, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: cz-dm-fade .25s ease both; }
+.cz-dmodal-box { position: relative; width: min(1040px, 100%); max-height: calc(100svh - 48px); overflow: auto; overscroll-behavior: contain; border-radius: 28px; background: #17153a; box-shadow: 0 40px 100px rgba(0, 0, 0, .6); animation: cz-dm-pop .35s cubic-bezier(.2, .8, .2, 1) both; scrollbar-width: thin; }
+.cz-dmodal-box > .cz-wrap { width: 100%; max-width: none; padding: 0; margin: 0; }
+.cz-dmodal .cz-demo { display: none; margin: 0; max-width: none; border: 0; box-shadow: none; }
+.cz-dmodal .cz-demo.cz-dshow:not([hidden]) { display: grid; }
+.cz-dmodal .cz-demo, .cz-dmodal .cz-demo.flip { grid-template-columns: minmax(0, 1fr) min(340px, 34vw, calc((100svh - 150px) * .5625)); }
+.cz-dmodal .cz-demo.flip .cz-demo-device { order: 0; }
+.cz-dmodal-close { position: absolute; top: 14px; right: 14px; z-index: 5; width: 40px; height: 40px; border-radius: 50%; font-size: 26px; line-height: 1; color: var(--cz-ink); background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .25); transition: background .2s, transform .2s; }
+.cz-dmodal-close:hover { background: #ff4d6d; transform: rotate(90deg); }
+body.cz-dmodal-open { overflow: hidden; }
+@keyframes cz-dm-fade { from { opacity: 0; } }
+@keyframes cz-dm-pop { from { opacity: 0; transform: translateY(18px) scale(.97); } }
+@media (max-width: 720px) {
+  .cz-dmodal { padding: 10px; }
+  .cz-dmodal-box { max-height: calc(100svh - 20px); border-radius: 22px; }
+  .cz-dmodal .cz-demo, .cz-dmodal .cz-demo.flip { grid-template-columns: 1fr; }
+  .cz-dmodal .cz-demo.flip .cz-demo-device { order: -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cz-dtile, .cz-dtile-art img, .cz-dtile-info, .cz-dmodal-backdrop, .cz-dmodal-box { transition: none; animation: none; }
+}
