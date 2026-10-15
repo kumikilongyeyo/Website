@@ -552,6 +552,8 @@
     if (start && (site ? site.clientWidth : innerWidth) <= 720) return o.play();
     Demos.forEach(x => { if (x !== o) x.stop(); });
     $$('.cz-demo', dmodal).forEach(c => c.classList.toggle('cz-dshow', c.dataset.demo === key));
+    // Play game: the game only, no info column.
+    dmodal.classList.toggle('cz-dgame', !!start);
     dmodalOpener = document.activeElement;
     dmodal.hidden = false;
     document.body.classList.add('cz-dmodal-open');

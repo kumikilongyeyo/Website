@@ -521,11 +521,12 @@ body.editing:not(.cz-replaying) .cz-card-copy > * { opacity: 1 !important; trans
 .cz-dtile-art { position: relative; aspect-ratio: 3 / 4; border-radius: 16px; overflow: hidden; background: #090b18; }
 .cz-dtile-art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
 .cz-dtile-badge { position: absolute; top: 10px; right: 10px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--cz-deep); background: #7ef0a8; padding: 4px 9px; border-radius: 999px; box-shadow: 0 0 14px rgba(126, 240, 168, .6); }
-.cz-dtile-info { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .3s cubic-bezier(.2, .8, .2, 1), opacity .25s; }
-.cz-dtile-info > * { min-height: 0; overflow: hidden; }
-.cz-dtile-info { position: absolute; left: 8px; right: 8px; top: 100%; margin-top: -8px; padding: 0 6px; border-radius: 0 0 16px 16px; background: inherit; z-index: 2; }
-.cz-dtile-name { margin: 12px 0 10px; text-align: center; font-weight: 800; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--cz-ink); }
-.cz-dtile-btns { display: flex; gap: 8px; padding-bottom: 12px; }
+/* The strip sits inside the art, over its lower part: a dimmed, blurred gradient with the name and buttons on it. */
+.cz-dtile-info { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 2; padding: 64px 12px 12px; border-radius: 0 0 16px 16px; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.cz-dtile-info::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: linear-gradient(to bottom, rgba(8, 6, 28, 0), rgba(8, 6, 28, .6) 40%, rgba(8, 6, 28, .9)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 45%); mask-image: linear-gradient(to bottom, transparent, #000 45%); }
+.cz-dtile-info > * { position: relative; transform: translateY(14px); transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
+.cz-dtile-name { margin: 0 0 10px; text-align: center; font-weight: 800; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--cz-ink); text-shadow: 0 2px 8px rgba(0, 0, 0, .6); }
+.cz-dtile-btns { display: flex; gap: 8px; }
 .cz-dtile-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; border-radius: 10px; padding: 0 8px; font-weight: 800; font-size: 12px; letter-spacing: .04em; white-space: nowrap; transition: transform .2s, filter .2s; }
 .cz-dtile-btn:hover { transform: translateY(-1px); filter: brightness(1.12); }
 .cz-dtile-btn:active { transform: scale(.96); }
@@ -533,11 +534,12 @@ body.editing:not(.cz-replaying) .cz-card-copy > * { opacity: 1 !important; trans
 .cz-dtile-btn.more span { font-size: 16px; line-height: 1; }
 .cz-dtile-btn.play { color: var(--cz-deep); background: linear-gradient(90deg, #2f6bff, var(--cz-cyan)); box-shadow: 0 6px 18px rgba(57, 230, 255, .35); }
 .cz-dtile:hover, .cz-dtile:focus-within { z-index: 3; transform: translateY(-10px); background: #1f1c48; border-color: rgba(57, 230, 255, .55); box-shadow: 0 30px 60px rgba(0, 0, 0, .45), 0 0 40px rgba(57, 230, 255, .25); }
-.cz-dtile:hover .cz-dtile-info, .cz-dtile:focus-within .cz-dtile-info { grid-template-rows: 1fr; opacity: 1; border: 1px solid rgba(57, 230, 255, .55); border-top: 0; box-shadow: 0 30px 40px rgba(0, 0, 0, .4); }
+.cz-dtile:hover .cz-dtile-info, .cz-dtile:focus-within .cz-dtile-info { opacity: 1; pointer-events: auto; }
+.cz-dtile:hover .cz-dtile-info > *, .cz-dtile:focus-within .cz-dtile-info > * { transform: none; }
 .cz-dtile:hover .cz-dtile-art img, .cz-dtile:focus-within .cz-dtile-art img { transform: scale(1.05); }
-/* Touch screens have no hover: the strip is always open, under the art. */
+/* Touch screens have no hover: the strip is always open, over the art. */
 @media (hover: none) {
-  .cz-dtile-info, .cz-dtile:hover .cz-dtile-info { position: static; margin: 0; padding: 0; grid-template-rows: 1fr; opacity: 1; border: 0; box-shadow: none; background: none; }
+  .cz-dtile-info { opacity: 1; pointer-events: auto; } .cz-dtile-info > * { transform: none; }
   .cz-dtile:hover { transform: none; }
 }
 @container cz (max-width: 720px) {
@@ -545,7 +547,9 @@ body.editing:not(.cz-replaying) .cz-card-copy > * { opacity: 1 !important; trans
   .cz-dtile { width: calc(50% - 6px); padding: 6px; border-radius: 16px; }
   .cz-dtile-art { border-radius: 12px; }
   .cz-dtile-btns { flex-direction: column; gap: 6px; }
-  .cz-dtile-name { font-size: 12px; margin: 10px 0 8px; }
+  .cz-dtile-name { font-size: 12px; margin: 0 0 8px; }
+  .cz-dtile-info { left: 6px; right: 6px; bottom: 6px; padding: 40px 8px 8px; border-radius: 0 0 12px 12px; }
+  .cz-dtile-btn { min-height: 32px; font-size: 11px; }
 }
 
 /* The modal: one demo card (the old big card, info + phone) at a time. */
@@ -558,6 +562,10 @@ body.editing:not(.cz-replaying) .cz-card-copy > * { opacity: 1 !important; trans
 .cz-dmodal .cz-demo.cz-dshow:not([hidden]) { display: grid; }
 .cz-dmodal .cz-demo, .cz-dmodal .cz-demo.flip { grid-template-columns: minmax(0, 1fr) min(340px, 34vw, calc((100svh - 150px) * .5625)); }
 .cz-dmodal .cz-demo.flip .cz-demo-device { order: 0; }
+/* Play game: just the phone with the game in it. */
+.cz-dmodal.cz-dgame .cz-dmodal-box { width: auto; }
+.cz-dmodal.cz-dgame .cz-demo-copy { display: none; }
+.cz-dmodal.cz-dgame .cz-demo, .cz-dmodal.cz-dgame .cz-demo.flip { grid-template-columns: min(420px, calc(100vw - 80px), calc((100svh - 170px) * .5625)); gap: 0; padding: 64px 28px 28px; }
 .cz-dmodal-close { position: absolute; top: 14px; right: 14px; z-index: 5; width: 40px; height: 40px; border-radius: 50%; font-size: 26px; line-height: 1; color: var(--cz-ink); background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .25); transition: background .2s, transform .2s; }
 .cz-dmodal-close:hover { background: #ff4d6d; transform: rotate(90deg); }
 body.cz-dmodal-open { overflow: hidden; }
