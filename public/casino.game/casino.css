@@ -517,7 +517,7 @@ body.editing:not(.cz-replaying) .cz-card-copy > * { opacity: 1 !important; trans
  * The playable demos as a row of game tiles. Hover (or focus) lifts the tile
  * and opens its info strip: the name, "Find out more" and "Play game". */
 .cz-dtiles { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(18px, 3cqw, 36px); margin: 0 auto clamp(40px, 6cqw, 72px); }
-.cz-dtile { position: relative; width: clamp(220px, 24cqw, 280px); border-radius: 22px; padding: 8px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 20px 40px rgba(0, 0, 0, .3); transition: transform .3s cubic-bezier(.2, .8, .2, 1), background .3s, border-color .3s, box-shadow .3s; }
+.cz-dtile { cursor: pointer; position: relative; width: clamp(220px, 24cqw, 280px); border-radius: 22px; padding: 8px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 20px 40px rgba(0, 0, 0, .3); transition: transform .3s cubic-bezier(.2, .8, .2, 1), background .3s, border-color .3s, box-shadow .3s; }
 .cz-dtile-art { position: relative; aspect-ratio: 3 / 4; border-radius: 16px; overflow: hidden; background: #090b18; }
 .cz-dtile-art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
 .cz-dtile-badge { position: absolute; top: 10px; right: 10px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--cz-deep); background: #7ef0a8; padding: 4px 9px; border-radius: 999px; box-shadow: 0 0 14px rgba(126, 240, 168, .6); }
@@ -530,7 +530,7 @@ body.editing:not(.cz-replaying) .cz-card-copy > * { opacity: 1 !important; trans
 .cz-dtile-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; border-radius: 10px; padding: 0 8px; font-weight: 800; font-size: 12px; letter-spacing: .04em; white-space: nowrap; transition: transform .2s, filter .2s; }
 .cz-dtile-btn:hover { transform: translateY(-1px); filter: brightness(1.12); }
 .cz-dtile-btn:active { transform: scale(.96); }
-.cz-dtile-btn.more { color: var(--cz-ink); background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .2); }
+.cz-dtile-btn.more { text-decoration: none; color: var(--cz-ink); background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .2); }
 .cz-dtile-btn.more span { font-size: 16px; line-height: 1; }
 .cz-dtile-btn.play { color: var(--cz-deep); background: linear-gradient(90deg, #2f6bff, var(--cz-cyan)); box-shadow: 0 6px 18px rgba(57, 230, 255, .35); }
 .cz-dtile:hover, .cz-dtile:focus-within { z-index: 3; transform: translateY(-10px); background: #1f1c48; border-color: rgba(57, 230, 255, .55); box-shadow: 0 30px 60px rgba(0, 0, 0, .45), 0 0 40px rgba(57, 230, 255, .25); }

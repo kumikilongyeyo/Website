@@ -83,6 +83,24 @@
   ! Content-Security-Policy
   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self'; form-action 'self'; frame-src https://jeepney-jackpot.pages.dev; frame-ancestors 'self'; base-uri 'none'; object-src 'none'; upgrade-insecure-requests
 
+# Each playable demo's own page (/casino.game/game/?g=<slug>). Same policy as
+# the casino page: it frames the demo when Play now is pressed.
+/casino.game/game/
+  Cache-Control: no-cache, no-store, must-revalidate
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self'; form-action 'self'; frame-src https://jeepney-jackpot.pages.dev; frame-ancestors 'self'; base-uri 'none'; object-src 'none'; upgrade-insecure-requests
+
+/casino.game/game/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self'; form-action 'self'; frame-src https://jeepney-jackpot.pages.dev; frame-ancestors 'self'; base-uri 'none'; object-src 'none'; upgrade-insecure-requests
+
+/casino.game/game/game.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/casino.game/game/game.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /casino.game/casino.css
   Cache-Control: no-cache, no-store, must-revalidate
 

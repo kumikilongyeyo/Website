@@ -581,7 +581,23 @@ window.STUDIO_PAGE = {
         "poster": "/casino.game/assets/demo/jeepney-jackpot-start.webp",
         "features": ["4×3 reels + multiplier reel", "EX NUDGE collect feature", "Bonus wheel with a 1,000× Grand", "Spine MEGA WIN banner"],
         "tags": ["Key art", "Symbols", "UI / UX", "Spine animation"],
-        "chips": true
+        "chips": true,
+        // The game's own info page (/casino.game/game/?g=<slug>): "Find out
+        // more" on the tile goes there. Stats are free text, shown as typed.
+        "slug": "jeepney-jackpot",
+        "about": "A playable slot I made the art for: the key art, every symbol, the UI and the Spine win animations. A 4×3 reel set with a multiplier reel beside it, EX NUDGE coins that collect their neighbours, and a bonus wheel with a 1,000× Grand.",
+        "rtp": "95.3%",
+        "volatility": "Medium",
+        "maxWin": "1,000×",
+        "reels": "4×3 + multiplier reel",
+        "released": "2026",
+        "featureBuy": "Buy Bonus",
+        "gallery": [
+          "/casino.game/assets/games/jeepney-jackpot/ex-nudge.webp",
+          "/casino.game/assets/games/jeepney-jackpot/multipliers.webp",
+          "/casino.game/assets/games/jeepney-jackpot/mega-win.webp",
+          "/casino.game/assets/games/jeepney-jackpot/scatter-wheel.webp"
+        ]
       },
       // The FIRST demo card on the page: Mayan Empire, hosted beside
       // Jeepney Jackpot (same origin, so frame-src already allows it).
@@ -594,7 +610,22 @@ window.STUDIO_PAGE = {
         "features": ["5x4 reels of ways + a top reel", "Screech Wilds that make Wilds", "Multiplier doubles to x1024", "Free spins from x18 / x36"],
         "tags": ["Symbols", "Frame & UI", "Spine animation", "VFX"],
         "chips": true,
-        "chipList": [["screech", "Screech Wild"], ["fs18", "Free spins x18"], ["fs36", "Free spins x36"]]
+        "chipList": [["screech", "Screech Wild"], ["fs18", "Free spins x18"], ["fs36", "Free spins x36"]],
+        "slug": "mayan-empire",
+        "about": "A ways slot I made the art and animation for: the symbols, the frame and UI, the Spine animations and the effects. Screech Wilds throw more Wilds onto the reels, and every one of them feeds a multiplier orb that keeps doubling, all the way to ×1024 in free spins.",
+        "rtp": "96.2%",
+        "volatility": "High",
+        "maxWin": "1,024×",
+        "reels": "5×4 ways + top reel",
+        "released": "2026",
+        "featureBuy": "Buy Bonus",
+        "gallery": [
+          "/casino.game/assets/games/mayan-empire/screech-wild.webp",
+          "/casino.game/assets/games/mayan-empire/multiplier.webp",
+          "/casino.game/assets/games/mayan-empire/free-spins.webp",
+          "/casino.game/assets/games/mayan-empire/ways-win.webp",
+          "/casino.game/assets/games/mayan-empire/free-spins-win.webp"
+        ]
       },
       // Background decorations: position and size are % of their section.
       "decor": [

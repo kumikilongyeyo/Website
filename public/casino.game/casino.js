@@ -528,6 +528,12 @@
   const dmodal = $('.cz-dmodal'), dtiles = $('.cz-dtiles');
   let dmodalOpener = null;
   if (dmodal) document.body.appendChild(dmodal);
+  // Each demo's own info page (/casino.game/game/?g=<slug>, game/game.js).
+  const gamePage = key => {
+    const d = C()[key] || {};
+    const slug = d.slug || String(d.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || key;
+    return `/casino.game/game/?g=${encodeURIComponent(slug)}`;
+  };
   function renderTiles() {
     if (!dtiles) return;
     dtiles.innerHTML = Demos.map(o => {
@@ -539,7 +545,7 @@
         <div class="cz-dtile-info">
           <p class="cz-dtile-name">${esc(name)}</p>
           <div class="cz-dtile-btns">
-            <button type="button" class="cz-dtile-btn more" data-tile-more>Find out more<span aria-hidden="true">›</span></button>
+            <a class="cz-dtile-btn more" href="${esc(gamePage(o.key))}" data-tile-more>Find out more<span aria-hidden="true">›</span></a>
             <button type="button" class="cz-dtile-btn play" data-tile-play><span aria-hidden="true">▶</span>Play game</button>
           </div>
         </div>
@@ -577,7 +583,9 @@
     const tile = e.target.closest('[data-tile]');
     if (!tile) return;
     if (e.target.closest('[data-tile-play]')) return openDemo(tile.dataset.tile, true);
-    openDemo(tile.dataset.tile, false);
+    // The game's page; in the editor, leaving would drop unsaved edits, so the card opens in the modal instead.
+    if (editingNow()) { e.preventDefault(); return openDemo(tile.dataset.tile, false); }
+    if (!e.target.closest('a')) location.href = gamePage(tile.dataset.tile);
   });
   if (dmodal) dmodal.addEventListener('click', e => { if (e.target.closest('[data-dmodal-close]')) closeDemo(); });
   document.addEventListener('keydown', e => {
@@ -862,6 +870,14 @@
         <div class="ctrl stack"><label for="czDemoFeats${id}">Features (one per line)</label><textarea id="czDemoFeats${id}" rows="4" data-demo-list="features" data-demo-key="${key}">${esc((dm.features || []).join('\n'))}</textarea></div>
         <div class="ctrl stack"><label for="czDemoTags${id}">My role (one per line)</label><textarea id="czDemoTags${id}" rows="4" data-demo-list="tags" data-demo-key="${key}">${esc((dm.tags || []).join('\n'))}</textarea></div>
         <label class="cz-meta"><input type="checkbox" data-set="${key}.chips"${dm.chips ? ' checked' : ''}> Feature buttons (${esc(chips)})</label>
+        <p class="cz-note"><strong>Game page</strong> (<a href="${esc(gamePage(key))}" target="_blank" rel="noopener">open it ↗</a>): "Find out more" on the tile goes there. It shows what you publish.</p>
+        <div class="ctrl stack"><label for="czDemoAbout${id}">About the game</label><textarea id="czDemoAbout${id}" rows="4" data-set="${key}.about">${esc(dm.about || '')}</textarea></div>
+        ${[['rtp', 'RTP'], ['volatility', 'Volatility'], ['maxWin', 'Max multiplier'], ['reels', 'Reels'], ['released', 'Release date'], ['featureBuy', 'Feature buy label (empty hides it)']].map(([f, l]) =>
+          `<div class="ctrl stack"><label for="czDemo_${f}${id}">${l}</label><input id="czDemo_${f}${id}" type="text" data-set="${key}.${f}" value="${esc(dm[f] || '')}"></div>`).join('')}
+        <span class="cz-meta">Screenshots (after the poster, 9:16)</span>
+        ${(dm.gallery || []).map((src, i) => `<div class="cz-row"><img src="${esc(src)}" alt=""><div class="cz-fields"><span class="cz-meta">Screenshot ${i + 1}</span></div>
+          <div class="cz-ops"><button type="button" data-demo-gallery-del="${key}:${i}" title="Remove">×</button></div></div>`).join('')}
+        <label class="file-btn" style="padding:0 8px">Add screenshots<input type="file" accept="image/*" multiple data-demo-gallery-add="${key}" hidden></label>
       </details>`;
     };
     box.innerHTML = demoPanel('demo2', 'Playable demo: Mayan Empire', 'The first card at the top of Works.') +
@@ -1121,6 +1137,13 @@
     });
 
     p.addEventListener('click', e => {
+      const gd = e.target.closest('[data-demo-gallery-del]');
+      if (gd) {
+        const [k, i] = gd.dataset.demoGalleryDel.split(':');
+        C()[k].gallery.splice(Number(i), 1);
+        renderPanel(); commit('Screenshot removed.');
+        return;
+      }
       if (e.target.closest('[data-card-replay]')) {
         const cards = $$('.cz-card'); cards.forEach(c => c.classList.remove('in'));
         cards[0] && cards[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -1200,6 +1223,13 @@
           if (!res.ok) throw new Error(res.error || 'upload failed');
           C().heroAnim.video = res.src; C().heroAnim.poster = '';
           HeroMotion.apply(); renderPanel(); commit('Hero video replaced.');
+          return;
+        }
+        if (t.hasAttribute('data-demo-gallery-add')) {
+          const dm = C()[t.dataset.demoGalleryAdd || 'demo'];
+          dm.gallery = Array.isArray(dm.gallery) ? dm.gallery : [];
+          for (const f of files) dm.gallery.push((await fileToItem(f)).src);
+          renderPanel(); commit('Screenshots added to the game page.');
           return;
         }
         if (t.hasAttribute('data-demo-poster')) {
