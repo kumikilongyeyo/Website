@@ -445,16 +445,18 @@
       hint.textContent = HINT;
     }
 
-    function full() {
+    // stayInline: a refused fullscreen keeps the game where it is (the modal)
+    // instead of falling back to the phone player.
+    function full(stayInline) {
       if (blocked() || card.hidden) return;
       if (narrow()) return openPlayer();
       const req = screen.requestFullscreen || screen.webkitRequestFullscreen;
-      if (!req) { stopInline(); return openPlayer(); }
+      if (!req) { if (stayInline) return play(); stopInline(); return openPlayer(); }
       // Inside the click, before anything async, or the browser refuses it.
       let r;
       try { r = req.call(screen); } catch { r = Promise.reject(); }
       if (!inline) play();
-      if (r && r.catch) r.catch(() => { stopInline(); openPlayer(); });
+      if (r && r.catch) r.catch(() => { if (!stayInline) { stopInline(); openPlayer(); } });
     }
 
     /* Phones: the full-screen player. The back button closes it too. */
@@ -515,7 +517,7 @@
       if (e.target.closest('[data-demo-full]')) return full();
       if (e.target.closest('[data-demo-play]')) play();
     });
-    const api = { key, render, play, stop: stopInline, close: closePlayer };
+    const api = { key, render, play, full, stop: stopInline, close: closePlayer };
     return api;
   }
   const Demos = $$('.cz-demo').map(makeDemo);
@@ -559,7 +561,9 @@
     document.body.classList.add('cz-dmodal-open');
     $('.cz-dmodal-box', dmodal).scrollTop = 0;
     $('.cz-dmodal-close', dmodal).focus({ preventScroll: true });
-    if (start) o.play();
+    // PC: Play game goes straight to full screen (still inside the click); leaving
+    // full screen lands on the game in the modal.
+    if (start) o.full(true);
   }
   function closeDemo() {
     if (!dmodal || dmodal.hidden) return;
