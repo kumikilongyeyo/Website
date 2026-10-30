@@ -93,11 +93,17 @@
     f.title = `${game.name || 'Game'}: playable demo`;
     f.allow = 'autoplay; fullscreen';
     f.setAttribute('allowfullscreen', '');
-    f.addEventListener('load', () => setTimeout(() => { if (frame === f) { f.classList.add('live'); stage.classList.remove('loading'); } }, 250), { once: true });
+    f.addEventListener('load', () => setTimeout(() => reveal(f), 250), { once: true });
     stage.classList.add('playing', 'loading');
     hint.textContent = 'Loading the game…';
     stage.appendChild(f);
     frame = f;
+  }
+  // Shown on the frame's load, or earlier when the game says hello (a game
+  // that streams its assets can be playable long before 'load' fires).
+  function reveal(f) {
+    if (frame !== f) return;
+    f.classList.add('live'); stage.classList.remove('loading');
   }
   function stop() {
     if (document.fullscreenElement === stage) document.exitFullscreen().catch(() => {});
@@ -143,7 +149,7 @@
   addEventListener('message', e => {
     if (!frame || e.source !== frame.contentWindow || e.origin !== origin()) return;
     const d = e.data || {};
-    if (d.jj === 'hello' || d.jj === 'ready') { frame.dataset.hello = '1'; send(); }
+    if (d.jj === 'hello' || d.jj === 'ready') { frame.dataset.hello = '1'; reveal(frame); send(); }
     else if (d.jj === 'played') waitChip(null);
   });
 
