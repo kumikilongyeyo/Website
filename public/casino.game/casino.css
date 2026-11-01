@@ -140,6 +140,8 @@ body.cz-hero-drag .cz-hero::after { content: "Drag to move the image"; position:
 .cz-hero-copy { display: flex; flex-direction: column; justify-content: space-between; gap: 40px; padding-block: clamp(40px, 10vh, 110px) clamp(56px, 12vh, 120px); }
 .cz-hero-title { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(34px, 5.6cqw, 72px); line-height: 1.04; letter-spacing: .03em; color: var(--cz-cyan); text-wrap: balance; }
 .cz-hero-foot { max-width: 560px; }
+/* Set by casino.js keepHeroIn(): keeps lines moved into the margin on screen. */
+.cz-hero-copy [data-id] { position: relative; left: var(--cz-hx, 0px); }
 .cz-hero-name { margin: 0 0 10px; font-family: var(--body); font-weight: 800; font-size: clamp(22px, 2.4cqw, 30px); color: var(--cz-cyan); }
 @container cz (max-width: 720px) {
   /* On a phone the headline sits over the windshield, so the top half gets its own shade. */

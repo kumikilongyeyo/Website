@@ -162,8 +162,49 @@
 
   function renderAll() {
     renderHero(); renderLogos(); renderIcons(); renderServices(); renderAbout(); Demo.render(); Wall.build(); HeroMotion.apply();
+    keepHeroIn();
     if (panelOpen()) renderPanel();
   }
+
+  /* -------------------------------------------- hero text stays on screen
+   * The hero text objects carry Move offsets set on a wide screen (about
+   * −280px, out of the page column into the margin). A narrower window has a
+   * smaller margin, and the text ran off the left edge. Each line is nudged
+   * right just far enough to sit a margin from the edge; lines that start up
+   * to 16px further in keep that indent (the headline/name stagger), and a
+   * line that already fits is left alone. The nudge is `left` on a relative
+   * box (--cz-hx): it composes with the Move offset (transform) and the
+   * entrance (translate) and never changes how the text wraps. Where it all
+   * fits, as on a wide screen, nothing moves. Off while editing, so dragging
+   * the objects stays 1:1.
+   */
+  function keepHeroIn() {
+    const copy = $('.cz-hero-copy');
+    if (!copy) return;
+    const els = $$('[data-id]', copy);
+    els.forEach(el => el.style.removeProperty('--cz-hx'));
+    if (editingNow() && !document.body.classList.contains('previewing')) return;
+    const page = copy.closest('.site') || document.body, box = page.getBoundingClientRect();
+    const margin = Math.max(20, box.width * 0.035), indent = 16;
+    // Hidden objects don't count. The line may be mid-draw (scaled to 0 from
+    // its left end), so its width can be 0 while its left edge is still right.
+    const lefts = els.map(el => el.getClientRects().length ? el.getBoundingClientRect().left - box.left : Infinity);
+    const shift = margin - Math.min(...lefts);
+    if (!(shift > 0)) return;
+    els.forEach((el, i) => {
+      const dx = Math.min(shift, Math.max(0, margin + indent - lefts[i]));
+      if (dx > 0) el.style.setProperty('--cz-hx', Math.ceil(dx) + 'px');
+    });
+  }
+  let heroInRaf = 0;
+  const keepHeroInSoon = () => { cancelAnimationFrame(heroInRaf); heroInRaf = requestAnimationFrame(keepHeroIn); };
+  addEventListener('resize', keepHeroInSoon);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(keepHeroInSoon);
+  // Objects ease into their Move offsets (and the line draws in), so measure
+  // again once they have arrived.
+  $('.cz-hero-copy')?.addEventListener('transitionend', keepHeroInSoon);
+  // Editing, previewing and the preview sizes all switch body classes/attributes.
+  new MutationObserver(keepHeroInSoon).observe(document.body, { attributes: true, attributeFilter: ['class', 'data-viewport'] });
 
   /* ------------------------------------------------------------- wall */
   const Wall = (() => {
