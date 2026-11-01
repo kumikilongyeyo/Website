@@ -580,3 +580,103 @@ body.cz-dmodal-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .cz-dtile, .cz-dtile-art img, .cz-dtile-info, .cz-dmodal-backdrop, .cz-dmodal-box { transition: none; animation: none; }
 }
+
+/* ------------------------------------------------------------ light page
+ * The Site tab's Light mode (body.light; the page default since 2026-11-01).
+ * A soft lavender page with the casino violet as ink and accent, blue for
+ * actions, and flat surfaces: no glows. Three places stay dark on purpose:
+ * the hero (it sits on its video), the game strip over each demo tile's art,
+ * and the full-screen viewers. They get the dark tokens back. The shared
+ * .light rule (studio.css) sets --bg/--text for the illustration page; this
+ * is more specific, so the casino page keeps its own.
+ */
+body.light.cz-body {
+  --bg: #f6f5fb;
+  --surface: #ffffff;
+  --text: #15123a;
+  --cz-ink: #15123a;
+  --cz-muted: #5f5c80;
+  --cz-line: rgba(21, 18, 58, .12);
+  --cz-violet: #5b3fe0;
+  --cz-blue: #2f6bff;
+  --cz-paper: #ffffff;
+  --cz-soft: 0 18px 40px -20px rgba(21, 18, 58, .28), 0 0 0 1px rgba(21, 18, 58, .06);
+  color-scheme: light;
+  background:
+    radial-gradient(90% 60% at 85% 18%, rgba(123, 63, 255, .07), transparent 60%),
+    radial-gradient(70% 50% at 10% 60%, rgba(47, 107, 255, .05), transparent 60%),
+    var(--bg);
+}
+.light .casino :focus-visible { outline-color: var(--cz-blue); }
+.light .cz-body ::selection, body.light.cz-body ::selection { background: var(--cz-blue); color: #fff; }
+/* Dark islands: the hero, the tile strips, the viewers. */
+.light .cz-hero, .light .cz-dtile-info, .light .cz-lightbox, .light .cz-player {
+  --cz-ink: #eef0ff;
+  --cz-muted: rgba(238, 240, 255, .62);
+  --cz-line: rgba(238, 240, 255, .14);
+  --bg: #15123a;
+  color: var(--cz-ink);
+}
+/* The hero ends in solid violet, so the light page starts on a clean edge. */
+.light .cz-hero-fade { background: linear-gradient(180deg, rgba(21, 18, 58, 0), #15123a); }
+.light .cz-label { color: var(--cz-violet); }
+.light .cz-label::before, .light .cz-label::after { background: rgba(91, 63, 224, .3); }
+.light .cz-connect-title::after { color: var(--cz-violet); }
+.light .cz-link:hover { color: var(--cz-blue); }
+
+/* Pictures: shadows that sit on paper instead of night. */
+.light .cz-logos img { filter: drop-shadow(0 10px 16px rgba(21, 18, 58, .2)); }
+.light .cz-logos li.tilting img { filter: drop-shadow(0 16px 22px rgba(21, 18, 58, .26)); }
+.light .cz-shot { background: rgba(21, 18, 58, .05); box-shadow: 0 12px 26px -10px rgba(21, 18, 58, .35); }
+.light .cz-wall.paused .cz-shot:hover { box-shadow: 0 16px 30px -10px rgba(21, 18, 58, .4), 0 0 0 2px var(--cz-blue); }
+.light .cz-board { background: var(--cz-paper); border-color: var(--cz-line); box-shadow: var(--cz-soft); }
+.light .cz-icon img { filter: drop-shadow(0 8px 12px rgba(21, 18, 58, .22)); }
+@container cz (max-width: 720px) { .light .cz-icon img { filter: drop-shadow(0 3px 5px rgba(21, 18, 58, .22)); } }
+
+/* Service cards: white cards, no glass. */
+.light .cz-card { background: var(--cz-paper); border-color: var(--cz-line); box-shadow: var(--cz-soft); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.light .cz-card-art img { filter: drop-shadow(0 16px 22px rgba(21, 18, 58, .25)); }
+.light .cz-card-body { color: color-mix(in srgb, var(--cz-ink) 80%, transparent); }
+
+/* Tools grid: violet lines on paper. */
+.light .cz-tech { --gl: rgba(91, 63, 224, .2); --gx: rgba(91, 63, 224, .55); }
+.light .cz-tech .cz-tech-name { color: #0a7f69; }
+
+/* Demo tiles: white frames, flat buttons. */
+.light .cz-dtile { background: var(--cz-paper); border-color: var(--cz-line); box-shadow: var(--cz-soft); }
+.light .cz-dtile:hover, .light .cz-dtile:focus-within { background: var(--cz-paper); border-color: var(--cz-blue); box-shadow: 0 26px 48px -20px rgba(21, 18, 58, .4), 0 0 0 1px rgba(47, 107, 255, .3); }
+.light .cz-dtile-badge { color: #7ef0a8; background: #15123a; box-shadow: none; }
+.light .cz-dtile-btn:hover { filter: none; }
+.light .cz-dtile-btn.more:hover { background: rgba(255, 255, 255, .2); }
+.light .cz-dtile-btn.play { color: #fff; background: var(--cz-blue); box-shadow: none; }
+.light .cz-dtile-btn.play:hover { background: #1f57e6; }
+
+/* The demo card (in the tile modal): a white sheet, flat controls. */
+.light .cz-dmodal-box { background: var(--cz-paper); box-shadow: 0 40px 90px -20px rgba(13, 11, 42, .45); }
+.light .cz-dmodal-backdrop { background: rgba(21, 18, 58, .55); }
+.light .cz-dmodal-close { color: var(--cz-ink); background: var(--bg); border-color: var(--cz-line); }
+.light .cz-dmodal-close:hover { color: #fff; }
+.light .cz-demo { border-color: var(--cz-line); box-shadow: var(--cz-soft); }
+.light .cz-demo::before { background: var(--cz-paper); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.light .cz-demo-kick::before { box-shadow: none; background: #1fbf6a; }
+.light .cz-demo-feats li::before { color: var(--cz-blue); }
+.light .cz-demo-tags li { color: var(--cz-violet); background: rgba(91, 63, 224, .08); }
+.light .cz-demo-btn { color: #fff; background: var(--cz-blue); box-shadow: none; }
+.light .cz-demo-btn:hover { transform: none; background: #1f57e6; box-shadow: none; }
+.light .cz-demo-btn.ghost { color: var(--cz-ink); background: var(--cz-paper); border-color: rgba(21, 18, 58, .2); }
+.light .cz-demo-btn.ghost:hover { background: var(--cz-paper); border-color: var(--cz-ink); }
+.light .cz-demo-chip { color: #8a4b00; border-color: rgba(178, 106, 0, .4); background: rgba(255, 197, 61, .12); }
+.light .cz-demo-chip:hover { background: rgba(255, 197, 61, .24); }
+.light .cz-demo-chip.waiting { background: #ffc53d; border-color: #ffc53d; color: #15123a; animation: none; }
+.light .cz-demo-device { box-shadow: 0 30px 60px -16px rgba(13, 11, 42, .5), 0 0 0 1px rgba(21, 18, 58, .12); }
+.light .cz-demo-play { background: #fff; box-shadow: none; }
+.light .cz-demo-play::before { border-color: transparent transparent transparent #15123a; }
+.light .cz-demo.loading .cz-demo-play { animation: none; }
+.light .cz-demo.loading .cz-demo-play::before { border-color: rgba(21, 18, 58, .2); border-top-color: #15123a; }
+.light .cz-demo-hint { color: #eef0ff; }
+@container cz (max-width: 720px) { .light .cz-demo-device { box-shadow: none; } }
+/* The pinned hero's scroll room is page colour by default; keep it violet so
+ * nothing light can show around the hero while it is pinned. */
+.light .cz-hero-pin { background: #15123a; }
+/* The tool marks are mint art made for the dark page: a shade deeper on paper. */
+.light .cz-tech img { filter: brightness(.72) saturate(1.25); }

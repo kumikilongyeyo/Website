@@ -12,10 +12,12 @@
 window.STUDIO_PAGE = {
   version: 'casino',
   G: {
-    mode: 'dark', bg: '#15123a', surface: '#1f1b52', text: '#eef0ff', accent: '#39e6ff',
+    // Light page; the deep violet is the ink and accent (casino.css, body.light).
+    // bg/surface/text are the Dark mode colours, used if the Site tab switches back.
+    mode: 'light', bg: '#15123a', surface: '#1f1b52', text: '#eef0ff', accent: '#2f6bff',
     display: 'custom', customDisplay: 'Archivo Black', body: 'manrope',
     fontCSS: 'https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap',
-    pageWidth: 1200, radius: 18, buttonBg: '#39e6ff', buttonText: '#0d0b2a', loaderStyle: 'off',
+    pageWidth: 1200, radius: 18, buttonBg: '#2f6bff', buttonText: '#ffffff', loaderStyle: 'off',
     groupMotion: 'none',
     casino: {
       "logos": [
@@ -643,8 +645,21 @@ window.STUDIO_PAGE = {
     artstation: { title: 'artstation.com/sosaklyde42069', url: 'https://www.artstation.com/sosaklyde42069' },
     linkedin: { title: 'linkedin.com/in/klyde-sosa-1973b4273', url: 'https://www.linkedin.com/in/klyde-sosa-1973b4273' },
   },
+  // The light page's versions of the dark page's heading gradients, keyed by
+  // the old pair. casino.js uses it once to bring an already-published config
+  // across (only fills still on these defaults change, and their glow goes).
+  lightFills: {
+    '#2f6bff,#39e6ff': ['#15123a', '#2f6bff'],
+    '#a64dff,#ff5fd2': ['#6a2fe0', '#d6338f'],
+    '#ff6ad5,#b44dff': ['#d6338f', '#6a2fe0'],
+    '#ff5fd2,#b44dff': ['#d6338f', '#6a2fe0'],
+    '#ffffff,#b8c7ff': ['#15123a', '#3a3590'],
+    '#ffcf6e,#f4728f': ['#d9780a', '#d63c64'],
+    '#12c7a5,#8ff5e0': ['#0a7f69', '#12b090'],
+  },
   // Starting gradients for the headings. Applied only where the object has no
-  // textFill of its own, so choosing "Solid" in the editor sticks.
+  // textFill of its own, so choosing "Solid" in the editor sticks. The hero
+  // sits on its video, so it keeps the bright pair; the rest are flat, no glow.
   seedProps: (() => {
     const fill = (stops, angle, glow, shadow, align = 'left') => ({ textFill: {
       mode: 'gradient', angle, align,
@@ -652,22 +667,23 @@ window.STUDIO_PAGE = {
       glow: glow ? { enabled: true, color: glow[0], hex: glow[1], size: glow[2], strength: glow[3] } : { enabled: false },
       shadow: { enabled: !!shadow, strength: shadow || 60, size: 10, y: 4 },
     } });
-    const blue = ['#2f6bff', '#39e6ff'];
+    const blue = ['#2f6bff', '#39e6ff'], ink = ['#15123a', '#2f6bff'], deep = ['#15123a', '#3a3590'];
+    const violet = ['#6a2fe0', '#d6338f'], pink = ['#d6338f', '#6a2fe0'];
     return {
       'cz-hero-title': fill(blue, 90, ['rgba(57,230,255,.40)', '#39e6ff', 14, 40], 75),
       'cz-hero-name': fill(blue, 90, null, 70),
-      'cz-works-title': fill(blue, 90, ['rgba(57,230,255,.40)', '#39e6ff', 16, 40], 0, 'center'),
-      'cz-services-title': fill(['#a64dff', '#ff5fd2'], 90, ['rgba(255,95,210,.35)', '#ff5fd2', 16, 35], 0, 'center'),
-      'cz-about-title': fill(['#12c7a5', '#8ff5e0'], 90, ['rgba(18,199,165,.35)', '#12c7a5', 16, 35], 0, 'center'),
-      'cz-svc1-title': fill(blue, 90, ['rgba(57,230,255,.30)', '#39e6ff', 10, 30], 0, 'right'),
-      'cz-svc2-title': fill(['#ff6ad5', '#b44dff'], 90, ['rgba(255,106,213,.30)', '#ff6ad5', 10, 30]),
-      'cz-svc3-title': fill(['#ffffff', '#b8c7ff'], 180, null, 0, 'right'),
-      'cz-svc4-title': fill(['#ffcf6e', '#f4728f'], 90, ['rgba(255,140,120,.30)', '#ff8c78', 10, 30]),
-      'cz-about-name': fill(blue, 90),
-      'cz-exp-title': fill(['#ffffff', '#b8c7ff'], 180),
-      'cz-demo-title': fill(['#ffffff', '#b8c7ff'], 180),
-      'cz-demo2-title': fill(['#ffffff', '#b8c7ff'], 180),
-      'cz-tech-title': fill(['#ff5fd2', '#b44dff'], 90, ['rgba(255,95,210,.55)', '#ff5fd2', 14, 55], 0, 'center'),
+      'cz-works-title': fill(ink, 90, null, 0, 'center'),
+      'cz-services-title': fill(violet, 90, null, 0, 'center'),
+      'cz-about-title': fill(['#0a7f69', '#12b090'], 90, null, 0, 'center'),
+      'cz-svc1-title': fill(ink, 90, null, 0, 'right'),
+      'cz-svc2-title': fill(pink, 90),
+      'cz-svc3-title': fill(deep, 180, null, 0, 'right'),
+      'cz-svc4-title': fill(['#d9780a', '#d63c64'], 90),
+      'cz-about-name': fill(ink, 90),
+      'cz-exp-title': fill(deep, 180),
+      'cz-demo-title': fill(deep, 180),
+      'cz-demo2-title': fill(deep, 180),
+      'cz-tech-title': fill(pink, 90, null, 0, 'center'),
     };
   })(),
 };

@@ -1402,6 +1402,46 @@
     edit() { return null; },
   };
 
+  /* ------------------------------------------------- light page, once
+   * The page went light on 2026-11-01. A config published before that says
+   * mode "dark" and carries the dark page's heading gradients (white, cyan,
+   * with glows), which would vanish on the light page. Before the editor
+   * applies such a state, this switches it to light once and swaps every fill
+   * still on an old default for its light version (STUDIO_PAGE.lightFills),
+   * glow off. The hero keeps its own: it stays dark, on its video. Recorded in
+   * G.casino.added like the other additions, so going back to Dark in the
+   * Site tab and publishing sticks.
+   */
+  function lightOnce(raw) {
+    const site = raw && raw.site, casino = site && site.casino;
+    if (!casino || (Array.isArray(casino.added) && casino.added.includes('theme:light'))) return raw;
+    const page = window.STUDIO_PAGE || {}, map = page.lightFills || {};
+    const def = page.G || {};
+    const out = clone(raw), s = out.site;
+    if (s.mode !== 'light') s.mode = 'light';
+    if (s.accent === '#39e6ff') s.accent = def.accent || s.accent;
+    if (s.buttonBg === '#39e6ff') { s.buttonBg = def.buttonBg || s.buttonBg; s.buttonText = def.buttonText || s.buttonText; }
+    for (const [id, node] of Object.entries(out.nodes || {})) {
+      if (/^cz-hero-/.test(id)) continue;
+      for (const st of Object.values((node && node.states) || {})) {
+        const f = st && st.textFill;
+        if (!f || f.mode !== 'gradient' || !Array.isArray(f.stops)) continue;
+        const to = map[f.stops.map(x => String(x.color || '').toLowerCase()).join(',')];
+        if (!to || to.length !== f.stops.length) continue;
+        f.stops.forEach((x, i) => { x.color = to[i]; });
+        f.glow = { enabled: false };
+      }
+    }
+    s.casino.added = [...(Array.isArray(s.casino.added) ? s.casino.added : []), 'theme:light'];
+    return out;
+  }
+  if (typeof window.applyState === 'function' && !window.applyState.__casinoLight) {
+    const inner = window.applyState;
+    const wrapped = function (raw, ...a) { return inner.call(this, lightOnce(raw), ...a); };
+    wrapped.__casinoLight = true;
+    window.applyState = wrapped;
+  }
+
   /* ---------------------------------------------------- editor wiring
    * applyState() (load, undo, redo, rollback) swaps G for a new object, so the
    * collections are redrawn after it. enter() builds the inspector, so the
