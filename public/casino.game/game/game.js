@@ -1,6 +1,6 @@
 /* /casino.game/game/?g=<slug> — one playable demo's own page.
  *
- * The game comes from G.casino.demo / demo2: the defaults in casino-page.js,
+ * The game comes from G.casino.demo / demo2 / demo3: the defaults in casino-page.js,
  * then the published "casino" config on top (state.site.casino), merged the
  * same way casino.js merges them. Nothing of the game loads until Play now.
  *
@@ -20,7 +20,7 @@
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const slugify = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-  const DEMO_KEYS = ['demo2', 'demo'];          // page order on /casino.game
+  const DEMO_KEYS = ['demo2', 'demo', 'demo3'];          // page order on /casino.game
   const DEMO_CHIPS = { demo: [['ex', 'EX NUDGE'], ['mega', 'MEGA WIN'], ['wheel', 'Bonus wheel']] };
   const STATS = [['rtp', 'RTP'], ['volatility', 'Volatility'], ['maxWin', 'Max multiplier'], ['reels', 'Reels'], ['released', 'Release date']];
   const def = (window.STUDIO_PAGE && window.STUDIO_PAGE.G && window.STUDIO_PAGE.G.casino) || {};

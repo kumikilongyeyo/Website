@@ -55,8 +55,9 @@
     return c;
   };
   const clone = o => JSON.parse(JSON.stringify(o));
-  // The playable demo cards: G.casino.demo2 (Mayan Empire, first on the page) and G.casino.demo (Jeepney Jackpot).
-  const DEMO_KEYS = ['demo', 'demo2'];
+  // The playable demo cards: G.casino.demo2 (Mayan Empire, first on the page), G.casino.demo (Jeepney Jackpot) and
+  // G.casino.demo3 (Spice Rush).
+  const DEMO_KEYS = ['demo', 'demo2', 'demo3'];
   const ADDITIONS = [
     ['tech:claude', (c, def) => {
       const it = (def.tech || []).find(t => /claude/i.test(t.name || ''));
@@ -407,7 +408,7 @@
 
   /* ------------------------------------------------------ playable demos
    * One instance per .cz-demo card (data-demo = its key in G.casino: demo,
-   * demo2). The poster until Play. Desktop: the game loads in an iframe inside
+   * demo2, demo3). The poster until Play. Desktop: the game loads in an iframe inside
    * the phone, and "Full screen" makes that same screen fullscreen (moving an
    * iframe would reload the game). Phones: Play opens .cz-player, a full-screen
    * player outside the page (shared by the cards), so the game's touch handling
@@ -922,7 +923,8 @@
       </details>`;
     };
     box.innerHTML = demoPanel('demo2', 'Playable demo: Mayan Empire', 'The first card at the top of Works.') +
-      demoPanel('demo', 'Playable demo: Jeepney Jackpot', 'The second (mirrored) card under it.') + LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
+      demoPanel('demo', 'Playable demo: Jeepney Jackpot', 'The second (mirrored) card under it.') +
+      demoPanel('demo3', 'Playable demo: Spice Rush', 'The third card.') + LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
         <summary>${l.label} (${c[l.key].length})</summary>
         <p class="cz-note">${l.note} Click to select, Shift-click for a range, ⌘/Ctrl-click to add one, then drag to reorder. Delete removes the selection.</p>
         <div class="cz-selbar" data-selbar="${l.key}" hidden></div>
@@ -1080,7 +1082,7 @@
   });
 
   /* ---------------------------------------- finding the right controls */
-  const JUMPS = [['demo2', 'Mayan demo'], ['demo', 'Jeepney demo'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
+  const JUMPS = [['demo2', 'Mayan demo'], ['demo', 'Jeepney demo'], ['demo3', 'Spice Rush demo'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
   function openSection(key) {
     const tab = $('.inspect-tab[data-tab="site"]'); if (tab && !tab.classList.contains('active')) tab.click();
     mountPanel();
@@ -1121,7 +1123,7 @@
       renderHero();
       if (path.startsWith('services.')) renderServices();
       if (path.startsWith('heroAnim.')) HeroMotion.apply();
-      if (/^demo2?\./.test(path)) Demo.render();
+      if (/^demo[23]?\./.test(path)) Demo.render();
       clearTimeout(p._s); p._s = setTimeout(() => commit(), 250);
       return true;
     };

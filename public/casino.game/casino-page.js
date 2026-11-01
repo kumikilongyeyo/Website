@@ -629,6 +629,33 @@ window.STUDIO_PAGE = {
           "/casino.game/assets/games/mayan-empire/free-spins-win.webp"
         ]
       },
+      // The third card: Spice Rush (Cocos Creator), on its own branch of the
+      // same Pages project, so frame-src lists spice-rush.jeepney-jackpot.pages.dev.
+      // No embed bridge in this game: no feature chips.
+      "demo3": {
+        "on": true,
+        "name": "Spice Rush",
+        "url": "https://spice-rush.jeepney-jackpot.pages.dev/",
+        "poster": "/casino.game/assets/demo/spice-rush-start.webp",
+        "features": ["5×3 reels, 20 lines, cascades", "Golden frames turn Wild and carry ×N", "Xolo's fire breath gilds a whole reel", "Free spins from 3 Scatters"],
+        "tags": ["Key art", "Symbols", "UI / UX", "Spine animation"],
+        "chips": false,
+        "slug": "spice-rush",
+        "about": "A cascading slot I made the art and animation for: Xolo the hairless dog, the symbols, the UI and the Spine animations and effects. Winning golden frames turn Wild and send their ×N up to Xolo, where they add up for the whole chain; every win heats him up until he breathes fire and gilds a whole reel.",
+        "rtp": "96.5%",
+        "volatility": "High",
+        "maxWin": "5,000×",
+        "reels": "5×3, 20 lines",
+        "released": "2026",
+        "featureBuy": "Buy Bonus",
+        "gallery": [
+          "/casino.game/assets/games/spice-rush/golden-frames.webp",
+          "/casino.game/assets/games/spice-rush/multiplier.webp",
+          "/casino.game/assets/games/spice-rush/fire-breath.webp",
+          "/casino.game/assets/games/spice-rush/scatters.webp",
+          "/casino.game/assets/games/spice-rush/free-spins.webp"
+        ]
+      },
       // Background decorations: position and size are % of their section.
       "decor": [
         { "id": "ribbon-a", "section": "works", "src": "/casino.game/assets/decor/ribbon-a.webp", "x": 66, "y": 30, "w": 40, "rot": 0, "op": 0.42, "hidden": false },
@@ -683,6 +710,7 @@ window.STUDIO_PAGE = {
       'cz-exp-title': fill(deep, 180),
       'cz-demo-title': fill(deep, 180),
       'cz-demo2-title': fill(deep, 180),
+      'cz-demo3-title': fill(deep, 180),
       'cz-tech-title': fill(pink, 90, null, 0, 'center'),
     };
   })(),
