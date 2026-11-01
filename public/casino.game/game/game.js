@@ -4,10 +4,11 @@
  * then the published "casino" config on top (state.site.casino), merged the
  * same way casino.js merges them. Nothing of the game loads until Play now.
  *
- * Play now puts the game in .gp-stage (the big picture) and makes that element
- * full screen, inside the click (browsers refuse it after anything async).
- * Leaving full screen keeps the game playing in place. Where an element can't
- * go full screen (iPhone Safari), the stage covers the window instead.
+ * The game plays in its own section, #play: Play now (and the big picture's
+ * play button) scroll down to it and start the game there. Full screen makes
+ * the player element full screen, inside the click (browsers refuse it after
+ * anything async); leaving it keeps the game playing in place. Where an
+ * element can't go full screen (iPhone Safari), the player covers the window.
  *
  * The feature chips talk to the game's embed bridge exactly like the casino
  * page does: the game says "hello" once it listens, the page answers with the
@@ -24,7 +25,7 @@
   const STATS = [['rtp', 'RTP'], ['volatility', 'Volatility'], ['maxWin', 'Max multiplier'], ['reels', 'Reels'], ['released', 'Release date']];
   const def = (window.STUDIO_PAGE && window.STUDIO_PAGE.G && window.STUDIO_PAGE.G.casino) || {};
 
-  const stage = $('.gp-stage'), shot = $('.gp-shot'), hint = $('.gp-stage-hint');
+  const shot = $('.gp-shot'), section = $('.gp-play'), player = $('.gp-player'), hint = $('.gp-player-hint');
   let game = null, key = '', frame = null, pending = null, chipTimer = 0;
 
   async function published() {
@@ -50,6 +51,10 @@
     document.title = `${name} — playable demo · Klyde Sosa`;
     $('.gp-crumb-name').textContent = name;
     $('.gp-title').textContent = name;
+    $('#gp-play-title').textContent = `Play ${name}`;
+    const poster = $('.gp-player-poster');
+    if (game.poster) { poster.src = game.poster; poster.alt = `${name}: start screen`; }
+    $('.gp-player-start').setAttribute('aria-label', `Play ${name} here`);
 
     $('.gp-stats').innerHTML = STATS.filter(([k]) => game[k]).map(([k, label]) =>
       `<div><dt>${label}</dt><dd>${esc(game[k])}</dd></div>`).join('');
@@ -59,7 +64,7 @@
     $('.gp-tags').innerHTML = (game.tags || []).filter(Boolean).map(t => `<li>${esc(t)}</li>`).join('');
 
     const chips = game.chips ? chipsOf(game, key) : [];
-    $('.gp-try').hidden = !chips.length && live.length < 2;
+    $('.gp-try').classList.toggle('no-chips', !chips.length);
     $('.gp-chips').innerHTML = chips.map(([id, l]) => `<button type="button" class="gp-chip" data-feature="${esc(id)}">${esc(l)}</button>`).join('');
     // The other demo(s), so a visitor can hop across without going back.
     $('.gp-other').innerHTML = live.filter(k => k !== key).map(k => {
@@ -94,45 +99,66 @@
     f.allow = 'autoplay; fullscreen';
     f.setAttribute('allowfullscreen', '');
     f.addEventListener('load', () => setTimeout(() => reveal(f), 250), { once: true });
-    stage.classList.add('playing', 'loading');
+    player.classList.add('playing', 'loading');
+    section.classList.add('playing');
     hint.textContent = 'Loading the game…';
-    stage.appendChild(f);
+    player.appendChild(f);
     frame = f;
   }
   // Shown on the frame's load, or earlier when the game says hello (a game
   // that streams its assets can be playable long before 'load' fires).
   function reveal(f) {
     if (frame !== f) return;
-    f.classList.add('live'); stage.classList.remove('loading');
+    f.classList.add('live'); player.classList.remove('loading');
   }
   function stop() {
-    if (document.fullscreenElement === stage) document.exitFullscreen().catch(() => {});
+    if (document.fullscreenElement === player) document.exitFullscreen().catch(() => {});
     if (frame) frame.remove();
     frame = null; pending = null; waitChip(null);
-    stage.classList.remove('playing', 'loading', 'covering');
+    player.classList.remove('playing', 'loading', 'covering');
+    section.classList.remove('playing');
     document.body.classList.remove('gp-covered');
   }
-  function play(feature) {
+  function restart() {
+    if (!frame) return start();
+    frame.remove(); frame = null;
+    start();
+  }
+  // From outside the section (Play now, the big picture) the page first
+  // brings the player into view.
+  function play(feature, scroll) {
     if (!game) return;
     if (feature) { pending = feature; waitChip(feature); }
-    const req = stage.requestFullscreen || stage.webkitRequestFullscreen;
-    const inFull = document.fullscreenElement === stage || stage.classList.contains('covering');
-    if (!inFull) {
-      // Inside the click, before anything async, or the browser refuses it.
-      let r;
-      try { r = req ? req.call(stage) : Promise.reject(); } catch { r = Promise.reject(); }
-      if (r && r.catch) r.catch(() => cover());
+    if (scroll) {
+      // Centre the player itself (not the section, which is taller).
+      const r = player.getBoundingClientRect();
+      if (r.top < 0 || r.bottom > innerHeight) {
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const top = scrollY + r.top - Math.max(8, (innerHeight - r.height) / 2);
+        window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
+      }
     }
     start();
     send();
   }
-  // No element fullscreen (iPhone Safari): the stage covers the window.
+  function full() {
+    if (!game) return;
+    const req = player.requestFullscreen || player.webkitRequestFullscreen;
+    if (document.fullscreenElement !== player && !player.classList.contains('covering')) {
+      // Inside the click, before anything async, or the browser refuses it.
+      let r;
+      try { r = req ? req.call(player) : Promise.reject(); } catch { r = Promise.reject(); }
+      if (r && r.catch) r.catch(() => cover());
+    }
+    start();
+  }
+  // No element fullscreen (iPhone Safari): the player covers the window.
   function cover() {
-    stage.classList.add('covering');
+    player.classList.add('covering');
     document.body.classList.add('gp-covered');
   }
   function uncover() {
-    stage.classList.remove('covering');
+    player.classList.remove('covering');
     document.body.classList.remove('gp-covered');
   }
 
@@ -173,16 +199,19 @@
   document.addEventListener('click', e => {
     const t = e.target.closest('button');
     if (!t) return;
-    if (t.matches('[data-pic]')) { if (frame) stop(); show(Number(t.dataset.pic)); }
-    else if (t.matches('[data-play]')) play();
-    else if (t.matches('[data-feature]')) play(t.dataset.feature);
-    else if (t.matches('[data-stop]')) { if (stage.classList.contains('covering')) uncover(); else stop(); }
+    if (t.matches('[data-pic]')) show(Number(t.dataset.pic));
+    else if (t.matches('[data-play]')) play(null, true);
+    else if (t.matches('[data-start]')) play();
+    else if (t.matches('[data-feature]')) play(t.dataset.feature, true);
+    else if (t.matches('[data-full]')) full();
+    else if (t.matches('[data-restart]')) restart();
+    else if (t.matches('[data-stop]')) { if (player.classList.contains('covering')) uncover(); else stop(); }
     else if (t.matches('[data-copy]')) copyLink(t);
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && stage.classList.contains('covering')) { e.preventDefault(); uncover(); }
+    if (e.key === 'Escape' && player.classList.contains('covering')) { e.preventDefault(); uncover(); }
   });
-  // Arrow keys step through the screenshots while the game isn't running.
+  // Arrow keys step through the screenshots.
   $('.gp-thumbs').addEventListener('keydown', e => {
     if (!/^Arrow(Up|Down|Left|Right)$/.test(e.key)) return;
     const btns = $$('.gp-thumbs [data-pic]'), i = btns.indexOf(document.activeElement);

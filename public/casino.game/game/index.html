@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#15123a">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f6f5fb">
 <!-- Link-only like /casino.game: kept out of search results. -->
 <meta name="robots" content="noindex, nofollow">
 <title>Playable demo — Klyde Sosa</title>
@@ -36,13 +36,11 @@
 
   <section class="gp-game" aria-labelledby="gp-title">
     <div class="gp-media">
-      <!-- The big picture is also where the game plays: Play now puts the
-           game in .gp-stage and makes that element full screen. -->
+      <!-- The big picture is the screenshot viewer; its play button (and
+           Play now) take the visitor down to the player in #play. -->
       <div class="gp-stage">
         <img class="gp-shot" alt="" width="506" height="900" decoding="async">
         <button type="button" class="gp-stage-play" data-play aria-label="Play the demo"><span aria-hidden="true"></span></button>
-        <button type="button" class="gp-stage-close" data-stop aria-label="Stop the demo">×</button>
-        <p class="gp-stage-hint">Loading the game…</p>
       </div>
       <ul class="gp-thumbs" aria-label="Screenshots"></ul>
     </div>
@@ -77,6 +75,42 @@
     </div>
   </section>
 
+  <!-- The game's own place on the page: it plays right here, in the
+       cabinet, and only loads when a visitor presses Play. -->
+  <section class="gp-play" id="play" aria-labelledby="gp-play-title">
+    <div class="gp-play-head">
+      <p class="gp-kick">PLAY IN YOUR BROWSER</p>
+      <h2 id="gp-play-title">Play the demo</h2>
+      <p>Free to play, nothing to install, no sign-up. The credits are pretend.</p>
+    </div>
+    <div class="gp-cabinet">
+      <div class="gp-play-side gp-how">
+        <h3>How to play</h3>
+        <ol>
+          <li><span><b>Press Play</b> and the game loads right here.</span></li>
+          <li><span><b>Spin</b>, change the bet, or buy the bonus from the game's own buttons.</span></li>
+          <li><span><b>Go full screen</b> for the real size, Esc to come back.</span></li>
+        </ol>
+      </div>
+      <div class="gp-player">
+        <img class="gp-player-poster" alt="" width="720" height="1280" loading="lazy" decoding="async">
+        <button type="button" class="gp-player-start" data-start aria-label="Play the demo here"><span class="gp-player-ring" aria-hidden="true"></span><b>Play</b></button>
+        <button type="button" class="gp-player-close" data-stop aria-label="Close the game">×</button>
+        <p class="gp-player-hint">Loading the game…</p>
+      </div>
+      <div class="gp-play-side gp-try">
+        <h3>Jump straight to a feature</h3>
+        <p>Starts the demo with that feature on the next spin.</p>
+        <div class="gp-chips" role="group" aria-label="Play a feature"></div>
+        <div class="gp-controls" role="group" aria-label="Game controls">
+          <button type="button" class="gp-ctl" data-full><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v2H5v5H3zm11 0h7v7h-2V5h-5zM3 14h2v5h5v2H3zm16 0h2v7h-7v-2h5z"/></svg>Full screen</button>
+          <button type="button" class="gp-ctl" data-restart><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 1-7.75 10h2.08A6 6 0 1 0 12 6v3L7.5 5 12 1z"/></svg>Restart</button>
+          <button type="button" class="gp-ctl" data-stop><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>Stop</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="gp-more" aria-labelledby="gp-about-title">
     <div class="gp-more-in">
       <div class="gp-about">
@@ -85,10 +119,7 @@
         <h3>My role</h3>
         <ul class="gp-tags" aria-label="My role"></ul>
       </div>
-      <div class="gp-try">
-        <h2>Jump straight to a feature</h2>
-        <p>Starts the demo with that feature on the next spin.</p>
-        <div class="gp-chips" role="group" aria-label="Play a feature"></div>
+      <div class="gp-also">
         <div class="gp-other"></div>
       </div>
     </div>
