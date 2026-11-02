@@ -637,7 +637,7 @@ window.STUDIO_PAGE = {
         "name": "Spice Rush",
         "url": "https://spice-rush.jeepney-jackpot.pages.dev/",
         "poster": "/casino.game/assets/demo/spice-rush-start.webp",
-        "features": ["5×3 reels, 20 lines, cascades", "Golden frames turn Wild and carry ×N", "Xolo's fire breath gilds a whole reel", "Free spins from 3 Scatters"],
+        "features": ["5×3 reels, 20 lines, cascades", "Golden frames turn Wild and carry ×N", "Xolo's fire breath gilds a whole reel", "Charged spins: Xolo spews fire onto up to 5 reels", "Free spins from 3 Scatters"],
         "tags": ["Key art", "Symbols", "UI / UX", "Spine animation"],
         "chips": false,
         "slug": "spice-rush",
@@ -649,11 +649,14 @@ window.STUDIO_PAGE = {
         "released": "2026",
         "featureBuy": "Buy Bonus",
         "gallery": [
+          "/casino.game/assets/games/spice-rush/spew-fire.webp",
           "/casino.game/assets/games/spice-rush/golden-frames.webp",
           "/casino.game/assets/games/spice-rush/multiplier.webp",
-          "/casino.game/assets/games/spice-rush/fire-breath.webp",
+          "/casino.game/assets/games/spice-rush/overheat.webp",
           "/casino.game/assets/games/spice-rush/scatters.webp",
-          "/casino.game/assets/games/spice-rush/free-spins.webp"
+          "/casino.game/assets/games/spice-rush/free-spins.webp",
+          "/casino.game/assets/games/spice-rush/free-spins-play.webp",
+          "/casino.game/assets/games/spice-rush/big-win.webp"
         ]
       },
       // Background decorations: position and size are % of their section.
