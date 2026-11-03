@@ -400,7 +400,7 @@
     }
   }
 
-  // a sliding indicator under the active state (layouts that have .an-glider)
+  // the sliding pill under the active state (the phone layout's segmented control)
   function glide() {
     const g = root.querySelector('.an-glider'), on = ui.pills.querySelector('.an-pill.on');
     if (!g) return;
@@ -420,9 +420,6 @@
     const c = ui.picker.querySelector('.an-chip.on');
     if (c) c.scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduce ? 'auto' : 'smooth' });
   }));
-  // the layout (?an=a|b|c on the preview); the tab buttons carry a counter and a picture hook for it
-  const lay = new URLSearchParams(location.search).get('an');
-  if (lay && /^[a-z]$/.test(lay)) root.dataset.v = lay;
 
   function renderPicker() {
     root.querySelectorAll('.an-tab').forEach((b) => {
@@ -723,7 +720,7 @@
       if (e && e.animation.duration > 0) f = (e.trackTime % e.animation.duration) / e.animation.duration;
     }
     ui.bar.style.transform = `scaleX(${f.toFixed(4)})`;
-    root.style.setProperty('--an-p', f.toFixed(4));   // layouts that fill the active state's chip with the playhead
+    root.style.setProperty('--an-p', f.toFixed(4));   // the playing state's underline in the numbered state list
   }
 
   /* ----------------------------------------------------- start when near */
