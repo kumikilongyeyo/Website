@@ -6,7 +6,8 @@
  * the page never holds more than one GL context however much it shows.
  *
  * Files: /casino.game/assets/anim/v1/<id>/ (.skel, .atlas, premultiplied WebP
- * pages, straight from the games' hand-offs). The runtime
+ * pages from the games' hand-offs; Spice Rush's PNG pages encoded q90; the shader clamps the stray
+ * colour WebP leaves under transparent pixels, see boot()). The runtime
  * (/casino.game/vendor/spine-webgl-4.2.98.min.js, the Mayan game's copy) loads
  * only when the section comes near the viewport, and the stage renders only
  * while it is on screen.
@@ -23,7 +24,7 @@
   const root = document.querySelector('[data-an]');
   if (!root) return;
 
-  const BASE = '/casino.game/assets/anim/v1/';
+  const BASE = '/casino.game/assets/anim/v2/';
   const RUNTIME = '/casino.game/vendor/spine-webgl-4.2.98.min.js';
   const HOLD = 1.1;           // seconds a finished state rests before it replays
   const FADE = 0.16;          // fade-in when a state replays from its first frame
@@ -35,12 +36,10 @@
 
   // Download size of each folder (skeleton + atlas + pages), MB.
   const SIZE = {
-    ma_bigwin: 5.99, ma_chalice: 1.12, ma_coins: .20, ma_eagle: .21, ma_exnudge: .48,
-    ma_intro: .65, ma_jaguar: .42, ma_lp: .18, ma_orb: 2.90, ma_scatter: 1.09, ma_screech: .82, ma_wild: 1.22,
-    ma_wyrm: .97, sp_antic: 1.48, sp_bigwin: 3.25, sp_coin: .20, sp_coins: .21, sp_comet: .23, sp_fire: 1.49,
-    sp_flame: .82, sp_hat: 1.10, sp_lp: 1.43, sp_medal: 1.51, sp_sauce: 1.06, sp_scatter: 1.95,
-    sp_tortilla: .98, sp_wild: 1.67, sp_xolo: 1.00,
+    ma_bigwin: 5.99, ma_chalice: 1.12, ma_coins: .20, ma_eagle: .21, ma_exnudge: .48, ma_intro: .65, ma_jaguar: .42, ma_lp: .18, ma_orb: 2.90, ma_scatter: 1.09, ma_screech: .82, ma_wild: 1.22, ma_wyrm: .97, sp_antic: 1.54, sp_bigwin: 3.37, sp_coin: .23, sp_coins: .22, sp_comet: .24, sp_fire: 1.56, sp_flame: .86, sp_hat: 1.14, sp_lp: 1.50, sp_medal: 1.60, sp_sauce: 1.10, sp_scatter: 2.04, sp_tortilla: 1.03, sp_wild: 1.75, sp_xolo: 1.05,
   };
+
+
 
   // Mayan high pays share one rig layout: two landings, two win takes.
   const maHP = (id, name, desc) => ({
@@ -291,6 +290,14 @@
       gl = ctx.gl;
       if (!gl) throw new Error('no WebGL');
       scene = new spine.SceneRenderer(canvas, ctx, true);
+      // Every page here is premultiplied, so a texel's colour can never exceed its alpha. WebP encoders still leave colour
+      // under fully transparent pixels (lossy noise, or "don't care" pixels even when lossless), and premultiplied
+      // blending ADDS it: speckle around every edge (the Xolo "dithering"), or solid blocks. Clamp it as it is read.
+      const sh = scene.batcherShader, read = 'vec4 texColor = texture2D(u_texture, v_texCoords);';
+      if (sh.fsSource && sh.fsSource.includes(read)) {
+        scene.batcherShader = new spine.Shader(ctx, sh.vsSource, sh.fsSource.replace(read, read + '\n\ttexColor.rgb = min(texColor.rgb, vec3(texColor.a));'));
+        sh.dispose();
+      }
       return spine;
     });
     return booting;
@@ -309,6 +316,7 @@
       am.loadTextureAtlas(atl);
       await am.loadAll();
       const atlas = am.require(atl);
+      // no mipmaps: the pages are packed tight, so smaller mip levels bleed neighbouring parts into each other
       a.data = new spine.SkeletonBinary(new spine.AtlasAttachmentLoader(atlas)).readSkeletonData(am.require(skel));
       a.pma = atlas.pages.some((p) => p.pma);
       return a;
