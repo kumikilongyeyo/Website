@@ -223,7 +223,9 @@
   let paused = reduce;
 
   TABS.forEach((t) => {
-    const b = h('button', 'an-tab', t.label);
+    const b = h('button', 'an-tab');
+    b.append(h('span', 'an-tab-n', String(TABS.indexOf(t) + 1).padStart(2, '0')), h('span', 'an-tab-l', t.label),
+      h('span', 'an-tab-c', t.key === 'symbols' ? Object.values(SETS).reduce((n, x) => n + Object.keys(x.items).length, 0) + ' symbols' : t.items.length + (t.items.length > 1 ? ' pieces' : ' rig')));
     b.type = 'button'; b.setAttribute('role', 'tab'); b.dataset.tab = t.key;
     b.addEventListener('click', () => { if (tab !== t.key) { tab = t.key; pick = t.key === 'symbols' ? 'all' : 0; skin = null; stateIx = 0; show(); } });
     ui.tabs.append(b);
@@ -376,11 +378,14 @@
     ui.pills.replaceChildren(...st.map(([label], i) => {
       const b = h('button', 'an-pill' + (i === stateIx ? ' on' : ''), label);
       b.type = 'button';
+      b.style.setProperty('--i', String(i));
+      b.dataset.n = String(i + 1).padStart(2, '0');
       b.setAttribute('aria-pressed', String(i === stateIx));
       b.addEventListener('click', () => setState(i));
       return b;
     }));
     ui.stateName.textContent = st[stateIx][0];
+    glide();
     ui.stateCount.textContent = st.length > 1 ? `${stateIx + 1} / ${st.length}` : '';
     // skins (the orb's colours)
     ui.skins.hidden = !(!isSet && it.skins);
@@ -394,6 +399,30 @@
       }));
     }
   }
+
+  // a sliding indicator under the active state (layouts that have .an-glider)
+  function glide() {
+    const g = root.querySelector('.an-glider'), on = ui.pills.querySelector('.an-pill.on');
+    if (!g) return;
+    if (!on) { g.style.opacity = '0'; return; }
+    g.style.opacity = '1';
+    g.style.transform = `translate(${on.offsetLeft}px, ${on.offsetTop}px)`;
+    g.style.width = on.offsetWidth + 'px';
+    g.style.height = on.offsetHeight + 'px';
+  }
+  // ‹ › step through the picker's items
+  root.querySelectorAll('[data-an-step]').forEach((b) => b.addEventListener('click', () => {
+    const chips = [...ui.picker.querySelectorAll('.an-chip')];
+    if (!chips.length) return;
+    const i = chips.findIndex((c) => c.classList.contains('on'));
+    const n = chips[(i + +b.dataset.anStep + chips.length) % chips.length];
+    n.click();
+    const c = ui.picker.querySelector('.an-chip.on');
+    if (c) c.scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduce ? 'auto' : 'smooth' });
+  }));
+  // the layout (?an=a|b|c on the preview); the tab buttons carry a counter and a picture hook for it
+  const lay = new URLSearchParams(location.search).get('an');
+  if (lay && /^[a-z]$/.test(lay)) root.dataset.v = lay;
 
   function renderPicker() {
     root.querySelectorAll('.an-tab').forEach((b) => {
@@ -418,6 +447,7 @@
     }
     ui.picker.replaceChildren(...chips);
     ui.picker.hidden = chips.length < 2;
+    root.classList.toggle('an-single', chips.length < 2);
   }
 
   function show() {
@@ -600,7 +630,8 @@
       const gx = .14, gy = narrow ? .26 : .36, aspect = set.cell.h / set.cell.w;
       let cw = (W * .9) / (cols + (cols - 1) * gx), ch = cw * aspect;
       const blockH = () => rows.length * ch + (rows.length - 1) * ch * gy;
-      if (blockH() > H * .76) { const k = H * .76 / blockH(); cw *= k; ch *= k; }
+      const fill = W / H > 2 ? .68 : .76;   // a very wide stage: leave room above the tall Wild / Scatter art
+      if (blockH() > H * fill) { const k = H * fill / blockH(); cw *= k; ch *= k; }
       let y = H / 2 + blockH() / 2 - ch / 2;
       rows.forEach((row) => {
         let x = W / 2 - (row.length * cw + (row.length - 1) * cw * gx) / 2 + cw / 2;
@@ -692,6 +723,7 @@
       if (e && e.animation.duration > 0) f = (e.trackTime % e.animation.duration) / e.animation.duration;
     }
     ui.bar.style.transform = `scaleX(${f.toFixed(4)})`;
+    root.style.setProperty('--an-p', f.toFixed(4));   // layouts that fill the active state's chip with the playhead
   }
 
   /* ----------------------------------------------------- start when near */
@@ -708,7 +740,8 @@
     if (visible) kick();
   }).observe(stage);
   document.addEventListener('visibilitychange', kick);
-  window.addEventListener('resize', () => { if (view) { layout(); if (paused) still(); } });
+  window.addEventListener('resize', () => { glide(); if (view) { layout(); if (paused) still(); } });
+  if (document.fonts) document.fonts.ready.then(glide);
 
   // keyboard on the stage: ← → step the states, space pauses
   stage.addEventListener('keydown', (e) => {

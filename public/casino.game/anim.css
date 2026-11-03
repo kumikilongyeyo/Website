@@ -8,13 +8,13 @@
   --an-paper: var(--cz-paper, rgba(255, 255, 255, .05)); --an-accent: var(--cz-blue, #39e6ff);
   --an-soft: var(--cz-soft, 0 0 0 1px rgba(255, 255, 255, .08)); --an-fill: color-mix(in srgb, var(--an-ink) 6%, transparent); }
 
-.an { display: grid; gap: 18px; }
+.an { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
 
 /* tabs + game switch */
 .an-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
 .an-tabs, .an-games { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--an-fill); }
 .an-games[hidden] { display: none; }
-.cz-anim .an-tab, .cz-anim .an-game { padding: 10px 20px; border-radius: 999px; font-weight: 700; font-size: 15px; letter-spacing: .01em;
+.cz-anim .an-tab, .cz-anim .an-game { white-space: nowrap; padding: 10px 20px; border-radius: 999px; font-weight: 700; font-size: 15px; letter-spacing: .01em;
   color: var(--an-muted); transition: background-color .2s, color .2s; }
 .cz-anim .an-game { padding: 8px 16px; font-size: 14px; }
 .cz-anim .an-tab:hover, .cz-anim .an-game:hover { color: var(--an-ink); }
@@ -93,6 +93,11 @@
 .an-specs div { min-width: 0; }
 .an-specs dt { font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--an-muted); }
 .an-specs dd { margin: 2px 0 0; font-size: 15px; font-weight: 700; color: var(--an-ink); font-variant-numeric: tabular-nums; }
+
+/* layout hooks the default layout doesn't use (the ?an= previews do) */
+.an-tab-n, .an-tab-c, .an-glider, .an-step { display: none; }
+.an-rail { display: contents; }
+.an-seg { position: relative; }
 
 /* item picker */
 .an-picker { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 8px; scroll-snap-type: x proximity; scrollbar-width: thin; }

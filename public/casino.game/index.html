@@ -27,6 +27,7 @@
 <link rel="stylesheet" href="/studio-overrides.css">
 <link rel="stylesheet" href="/casino.game/casino.css">
 <link rel="stylesheet" href="/casino.game/anim.css">
+<link rel="stylesheet" href="/casino.game/anim-layouts.css">
 <!-- The hero ships in its starting state (first frame, no text) so nothing
      flashes before the script arms it; without scripts, show it finished. -->
 <noscript><style>.cz-hero-anim .cz-hero-title,.cz-hero-anim .cz-hero-name,.cz-hero-anim .cz-hero-pitch,.cz-hero-anim .cz-hero-shade{opacity:1!important;translate:none!important}.cz-hero-anim .cz-hero-rule{scale:none!important}.cz-hero-anim .cz-hero-top>*,.cz-hero-anim .cz-cross{opacity:1!important}.cz-video-mode .hero-main{visibility:visible!important}.cz-hero-video{display:none!important}.cz-mode-scroll .cz-hero-pin{height:auto!important}.cz-mode-scroll .cz-hero{position:relative!important}</style></noscript>
@@ -219,7 +220,7 @@
           <div class="an-state">
             <div class="an-state-head"><span class="an-state-label">State</span><b class="an-state-name"></b><span class="an-state-count"></span></div>
             <div class="an-slider"><input class="an-range" type="range" min="0" max="0" step="1" value="0" aria-label="Animation state"><span class="an-ticks" aria-hidden="true"></span></div>
-            <div class="an-pills" role="group" aria-label="States"></div>
+            <div class="an-seg"><span class="an-glider" aria-hidden="true"></span><div class="an-pills" role="group" aria-label="States"></div></div>
           </div>
           <div class="an-ctrl">
             <button type="button" class="an-btn" data-an-replay aria-label="Replay"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"/></svg><span>Replay</span></button>
@@ -229,7 +230,7 @@
           <dl class="an-specs"></dl>
         </aside>
       </div>
-      <div class="an-picker" role="group" aria-label="Animations"></div>
+      <div class="an-rail"><button type="button" class="an-step" data-an-step="-1" aria-label="Previous">‹</button><div class="an-picker" role="group" aria-label="Animations"></div><button type="button" class="an-step" data-an-step="1" aria-label="Next">›</button></div>
     </div>
   </div>
 </section>
