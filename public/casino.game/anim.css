@@ -33,9 +33,6 @@
   background-image: radial-gradient(rgba(255, 255, 255, .09) 1px, transparent 1.4px); background-size: 26px 26px;
   -webkit-mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent 85%); mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent 85%); }
 .an-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.an-live { position: absolute; top: 16px; left: 18px; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
-  color: rgba(238, 240, 255, .55); display: inline-flex; align-items: center; gap: 8px; pointer-events: none; }
-.an-live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #3ddc97; }
 .an-load { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; color: rgba(238, 240, 255, .7);
   font-size: 14px; font-weight: 600; letter-spacing: .02em; opacity: 0; transition: opacity .25s; pointer-events: none; }
 .an-stage.loading .an-load, .an-stage.failed .an-load { opacity: 1; }
@@ -45,16 +42,12 @@
 
 .an-side { display: flex; flex-direction: column; gap: 14px; padding: 26px 24px 22px; border-radius: 22px; background: var(--an-paper);
   box-shadow: var(--an-soft); border: 1px solid var(--an-line); min-width: 0; }
-.an-eyebrow { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--cz-violet); }
 .an-name { margin: -6px 0 0; font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1.05; letter-spacing: .02em; color: var(--an-ink); }
-.an-desc { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--an-muted); }
 
 /* state slider */
 .an-state { display: grid; gap: 10px; padding-top: 14px; border-top: 1px solid var(--an-line); }
 .an-state-head { display: flex; align-items: baseline; gap: 10px; }
-.an-state-label { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--an-muted); }
 .an-state-name { font-size: 16px; color: var(--an-ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.an-state-count { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--an-muted); font-variant-numeric: tabular-nums; }
 .an-range { --n: 1; -webkit-appearance: none; appearance: none; width: 100%; height: 24px; margin: 0; background: transparent; cursor: pointer; }
 .an-range:disabled { cursor: default; opacity: .45; }
 .an-range::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: color-mix(in srgb, var(--an-ink) 14%, transparent); }
@@ -89,13 +82,9 @@
 .an-btn.is-paused .i-pause { display: none; }
 .an-speed span { font-variant-numeric: tabular-nums; min-width: 3.2ch; }
 
-.an-specs { margin: auto 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px; padding-top: 14px; border-top: 1px solid var(--an-line); }
-.an-specs div { min-width: 0; }
-.an-specs dt { font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--an-muted); }
-.an-specs dd { margin: 2px 0 0; font-size: 15px; font-weight: 700; color: var(--an-ink); font-variant-numeric: tabular-nums; }
 
 /* layout hooks: which of these each layout shows is set at the end */
-.an-tab-n, .an-tab-c, .an-glider, .an-step { display: none; }
+.an-glider, .an-step { display: none; }
 .an-rail { display: contents; }
 .an-seg { position: relative; }
 
@@ -113,12 +102,10 @@
 .an-thumb.has img { opacity: 1; }
 .an-chip-tx { display: grid; line-height: 1.2; }
 .an-chip-tx b { font-size: 14px; color: var(--an-ink); white-space: nowrap; }
-.an-chip-tx small { font-size: 12px; color: var(--an-muted); white-space: nowrap; }
 
 @container cz (max-width: 980px) {
   .an-body { grid-template-columns: minmax(0, 1fr); }
   .an-stage { aspect-ratio: 4 / 3; }
-  .an-specs { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 @container cz (max-width: 600px) {
   .an-top { flex-direction: column; align-items: stretch; }
@@ -127,7 +114,6 @@
   .an-stage { aspect-ratio: 4 / 5; border-radius: 18px; }
   .an-side { padding: 20px 18px; border-radius: 18px; }
   .an-name { font-size: 26px; }
-  .an-specs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) { .cz-anim * { transition: none !important; } }
 .an-ticks[hidden] { display: none; }
@@ -150,9 +136,7 @@
   .an[data-an] .an-tab[data-tab="character"]::before { background-image: url(/casino.game/assets/anim/v2/tabs/character.webp); }
   .an[data-an] .an-tab[data-tab="bigwin"]::before { background-image: url(/casino.game/assets/anim/v2/tabs/bigwin.webp); }
   .an[data-an] .an-tab[data-tab="fx"]::before { background-image: url(/casino.game/assets/anim/v2/tabs/fx.webp); }
-  .an[data-an] .an-tab-n { display: block; grid-column: 1 / -1; grid-row: 1; align-self: start; font-size: 12px; font-weight: 800; letter-spacing: .12em; color: rgba(238, 240, 255, .7); }
   .an[data-an] .an-tab-l { grid-row: 3; font-family: var(--display); font-weight: 400; font-size: clamp(20px, 2.2cqw, 28px); letter-spacing: .02em; text-transform: uppercase; }
-  .an[data-an] .an-tab-c { display: block; grid-row: 3; font-size: 12px; font-weight: 700; color: rgba(238, 240, 255, .65); padding-bottom: 4px; }
   .an[data-an] .an-tab:hover::before { opacity: .75; transform: scale(1.04); }
   .an[data-an] .an-tab.on { box-shadow: inset 0 0 0 3px var(--cz-blue, #2f6bff); }
   .an[data-an] .an-tab.on::before { opacity: .9; }
@@ -162,15 +146,11 @@
   .an[data-an] .an-side { border-radius: 20px; padding: 24px; gap: 12px; }
   /* states as a numbered list; the playing one shows its playhead */
   .an[data-an] .an-slider, .an[data-an] .an-state-head { display: none; }
-  .an[data-an] .an-state::before { content: "States"; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--an-muted); }
   .an[data-an] .an-pills { flex-direction: column; flex-wrap: nowrap; gap: 2px; max-height: 300px; overflow-y: auto; scrollbar-width: thin; }
   .an[data-an] .an-pill { position: relative; display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 10px; text-align: left; font-size: 14px; box-shadow: none !important; overflow: hidden; }
-  .an[data-an] .an-pill::before { content: attr(data-n); font-size: 11px; font-weight: 800; letter-spacing: .08em; color: var(--an-muted); font-variant-numeric: tabular-nums; }
   .an[data-an] .an-pill:hover { background: var(--an-fill); }
   .an[data-an] .an-pill.on { background: var(--an-fill); color: var(--an-ink); }
-  .an[data-an] .an-pill.on::before { color: var(--cz-blue, #2f6bff); }
   .an[data-an] .an-pill.on::after { content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: calc(var(--an-p, 0) * 100%); background: var(--cz-blue, #2f6bff); }
-  .an[data-an] .an-specs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .an[data-an] .an-rail { display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 20px; background: var(--an-paper); box-shadow: var(--an-soft); border: 1px solid var(--an-line); }
   .an[data-an].an-single .an-rail { display: none; }
   .an[data-an] .an-picker { flex: 1; min-width: 0; padding-bottom: 2px; }
@@ -188,13 +168,12 @@
 
 @container cz (max-width: 600px) {
   .an[data-an] { display: grid; gap: 0; grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center;
-    grid-template-areas: "tabs" "games" "stage" "eyebrow" "name" "seg" "skins" "desc" "specs" "rail"; }
+    grid-template-areas: "tabs" "games" "stage" "name" "seg" "skins" "rail"; }
   .an[data-an] .an-top, .an[data-an] .an-body, .an[data-an] .an-side, .an[data-an] .an-state { display: contents; }
   .an[data-an] .an-tabs { grid-area: tabs; background: none; padding: 0; gap: clamp(8px, 2.4cqw, 36px); border-radius: 0; }
   .an[data-an] .an-tab { display: grid; justify-items: center; gap: 2px; padding: 4px 6px 12px; border-radius: 0; background: none !important; color: var(--an-muted);
     box-shadow: inset 0 -2px 0 transparent; }
   .an[data-an] .an-tab-l { font-size: 17px; font-weight: 800; }
-  .an[data-an] .an-tab-c { display: block; font-size: 12px; font-weight: 600; opacity: .8; }
   .an[data-an] .an-tab.on { color: var(--an-ink); box-shadow: inset 0 -2px 0 var(--an-ink); }
   .an[data-an] .an-games { grid-area: games; margin-top: 16px; }
   .an[data-an] .an-stage { grid-area: stage; margin-top: 18px; aspect-ratio: 21 / 9; border-radius: 28px;
@@ -210,7 +189,6 @@
   .an[data-an] .an-speed { width: auto; padding: 0 12px; border-radius: 999px; }
   .an[data-an] .an-speed span { display: inline; }
   .an[data-an] .an-speed svg { display: none; }
-  .an[data-an] .an-eyebrow { grid-area: eyebrow; margin-top: 30px; }
   .an[data-an] .an-name { grid-area: name; margin: 8px 0 0; font-size: clamp(34px, 4.4cqw, 54px); }
   .an[data-an] .an-state-head, .an[data-an] .an-slider { display: none; }
   /* segmented states with a sliding pill */
@@ -222,10 +200,6 @@
   .an[data-an] .an-pill.on { color: var(--bg, #fff); }
   .an[data-an] .an-pill:hover:not(.on) { color: var(--an-ink); }
   .an[data-an] .an-skins { grid-area: skins; justify-content: center; margin-top: 12px; }
-  .an[data-an] .an-desc { grid-area: desc; max-width: 62ch; margin-top: 18px; }
-  .an[data-an] .an-specs { grid-area: specs; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 26px; margin-top: 18px; border-top: 0; padding-top: 0; }
-  .an[data-an] .an-specs div { display: flex; gap: 6px; align-items: baseline; }
-  .an[data-an] .an-specs dd { font-size: 14px; margin: 0; }
   /* thumbnail carousel */
   .an[data-an] .an-rail { grid-area: rail; display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 30px; }
   .an[data-an].an-single .an-rail { display: none; }
@@ -238,7 +212,6 @@
   .an[data-an] .an-chip.on { box-shadow: none; }
   .an[data-an] .an-chip.on .an-thumb { box-shadow: 0 0 0 2px var(--bg, #fff), 0 0 0 4px var(--an-ink); }
   .an[data-an] .an-chip-tx b { font-size: 13px; white-space: normal; }
-  .an[data-an] .an-chip-tx small { font-size: 11px; }
   @container cz (max-width: 980px) { .an[data-an] .an-stage { aspect-ratio: 4 / 3; } }
   @container cz (max-width: 600px) {
     .an[data-an] .an-tabs { gap: 4px; }

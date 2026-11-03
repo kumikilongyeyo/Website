@@ -42,15 +42,14 @@
 
 
   // Mayan high pays share one rig layout: two landings, two win takes.
-  const maHP = (id, name, desc) => ({
-    id, file: 'hp_' + id.slice(3) + '_1tile', name, tag: 'High pay', desc,
+  const maHP = (id, name) => ({
+    id, file: 'hp_' + id.slice(3) + '_1tile', name, tag: 'High pay',
     card: { w: 255, h: 222 },
     play: { landing: 'landing_1', win: 'activated_1', win2: 'activated_2' },
     states: [['Landing', 'landing_1'], ['Landing · side', 'landing_side'], ['Win · take 1', 'activated_1'], ['Win · take 2', 'activated_2']],
   });
   const maLP = (skin) => ({
     id: 'ma_lp', file: 'lp_stone', skin, name: skin, tag: 'Low pay',
-    desc: 'Limestone low pays on one skeleton, a skin per letter. The landing stops dead with one hard jolt; the win gathers light, cracks three times and breaks into stone chunks, leaving the cell empty.',
     card: { w: 250, h: 203 },
     play: { landing: 'landing', win: 'activated', win2: 'activated' },
     states: [['Landing', 'landing'], ['Landing · side', 'landing_side'], ['Win', 'activated']],
@@ -58,7 +57,6 @@
   // Spice Rush symbols sit in a 110 px cell at the game's own scale and offset (reels.ts HP_SPINE).
   const spLP = (skin, dx, dy) => ({
     id: 'sp_lp', file: 'spicy_lp', skin, name: skin, tag: 'Low pay', scale: .26059, dx, dy,
-    desc: 'A K Q J on one skeleton. A physical drop on landing; on a win the outline glows, the fire flows outward, the letter stamps up and burns out.',
     play: { landing: 'landing', win: 'activated' },
     states: [['Landing', 'landing'], ['Win', 'activated']],
   });
@@ -66,12 +64,10 @@
   const SETS = {
     mayan: {
       game: MAYAN, name: 'Full symbol set', cell: { w: 256, h: 223 },
-      desc: 'Every reel symbol of the Mayan game at once. Stone low pays break on a win; the high pays climb out of their frame first, then crack and break like the stones. Phone build: 256 px symbols, WebP atlases.',
       states: [['landing', 'Landing'], ['antic', 'Anticipation'], ['win', 'Win · take 1'], ['win2', 'Win · take 2']],
       items: {
         wild: {
           id: 'ma_wild', file: 'wild_1tile', atlas: 'wild', name: 'Wild', tag: 'Wild', card: { w: 261, h: 259, cx: -3.5, cy: 17.5 },
-          desc: 'The death-whistle skull on its magenta card. It lands, then screeches: a shimmer, the stamp, energy into the blow hole and sonic rings. Vanish burns it away into embers.',
           play: { landing: 'land_1', win: 'activated_2', win2: 'activated_2' },
           states: [['Landing', 'land_1'], ['Screech', 'activated_2'], ['Vanish', 'vanish_1']],
         },
@@ -81,7 +77,6 @@
         eagle: maHP('ma_eagle', 'Eagle', 'Lifts out of its frame, the four feathers fan open and rattle out of step, and the beak screeches. Take 2 runs two rattle waves up the fan.'),
         scatter: {
           id: 'ma_scatter', file: 'scatter_1tile', atlas: 'scatter', name: 'Scatter', tag: 'Scatter', card: { w: 263, h: 259, cx: -3.5, cy: 17.5 },
-          desc: 'The Mayan warrior. Drops in as SCATTER stamps, idles with a slow letter wave, burns his border with lit eyes during anticipation, and on the trigger turns his head in 2.5D with a wink and a smirk.',
           rest: 'idle* | glow*',
           play: { landing: 'land idle* | glow*', antic: 'anticipation* | glow*', win: 'activated | glow*', win2: 'activated | glow*' },
           states: [['Landing', 'land idle* | glow*'], ['Idle', 'idle* | glow*'], ['Anticipation', 'anticipation* | glow*'], ['Trigger', 'activated | glow*']],
@@ -93,40 +88,33 @@
     },
     spicy: {
       game: SPICY, name: 'Full symbol set', cell: { w: 98, h: 98 },
-      desc: 'Every reel symbol of Spice Rush at once. The food high pays bounce with spring follow-through and burn on a win; the letters drop and stamp; the Wild and the Scatter carry their own idle and anticipation loops.',
       states: [['landing', 'Landing'], ['antic', 'Anticipation'], ['win', 'Win']],
       items: {
         wild: {
           id: 'sp_wild', file: 'spicy_wild', name: 'Wild', tag: 'Wild', scale: .25906, dx: 5.2, dy: -3.33,
-          desc: 'A jolt on landing, a subtle idle loop, an intro that scales the Wild up from nothing with a shine, and the win: high-pay fire, a text stamp and a depth shimmer.',
           rest: 'idle*', play: { landing: 'landing idle*', win: 'activated' },
           states: [['Intro', 'intro idle*'], ['Landing', 'landing idle*'], ['Idle', 'idle*'], ['Win', 'activated']],
         },
         hat: {
           id: 'sp_hat', file: 'spicy_hp_hat', name: 'Sombrero', tag: 'High pay', scale: .18577, dy: 1.64,
-          desc: 'A drop and a rotational jolt that shakes out in a third of a second; the win reuses the high-pay fire, glow and stamp.',
           play: { landing: 'landing', win: 'activated' }, states: [['Landing', 'landing'], ['Win', 'activated']],
         },
         tortilla: {
           id: 'sp_tortilla', file: 'spicy_hp_tortilla', name: 'Taco', tag: 'High pay', scale: .21131, dx: .59, dy: -2.03,
-          desc: 'The same jolt landing as the sombrero; the filling is its own mesh pinned along the cut, so it moves inside the shell on the win.',
           play: { landing: 'landing', win: 'activated' }, states: [['Landing', 'landing'], ['Win', 'activated']],
         },
         medal: {
           id: 'sp_medal', file: 'spicy_hp_medal', name: 'Medal', tag: 'High pay', scale: .22932, dx: -4.36, dy: -2.64,
-          desc: 'The lanyard follows through on landing like a spring. The win: fire and glow behind, scale up, a wiggle and a tilt with a soft flash, then it scales away.',
           rest: 'idle*', play: { landing: 'landing idle*', win: 'activated' },
           states: [['Landing', 'landing idle*'], ['Idle', 'idle*'], ['Win', 'activated']],
         },
         sauce: {
           id: 'sp_sauce', file: 'spicy_hp_sauce', name: 'Hot sauce', tag: 'High pay', scale: .27799, dx: -2.63, dy: -4.66,
-          desc: 'The bottle bounces and the spices follow through. On a win the spices tilt and spin with the bottle before everything scales to nothing.',
           rest: 'idle*', play: { landing: 'landing idle*', win: 'activated' },
           states: [['Landing', 'landing idle*'], ['Idle', 'idle*'], ['Win', 'activated']],
         },
         scatter: {
           id: 'sp_scatter', file: 'spicy_scatter', name: 'Scatter', tag: 'Scatter', scale: .246, grid: .66,
-          desc: 'Lands once and settles into its loop; anticipation and the trigger burn with After Effects fire made from the game art\'s own fire layer.',
           rest: 'land_loop*', play: { landing: 'land land_loop*', antic: 'anticipation*', win: 'activated*' },
           states: [['Landing', 'land land_loop*'], ['Idle', 'land_loop*'], ['Anticipation', 'anticipation*'], ['Trigger', 'activated*']],
         },
@@ -140,7 +128,6 @@
 
   const XOLO = {
     id: 'sp_xolo', file: 'xolo', name: 'Xolo', tag: 'Mascot', game: SPICY, frame: { k: .8, on: 'setup' },
-    desc: 'The Spice Rush mascot, rigged with 2.5D turn constraints and a weighted face. He reacts to the game: a slam on a big hit, wins, the spice heat building from sweat to steam out of his ears, cooling down, and the fire breath that sweeps the reels.',
     states: [
       ['Idle', 'idle*'], ['Slam', 'slam idle*'], ['Win A', 'win_a idle*'], ['Win B', 'win_b idle*'], ['Spicy', 'spicy idle*'],
       ['Sweat', 'sweat idle*'], ['Hot puff', 'hot_puff idle*'], ['Hot max', 'hot_max idle*'], ['Cool down', 'cool_down idle*'],
@@ -151,7 +138,6 @@
   const BIGWIN = [
     {
       id: 'sp_bigwin', file: 'spicy_bigwin', name: 'Big Win', tag: 'Win screen', game: SPICY, frame: { k: .96, on: 'setup', box: [-700, -650, 700, 950] },
-      desc: 'Xolo, BIG WIN and the amount fall in and slam, a shock wave leaves the After Effects fire ring, confetti fountains up and the game\'s own chili coin splash rains behind. The amount is a placeholder the game replaces with its counting label.',
       states: [
         ['Intro', 'A_drop_in A_drop_loop* | coins_loop* | count count count count count_end'],
         ['Loop', 'A_drop_loop* | coins_loop*'], ['Outro', 'A_drop_loop* out@1.4 | coins_loop*'],
@@ -159,45 +145,33 @@
     },
     {
       id: 'ma_bigwin', file: 'bigwin', name: 'Big Win', tag: 'Win screen', game: MAYAN, frame: { k: .96, on: 'setup' },
-      desc: '"Jade Burst": a boom, the hero and BIG WIN pop in, the plaque\'s frames burst open to full length, the amount counts up, then a finale and a 4 s loop. In the game the digit slots show the real amount.',
       states: [['Intro', 'intro loop*'], ['Loop', 'loop*'], ['Outro', 'loop* outro@1.6']],
     },
   ];
 
   const FX = [
     { id: 'sp_fire', file: 'spicy_fire', name: 'Fire', tag: 'Additive FX', game: SPICY,
-      desc: 'Three additive takes of the game\'s fire, made from its fx PSB: a steady flow (the one that burns behind winning symbols), a pulse and a one-shot burst.',
       states: [['Flow', 'fire_flow*'], ['Pulse', 'fire_pulse*'], ['Burst', 'fire_burst']] },
     { id: 'sp_flame', file: 'flamethrower', name: 'Flamethrower', tag: 'AE → Spine', game: SPICY,
-      desc: 'Xolo\'s fire breath: an IK-aimed jet that the game points at any reel cell, plus sweeps timed to his fire sweep.',
       states: [['Point', 'point_in point_loop* point_out@1.6'], ['Sweep →', 'sweep_LtoR'], ['Sweep ←', 'sweep_RtoL']] },
     { id: 'sp_antic', file: 'spicy_anticipation', name: 'Reel anticipation', tag: 'AE → Spine', game: SPICY,
-      desc: 'The reel-edge fire that teases the third Scatter: a scrolling fire strip with embers and a caustic smoke wave beside it.',
       states: [['In → blaze', 'antic_in v3_blaze*'], ['Blaze', 'v3_blaze*'], ['Out', 'v3_blaze* antic_out@1.4']] },
     { id: 'ma_orb', file: 'multiplier_orb', name: 'Multiplier orb', tag: 'AE → Spine', game: MAYAN, frame: { k: .42, on: 'setup' },
       skins: [['green', 'Green'], ['red', 'Red'], ['blue', 'Blue'], ['violet', 'Violet'], ['max', 'MAX']],
-      desc: 'Five orbs on one skeleton (MAX hue-switches), with After Effects ripples, comets and smoke shocks. The number is drawn by the game.',
       states: [['Active', 'active_v1*'], ['Active · B', 'active_v2*'], ['Anticipation', 'anticipation_v1*'], ['Activated', 'activated_v1'], ['Activated · B', 'activated_v2']],
       skinStates: { max: [['Idle', 'max_idle_v1*'], ['Idle · B', 'max_idle_v2*'], ['Activated', 'max_activated_v1'], ['Activated · B', 'max_activated_v2']] } },
     { id: 'ma_exnudge', file: 'exnudge', name: 'EX NUDGE orb', tag: 'Feature FX', game: MAYAN,
-      desc: 'A dip, a flash-glow with a rainbow puff, EX and NUDGE slam in, a letter wave, a sideways nudge and a shine. It starts and ends on its rest pose, so it loops.',
       states: [['Active', 'exnudge_active']] },
     { id: 'sp_coins', file: 'coin_splash', name: 'Chili coin splash', tag: 'Particles', game: SPICY,
-      desc: 'The chili coin splash: a burst, or a spray across the screen either way. The big win reuses it unchanged.',
       states: [['Burst', 'splash_burst'], ['Left → right', 'splash_left_to_right'], ['Right → left', 'splash_right_to_left']] },
     { id: 'ma_coins', file: 'coin_splash', name: 'Gold coin splash', tag: 'Particles', game: MAYAN,
-      desc: 'Gold coins for the Mayan win banner, in four directions.',
       states: [['Burst', 'splash_burst'], ['Up', 'splash_up'], ['Down', 'splash_down'], ['Sides', 'splash_sides']] },
     { id: 'sp_comet', file: 'heat_comet', name: 'Heat comet', tag: 'Additive FX', game: SPICY,
-      desc: 'Heat comets that carry a value across the board, in three lengths.',
       states: [['Short', 'comet_s'], ['Medium', 'comet_m'], ['Long', 'comet_l']] },
     { id: 'ma_screech', file: 'screech', name: 'Screech', tag: 'AE → Spine', game: MAYAN,
-      desc: 'The Screech Wild\'s pieces from After Effects: the screech, the impact on the symbol it converts, and the wave.',
       states: [['Screech', 'screech'], ['Impact', 'impact'], ['Wave', 'wave']] },
-    { id: 'sp_coin', file: 'coin', name: 'Chili coin', tag: 'Spin', game: SPICY,
-      desc: 'A single chili coin turning on its edge.', states: [['Turn', 'turn*']] },
-    { id: 'ma_intro', file: 'wall_open', name: 'Temple wall intro', tag: 'Intro', game: MAYAN, frame: { k: .96, on: 'setup' },
-      desc: 'The temple wall that opens on the game.', states: [['Open', 'open']] },
+    { id: 'sp_coin', file: 'coin', name: 'Chili coin', tag: 'Spin', game: SPICY, states: [['Turn', 'turn*']] },
+    { id: 'ma_intro', file: 'wall_open', name: 'Temple wall intro', tag: 'Intro', game: MAYAN, frame: { k: .96, on: 'setup' }, states: [['Open', 'open']] },
   ];
 
   const TABS = [
@@ -213,9 +187,9 @@
   const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
   const stage = $('.an-stage'), canvas = $('.an-stage canvas');
   const ui = {
-    tabs: $('.an-tabs'), games: $('.an-games'), picker: $('.an-picker'), eyebrow: $('.an-eyebrow'), name: $('.an-name'),
-    desc: $('.an-desc'), range: $('.an-range'), pills: $('.an-pills'), stateName: $('.an-state-name'),
-    stateCount: $('.an-state-count'), ticks: $('.an-ticks'), skins: $('.an-skins'), specs: $('.an-specs'), load: $('.an-load'),
+    tabs: $('.an-tabs'), games: $('.an-games'), picker: $('.an-picker'), name: $('.an-name'),
+    range: $('.an-range'), pills: $('.an-pills'), stateName: $('.an-state-name'),
+    ticks: $('.an-ticks'), skins: $('.an-skins'), load: $('.an-load'),
     bar: $('.an-bar i'), play: $('[data-an-play]'), replay: $('[data-an-replay]'), speed: $('[data-an-speed]'),
   };
 
@@ -224,8 +198,7 @@
 
   TABS.forEach((t) => {
     const b = h('button', 'an-tab');
-    b.append(h('span', 'an-tab-n', String(TABS.indexOf(t) + 1).padStart(2, '0')), h('span', 'an-tab-l', t.label),
-      h('span', 'an-tab-c', t.key === 'symbols' ? Object.values(SETS).reduce((n, x) => n + Object.keys(x.items).length, 0) + ' symbols' : t.items.length + (t.items.length > 1 ? ' pieces' : ' rig')));
+    b.append(h('span', 'an-tab-l', t.label));
     b.type = 'button'; b.setAttribute('role', 'tab'); b.dataset.tab = t.key;
     b.addEventListener('click', () => { if (tab !== t.key) { tab = t.key; pick = t.key === 'symbols' ? 'all' : 0; skin = null; stateIx = 0; show(); } });
     ui.tabs.append(b);
@@ -255,7 +228,7 @@
 
   // thumbs are optional: a chip shows its picture once it has loaded
   const thumbOf = (it) => BASE + 'thumbs/' + it.id + (it.skin ? '_' + it.skin : '') + '.webp';
-  function chip(label, sub, it, on, click) {
+  function chip(label, it, on, click) {
     const b = h('button', 'an-chip' + (on ? ' on' : ''));
     b.type = 'button';
     b.setAttribute('aria-pressed', String(!!on));
@@ -269,7 +242,6 @@
     }
     const tx = h('span', 'an-chip-tx');
     tx.append(h('b', null, label));
-    if (sub) tx.append(h('small', null, sub));
     b.append(th, tx);
     b.addEventListener('click', click);
     return b;
@@ -362,10 +334,7 @@
   function renderSide() {
     const isSet = tab === 'symbols' && pick === 'all';
     const set = SETS[game], it = currentItems()[0];
-    const tabLabel = TABS.find((x) => x.key === tab).label;
-    ui.eyebrow.textContent = (isSet ? set.game : it.game) + ' · ' + (isSet ? tabLabel : it.tag);
     ui.name.textContent = isSet ? set.name : (tab === 'symbols' && it.skin ? 'Low pay ' + it.skin : it.name);
-    ui.desc.textContent = isSet ? set.desc : it.desc;
     // states: the slider and its labels
     const st = isSet ? set.states.map(([, label]) => [label]) : statesOf(it);
     stateIx = Math.min(stateIx, st.length - 1);
@@ -379,14 +348,12 @@
       const b = h('button', 'an-pill' + (i === stateIx ? ' on' : ''), label);
       b.type = 'button';
       b.style.setProperty('--i', String(i));
-      b.dataset.n = String(i + 1).padStart(2, '0');
       b.setAttribute('aria-pressed', String(i === stateIx));
       b.addEventListener('click', () => setState(i));
       return b;
     }));
     ui.stateName.textContent = st[stateIx][0];
     glide();
-    ui.stateCount.textContent = st.length > 1 ? `${stateIx + 1} / ${st.length}` : '';
     // skins (the orb's colours)
     ui.skins.hidden = !(!isSet && it.skins);
     if (!isSet && it.skins) {
@@ -434,13 +401,13 @@
     const chips = [];
     if (tab === 'symbols') {
       const set = SETS[game];
-      chips.push(chip('All symbols', Object.keys(set.items).length + ' skeletons', 'all', pick === 'all', () => { pick = 'all'; stateIx = 0; show(); }));
+      chips.push(chip('All symbols', 'all', pick === 'all', () => { pick = 'all'; stateIx = 0; show(); }));
       for (const [k, it] of Object.entries(set.items)) {
-        chips.push(chip(it.name, it.tag, it, pick === k, () => { pick = k; stateIx = 0; show(); }));
+        chips.push(chip(it.name, it, pick === k, () => { pick = k; stateIx = 0; show(); }));
       }
     } else {
       const items = TABS.find((x) => x.key === tab).items;
-      items.forEach((it, i) => chips.push(chip(it.name, it.game, it, (pick || 0) === i, () => { pick = i; skin = null; stateIx = 0; show(); })));
+      items.forEach((it, i) => chips.push(chip(it.name, it, (pick || 0) === i, () => { pick = i; skin = null; stateIx = 0; show(); })));
     }
     ui.picker.replaceChildren(...chips);
     ui.picker.hidden = chips.length < 2;
@@ -457,7 +424,6 @@
     const my = ++token;
     const items = currentItems();
     const isSet = tab === 'symbols' && pick === 'all';
-    ui.specs.replaceChildren();
     stage.classList.add('loading');
     stage.classList.remove('failed');
     ui.load.textContent = 'Loading…';
@@ -484,7 +450,6 @@
       view = { isSet, insts, t: 0, cycle: 0, box: null };
       if (!isSet) view.box = frameOf(insts[0], statesOf(items[0]));
       stage.classList.remove('loading');
-      specs(isSet, items, loaded);
       layout();
       restart();
       kick();
@@ -495,20 +460,6 @@
       stage.classList.add('failed');
       ui.load.textContent = 'This animation could not be loaded.';
     }
-  }
-
-  function specs(isSet, items, loaded) {
-    const datas = [...new Set(loaded.map((a) => a.data))];
-    const sum = (f) => datas.reduce((n, d) => n + f(d), 0);
-    const mb = [...new Set(items.map((it) => it.id))].reduce((n, id) => n + (SIZE[id] || 0), 0);
-    const rows = [
-      ['Runtime', 'Spine 4.2'],
-      [isSet ? 'Skeletons' : 'Animations', isSet ? String(datas.length) : String(sum((d) => d.animations.length))],
-      ['Bones', String(sum((d) => d.bones.length))],
-      ['Slots', String(sum((d) => d.slots.length))],
-      ['Download', mb >= 1 ? mb.toFixed(1) + ' MB' : Math.round(mb * 1000) + ' KB'],
-    ];
-    ui.specs.replaceChildren(...rows.map(([k, v]) => { const d = h('div'); d.append(h('dt', null, k), h('dd', null, v)); return d; }));
   }
 
   // The solo view's boxes: the union of everything every state of this item draws (sampled), and the setup pose.

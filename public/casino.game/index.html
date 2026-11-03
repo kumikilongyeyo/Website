@@ -196,7 +196,7 @@
     <h2 class="cz-title" id="cz-anim-title" data-node="Animation heading" data-id="cz-anim-title" data-type="text" data-motion="rise">ANIMATION</h2>
     <p class="cz-sub" data-node="Animation subtitle" data-id="cz-anim-sub" data-type="text">Spine 2D symbols, characters, big wins and FX, playing live from the files that shipped in the games.</p>
   </div>
-  <!-- Animation showcase: anim.js fills the tabs, chips, slider and specs and
+  <!-- Animation showcase: anim.js fills the tabs, chips and slider and
        draws every skeleton on the one canvas. -->
   <div class="cz-wrap">
     <div class="an" data-an>
@@ -207,17 +207,14 @@
       <div class="an-body">
         <div class="an-stage loading" tabindex="0" aria-label="Animation stage. Left and right arrows change the state, space pauses.">
           <canvas aria-hidden="true"></canvas>
-          <span class="an-live" aria-hidden="true">Spine 4.2 · live</span>
           <p class="an-load" role="status">Loading…</p>
           <div class="an-bar" aria-hidden="true"><i></i></div>
         </div>
         <aside class="an-side" aria-live="polite">
-          <p class="an-eyebrow"></p>
           <h3 class="an-name"></h3>
-          <p class="an-desc"></p>
           <div class="an-skins" role="group" aria-label="Colour" hidden></div>
           <div class="an-state">
-            <div class="an-state-head"><span class="an-state-label">State</span><b class="an-state-name"></b><span class="an-state-count"></span></div>
+            <div class="an-state-head"><b class="an-state-name"></b></div>
             <div class="an-slider"><input class="an-range" type="range" min="0" max="0" step="1" value="0" aria-label="Animation state"><span class="an-ticks" aria-hidden="true"></span></div>
             <div class="an-seg"><span class="an-glider" aria-hidden="true"></span><div class="an-pills" role="group" aria-label="States"></div></div>
           </div>
@@ -226,7 +223,6 @@
             <button type="button" class="an-btn" data-an-play aria-pressed="true"><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg><span>Pause</span></button>
             <button type="button" class="an-btn an-speed" data-an-speed aria-label="Playback speed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 13l4-4M4.5 18a9 9 0 1 1 15 0"/></svg><span>1×</span></button>
           </div>
-          <dl class="an-specs"></dl>
         </aside>
       </div>
       <div class="an-rail"><button type="button" class="an-step" data-an-step="-1" aria-label="Previous">‹</button><div class="an-picker" role="group" aria-label="Animations"></div><button type="button" class="an-step" data-an-step="1" aria-label="Next">›</button></div>
