@@ -26,6 +26,7 @@
 <link rel="stylesheet" href="/studio.css">
 <link rel="stylesheet" href="/studio-overrides.css">
 <link rel="stylesheet" href="/casino.game/casino.css">
+<link rel="stylesheet" href="/casino.game/anim.css">
 <!-- The hero ships in its starting state (first frame, no text) so nothing
      flashes before the script arms it; without scripts, show it finished. -->
 <noscript><style>.cz-hero-anim .cz-hero-title,.cz-hero-anim .cz-hero-name,.cz-hero-anim .cz-hero-pitch,.cz-hero-anim .cz-hero-shade{opacity:1!important;translate:none!important}.cz-hero-anim .cz-hero-rule{scale:none!important}.cz-hero-anim .cz-hero-top>*,.cz-hero-anim .cz-cross{opacity:1!important}.cz-video-mode .hero-main{visibility:visible!important}.cz-hero-video{display:none!important}.cz-mode-scroll .cz-hero-pin{height:auto!important}.cz-mode-scroll .cz-hero{position:relative!important}</style></noscript>
@@ -62,6 +63,7 @@
 <nav class="cz-nav" aria-label="Page sections">
   <div class="cz-nav-inner">
     <a href="#works" data-spy="works">Works</a>
+    <a href="#animation" data-spy="animation">Animation</a>
     <a href="#services" data-spy="services">Services</a>
     <a href="#about" data-spy="about">About me</a>
     <span class="cz-nav-bar" aria-hidden="true"></span>
@@ -185,6 +187,49 @@
     <div class="cz-core">
       <p class="cz-core-title" data-node="Core responsibility heading" data-id="cz-core-title" data-type="text">Core Responsibility</p>
       <p class="cz-core-list" data-node="Core responsibility list" data-id="cz-core-list" data-type="text">Concept development • Art direction alignment • Theme localization • Asset optimization • Game screen design • UI/UX design</p>
+    </div>
+  </div>
+</section>
+
+<section class="cz-section cz-anim" id="animation" aria-labelledby="cz-anim-title">
+  <div class="cz-head cz-wrap">
+    <h2 class="cz-title" id="cz-anim-title" data-node="Animation heading" data-id="cz-anim-title" data-type="text" data-motion="rise">ANIMATION</h2>
+    <p class="cz-sub" data-node="Animation subtitle" data-id="cz-anim-sub" data-type="text">Spine 2D symbols, characters, big wins and FX, playing live from the files that shipped in the games.</p>
+  </div>
+  <!-- Animation showcase: anim.js fills the tabs, chips, slider and specs and
+       draws every skeleton on the one canvas. -->
+  <div class="cz-wrap">
+    <div class="an" data-an>
+      <div class="an-top">
+        <div class="an-tabs" role="tablist" aria-label="Animation type"></div>
+        <div class="an-games" role="group" aria-label="Game"></div>
+      </div>
+      <div class="an-body">
+        <div class="an-stage loading" tabindex="0" aria-label="Animation stage. Left and right arrows change the state, space pauses.">
+          <canvas aria-hidden="true"></canvas>
+          <span class="an-live" aria-hidden="true">Spine 4.2 · live</span>
+          <p class="an-load" role="status">Loading…</p>
+          <div class="an-bar" aria-hidden="true"><i></i></div>
+        </div>
+        <aside class="an-side" aria-live="polite">
+          <p class="an-eyebrow"></p>
+          <h3 class="an-name"></h3>
+          <p class="an-desc"></p>
+          <div class="an-skins" role="group" aria-label="Colour" hidden></div>
+          <div class="an-state">
+            <div class="an-state-head"><span class="an-state-label">State</span><b class="an-state-name"></b><span class="an-state-count"></span></div>
+            <div class="an-slider"><input class="an-range" type="range" min="0" max="0" step="1" value="0" aria-label="Animation state"><span class="an-ticks" aria-hidden="true"></span></div>
+            <div class="an-pills" role="group" aria-label="States"></div>
+          </div>
+          <div class="an-ctrl">
+            <button type="button" class="an-btn" data-an-replay aria-label="Replay"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"/></svg><span>Replay</span></button>
+            <button type="button" class="an-btn" data-an-play aria-pressed="true"><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg><span>Pause</span></button>
+            <button type="button" class="an-btn an-speed" data-an-speed aria-label="Playback speed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 13l4-4M4.5 18a9 9 0 1 1 15 0"/></svg><span>1×</span></button>
+          </div>
+          <dl class="an-specs"></dl>
+        </aside>
+      </div>
+      <div class="an-picker" role="group" aria-label="Animations"></div>
     </div>
   </div>
 </section>
@@ -378,5 +423,6 @@
 <script src="/studio-presets.js"></script>
 <script src="/studio-objects.js"></script>
 <script src="/casino.game/casino.js"></script>
+<script src="/casino.game/anim.js"></script>
 </body>
 </html>

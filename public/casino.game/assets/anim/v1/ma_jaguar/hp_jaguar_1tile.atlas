@@ -1,0 +1,101 @@
+hp_jaguar_1tile.webp
+size: 2040,740
+filter: Linear,Linear
+pma: true
+jaguar_1tile/head
+bounds: 2,2,278,166
+jaguar_1tile/outline_rim
+bounds: 282,2,261,228
+offsets: 21,21,303,270
+jaguar_1tile/frame
+bounds: 2,170,256,223
+jaguar_1tile/crack3
+bounds: 545,2,256,223
+jaguar_1tile/flat
+bounds: 803,2,256,223
+jaguar_1tile/crack2
+bounds: 1061,2,251,223
+offsets: 5,0,256,223
+jaguar_1tile/base
+bounds: 1314,2,246,212
+fx/roar_00
+bounds: 1562,2,200,200
+fx/roar_01
+bounds: 1764,2,200,200
+fx/roar_02
+bounds: 1562,204,200,200
+fx/roar_04
+bounds: 1314,216,200,200
+fx/roar_05
+bounds: 1764,204,200,200
+fx/roar_06
+bounds: 1516,406,200,200
+fx/roar_07
+bounds: 1718,406,200,200
+fx/roar_08
+bounds: 545,227,200,200
+fx/roar_16
+bounds: 260,232,200,200
+fx/roar_17
+bounds: 2,395,200,200
+fx/roar_15
+bounds: 747,227,200,195
+offsets: 0,2,200,200
+fx/roar_03
+bounds: 949,227,194,199
+offsets: 2,0,200,200
+fx/roar_09
+bounds: 747,424,196,197
+offsets: 2,1,200,200
+fx/roar_14
+bounds: 462,429,191,191
+offsets: 5,2,200,200
+fx/roar_13
+bounds: 204,434,189,177
+offsets: 5,16,200,200
+fx/roar_12
+bounds: 1145,227,164,160
+offsets: 21,18,200,200
+fx/star
+bounds: 1145,389,160,160
+jaguar_1tile/outline_glow
+bounds: 945,428,152,135
+jaguar_1tile/crack1
+bounds: 2,597,147,141
+offsets: 62,42,256,223
+fx/roar_11
+bounds: 1307,418,142,144
+offsets: 31,28,200,200
+jaguar_1tile/jaw
+bounds: 1099,551,134,120
+fx/roar_10
+bounds: 1920,406,115,117
+offsets: 43,40,200,200
+fx/rays
+bounds: 1920,525,107,114
+offsets: 22,20,139,139
+jaguar_1tile/aura_halo
+bounds: 945,565,101,93
+jaguar_1tile/mouth
+bounds: 151,597,51,93
+jaguar_1tile/cast
+bounds: 204,613,92,88
+offsets: 2,1,96,90
+fx/spark
+bounds: 1451,418,61,12
+offsets: 2,1,64,14
+fx/glow
+bounds: 1451,432,58,59
+offsets: 2,1,61,61
+fx/dust1
+bounds: 204,395,30,30
+offsets: 7,5,39,39
+fx/dust2
+bounds: 1099,428,27,29
+offsets: 4,6,39,39
+fx/dust0
+bounds: 1099,459,29,26
+offsets: 4,5,39,39
+fx/dot
+bounds: 1099,487,25,25
+offsets: 1,0,26,26

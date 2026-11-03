@@ -1,0 +1,118 @@
+spicy_hp_sauce.webp
+size: 1560,2048
+filter: Linear,Linear
+pma: true
+sauce/bottle
+bounds: 2,2,466,777
+sauce/halo
+bounds: 2,781,582,623
+sauce/sh_bottle
+bounds: 2,1406,326,483
+sauce/rim_bottle
+bounds: 330,1406,277,433
+sauce/spice1
+bounds: 470,2,305,324
+fire/fire_22
+bounds: 470,328,182,271
+offsets: 9,11,203,294
+fire/fire_06
+bounds: 586,601,182,269
+offsets: 9,13,203,294
+fire/fire_14
+bounds: 654,328,182,268
+offsets: 9,12,203,294
+fire/fire_21
+bounds: 777,2,181,268
+offsets: 9,12,203,294
+fire/fire_05
+bounds: 586,872,181,267
+offsets: 9,13,203,294
+fire/fire_13
+bounds: 609,1141,181,267
+offsets: 9,13,203,294
+fire/fire_20
+bounds: 769,872,183,265
+offsets: 9,14,203,294
+fire/fire_12
+bounds: 770,598,182,265
+offsets: 9,14,203,294
+fire/fire_04
+bounds: 838,272,180,264
+offsets: 10,15,203,294
+fire/fire_11
+bounds: 960,2,183,263
+offsets: 10,15,203,294
+fire/fire_19
+bounds: 609,1410,183,263
+offsets: 10,15,203,294
+fire/fire_03
+bounds: 792,1139,182,262
+offsets: 10,16,203,294
+fire/fire_02
+bounds: 609,1675,182,259
+offsets: 10,17,203,294
+fire/fire_10
+bounds: 793,1675,182,259
+offsets: 10,17,203,294
+fire/fire_18
+bounds: 794,1403,182,259
+offsets: 10,17,203,294
+fire/fire_09
+bounds: 977,1664,181,257
+offsets: 11,18,203,294
+fire/fire_17
+bounds: 954,538,181,257
+offsets: 11,18,203,294
+fire/fire_01
+bounds: 1020,267,181,256
+offsets: 11,18,203,294
+fire/fire_23
+bounds: 1145,2,179,256
+offsets: 12,18,203,294
+fire/fire_07
+bounds: 954,797,179,254
+offsets: 12,20,203,294
+fire/fire_16
+bounds: 976,1053,181,253
+offsets: 11,20,203,294
+fire/fire_08
+bounds: 1135,797,180,253
+offsets: 11,20,203,294
+sauce/sh_spice1
+bounds: 1137,525,243,252
+fire/fire_00
+bounds: 1203,260,181,252
+offsets: 11,20,203,294
+fire/fire_15
+bounds: 1326,2,179,251
+offsets: 12,21,203,294
+sauce/spice3
+bounds: 978,1308,182,215
+sauce/rim_spice1
+bounds: 330,1841,196,205
+sauce/sh_spice3
+bounds: 1159,1052,180,195
+sauce/spice2
+bounds: 1317,779,176,190
+sauce/sh_spice2
+bounds: 1382,514,174,180
+sauce/rim_spice3
+bounds: 2,1891,135,150
+sauce/rim_spice2
+bounds: 978,1525,131,137
+flare
+bounds: 1111,1525,95,131
+offsets: 35,15,162,163
+fx/art_emitter_particle0
+bounds: 470,601,95,131
+offsets: 35,15,162,163
+fx/spark
+bounds: 528,1936,94,94
+offsets: 1,1,96,96
+sauce/gem_r
+bounds: 528,1841,74,66
+sauce/gem_l
+bounds: 1317,971,73,66
+fx/mote
+bounds: 1382,696,62,62
+offsets: 1,1,64,64

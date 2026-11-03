@@ -1,0 +1,282 @@
+exnudge.webp
+size: 2048,1120
+filter: Linear,Linear
+pma: true
+ae/puff_23
+bounds: 2,2,190,189
+offsets: 1,1,192,192
+ae/puff_00
+bounds: 194,2,190,188
+offsets: 1,2,192,192
+ae/puff_22
+bounds: 386,2,190,188
+offsets: 1,2,192,192
+ae/puff_01
+bounds: 578,2,188,188
+offsets: 2,2,192,192
+ae/puff_02
+bounds: 768,2,188,188
+offsets: 2,2,192,192
+ae/puff_21
+bounds: 958,2,188,187
+offsets: 2,3,192,192
+ae/puff_03
+bounds: 1148,2,186,186
+offsets: 3,3,192,192
+ae/puff_04
+bounds: 1336,2,186,186
+offsets: 3,3,192,192
+ae/puff_20
+bounds: 1524,2,186,185
+offsets: 3,4,192,192
+ae/puff_05
+bounds: 1712,2,184,184
+offsets: 4,4,192,192
+ae/puff_19
+bounds: 1712,188,184,184
+offsets: 4,4,192,192
+ae/puff_18
+bounds: 1524,189,181,184
+offsets: 6,4,192,192
+ae/puff_17
+bounds: 1707,374,179,182
+offsets: 7,5,192,192
+ae/puff_06
+bounds: 1148,190,181,181
+offsets: 5,6,192,192
+ae/puff_16
+bounds: 958,191,176,178
+offsets: 9,7,192,192
+ae/puff_15
+bounds: 1331,190,173,173
+offsets: 11,10,192,192
+ae/puff_07
+bounds: 1331,365,172,173
+offsets: 10,10,192,192
+ae/puff_14
+bounds: 1505,375,169,165
+offsets: 14,14,192,192
+ae/puff_13
+bounds: 194,192,161,158
+offsets: 18,17,192,192
+ae/puff_08
+bounds: 1888,374,158,158
+offsets: 17,17,192,192
+ae/puff_12
+bounds: 1888,534,151,152
+offsets: 22,20,192,192
+ae/puff_11
+bounds: 1898,2,142,144
+offsets: 26,23,192,192
+ae/puff_10
+bounds: 1898,148,138,139
+offsets: 27,26,192,192
+ae/puff_09
+bounds: 2,193,138,138
+offsets: 27,27,192,192
+ae/smoke_ring_00
+bounds: 2,333,174,173
+offsets: 1,1,176,176
+ae/smoke_ring_15
+bounds: 357,192,174,172
+offsets: 1,2,176,176
+ae/smoke_ring_01
+bounds: 178,352,172,172
+offsets: 2,2,176,176
+ae/smoke_ring_02
+bounds: 2,508,171,172
+offsets: 2,2,176,176
+ae/smoke_ring_14
+bounds: 533,192,172,171
+offsets: 2,3,176,176
+ae/smoke_ring_03
+bounds: 707,192,170,170
+offsets: 3,3,176,176
+ae/smoke_ring_13
+bounds: 707,364,170,170
+offsets: 3,3,176,176
+ae/smoke_ring_12
+bounds: 533,365,166,168
+offsets: 5,4,176,176
+ae/smoke_ring_04
+bounds: 352,366,166,166
+offsets: 5,5,176,176
+ae/smoke_ring_11
+bounds: 175,526,163,165
+offsets: 7,6,176,176
+ae/smoke_ring_10
+bounds: 2,682,159,159
+offsets: 10,9,176,176
+ae/smoke_ring_05
+bounds: 340,534,152,152
+offsets: 12,12,176,176
+ae/smoke_ring_09
+bounds: 494,535,152,147
+offsets: 15,15,176,176
+ae/smoke_ring_08
+bounds: 879,371,139,139
+offsets: 20,19,176,176
+ae/smoke_ring_07
+bounds: 1020,373,127,129
+offsets: 25,23,176,176
+ae/smoke_ring_06
+bounds: 1149,373,126,126
+offsets: 25,25,176,176
+orb/exnudge
+bounds: 648,536,465,465
+offsets: 5,0,471,465
+text/shine_nudge_04
+bounds: 494,684,131,86
+offsets: 50,59,468,166
+text/shine_nudge_05
+bounds: 340,688,131,86
+offsets: 98,59,468,166
+text/shine_nudge_08
+bounds: 473,772,131,86
+offsets: 243,59,468,166
+text/shine_nudge_09
+bounds: 163,693,129,86
+offsets: 293,59,468,166
+text/shine_nudge_06
+bounds: 294,776,127,86
+offsets: 147,59,468,166
+text/shine_nudge_07
+bounds: 163,781,127,86
+offsets: 198,59,468,166
+text/shine_nudge_03
+bounds: 2,843,93,86
+offsets: 40,59,468,166
+text/shine_nudge_10
+bounds: 1149,501,93,86
+offsets: 339,59,468,166
+text/shine_nudge_11
+bounds: 423,776,45,86
+offsets: 387,59,468,166
+text/shine_nudge_02
+bounds: 606,772,37,86
+offsets: 40,59,468,166
+text/shine_nudge_00
+bounds: 175,508,1,1
+offsets: 0,165,468,166
+text/shine_nudge_01
+bounds: 175,511,1,1
+offsets: 0,165,468,166
+text/shine_nudge_12
+bounds: 175,514,1,1
+offsets: 0,165,468,166
+text/shine_nudge_13
+bounds: 175,517,1,1
+offsets: 0,165,468,166
+text/nudge_shadow
+bounds: 97,869,464,162
+offsets: 2,2,468,166
+fx/burst_rays
+bounds: 1244,540,248,248
+offsets: 4,4,256,256
+text/shine_ex_07
+bounds: 1115,589,125,86
+offsets: 61,59,219,166
+text/shine_ex_06
+bounds: 1115,677,122,86
+offsets: 40,59,219,166
+text/shine_ex_08
+bounds: 1115,765,96,86
+offsets: 90,59,219,166
+text/shine_ex_05
+bounds: 2,931,93,86
+offsets: 40,59,219,166
+text/shine_ex_09
+bounds: 879,192,67,86
+offsets: 119,59,219,166
+text/shine_ex_04
+bounds: 879,280,64,86
+offsets: 40,59,219,166
+text/shine_ex_03
+bounds: 294,693,35,75
+offsets: 40,70,219,166
+text/shine_ex_10
+bounds: 142,193,33,39
+offsets: 153,59,219,166
+text/shine_ex_02
+bounds: 331,693,6,13
+offsets: 40,132,219,166
+text/shine_ex_11
+bounds: 1494,540,9,10
+offsets: 177,59,219,166
+text/shine_ex_00
+bounds: 175,520,1,1
+offsets: 0,165,219,166
+text/shine_ex_01
+bounds: 175,523,1,1
+offsets: 0,165,219,166
+text/shine_ex_12
+bounds: 879,368,1,1
+offsets: 0,165,219,166
+text/shine_ex_13
+bounds: 882,368,1,1
+offsets: 0,165,219,166
+text/ex_shadow
+bounds: 1494,558,215,162
+offsets: 2,2,219,166
+text/nudge_add
+bounds: 1494,722,392,86
+offsets: 40,59,468,166
+fx/shine_band
+bounds: 1888,688,96,254
+offsets: 0,1,96,256
+fx/number_glow
+bounds: 1711,558,160,128
+fx/glow
+bounds: 1213,790,126,126
+offsets: 1,1,128,128
+fx/disc_light
+bounds: 1341,790,126,126
+offsets: 1,1,128,128
+fx/star
+bounds: 1469,810,124,124
+offsets: 2,2,128,128
+text/ex_add
+bounds: 1595,810,146,86
+offsets: 40,59,219,166
+text/nudge_0_N
+bounds: 1115,853,96,98
+offsets: 2,2,100,102
+text/nudge_2_D
+bounds: 2,1019,84,98
+offsets: 2,2,91,102
+text/ex_1_X
+bounds: 563,860,82,98
+offsets: 7,2,91,102
+text/ex_0_E
+bounds: 563,960,81,98
+offsets: 2,2,85,102
+text/nudge_4_E
+bounds: 1743,810,81,98
+offsets: 2,2,85,102
+text/nudge_1_U
+bounds: 1595,898,80,98
+offsets: 6,2,92,102
+text/nudge_1_U_back
+bounds: 1677,910,88,89
+offsets: 2,10,92,102
+text/nudge_3_G
+bounds: 1767,910,79,98
+offsets: 6,2,91,102
+text/nudge_2_D_back
+bounds: 1848,944,87,88
+offsets: 2,11,91,102
+text/nudge_3_G_back
+bounds: 1898,289,87,82
+offsets: 2,10,91,102
+text/ex_1_X_back
+bounds: 948,192,8,96
+offsets: 2,3,91,102
+text/nudge_0_N_back
+bounds: 2041,534,5,89
+offsets: 93,10,100,102
+text/ex_0_E_back
+bounds: 701,365,4,96
+offsets: 79,3,85,102
+text/nudge_4_E_back
+bounds: 473,688,4,82
+offsets: 2,10,85,102

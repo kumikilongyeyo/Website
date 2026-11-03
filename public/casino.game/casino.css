@@ -155,10 +155,11 @@ body.cz-hero-drag .cz-hero::after { content: "Drag to move the image"; position:
 /* ------------------------------------------------------------ sticky nav */
 .cz-nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-block: 1px solid var(--cz-line); }
 body.editing .cz-nav { top: var(--bar, 52px); }
-.cz-nav-inner { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); width: min(var(--page-width, 1200px), 100%); margin-inline: auto; }
+.cz-nav-inner { --n: 4; position: relative; display: grid; grid-template-columns: repeat(var(--n), 1fr); width: min(var(--page-width, 1200px), 100%); margin-inline: auto; }
 .cz-nav a { display: block; padding: 18px 8px; text-align: center; font-size: clamp(13px, 1.4cqw, 17px); letter-spacing: .06em; text-transform: uppercase; color: var(--cz-muted); transition: color .2s; }
 .cz-nav a:hover, .cz-nav a[aria-current="true"] { color: var(--cz-ink); }
-.cz-nav-bar { position: absolute; top: -1px; left: 0; width: calc(100% / 3); height: 2px; background: var(--cz-ink); transform: translateX(calc(var(--i, 0) * 100%)); transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+@container cz (max-width: 480px) { .cz-nav a { padding-inline: 2px; letter-spacing: .02em; } }
+.cz-nav-bar { position: absolute; top: -1px; left: 0; width: calc(100% / var(--n)); height: 2px; background: var(--cz-ink); transform: translateX(calc(var(--i, 0) * 100%)); transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
 
 /* -------------------------------------------------------------- sections */
 .cz-section { position: relative; isolation: isolate; padding-block: clamp(64px, 9cqw, 120px) clamp(32px, 5cqw, 64px); scroll-margin-top: 58px; }

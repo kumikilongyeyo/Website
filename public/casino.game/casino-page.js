@@ -704,6 +704,7 @@ window.STUDIO_PAGE = {
       'cz-hero-name': fill(blue, 90, null, 70),
       'cz-works-title': fill(ink, 90, null, 0, 'center'),
       'cz-services-title': fill(violet, 90, null, 0, 'center'),
+      'cz-anim-title': fill(['#2f6bff', '#6a2fe0'], 90, null, 0, 'center'),
       'cz-about-title': fill(['#0a7f69', '#12b090'], 90, null, 0, 'center'),
       'cz-svc1-title': fill(ink, 90, null, 0, 'right'),
       'cz-svc2-title': fill(pink, 90),

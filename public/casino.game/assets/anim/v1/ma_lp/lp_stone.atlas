@@ -1,0 +1,79 @@
+lp_stone.webp
+size: 2036,692
+filter: Linear,Linear
+pma: true
+sym/K/tile
+bounds: 2,2,256,223
+sym/Q/tile
+bounds: 260,2,256,223
+sym/10/tile
+bounds: 518,2,256,223
+sym/J/tile
+bounds: 776,2,256,223
+sym/A/tile
+bounds: 1034,2,256,223
+fx/crack3
+bounds: 1292,2,256,220
+offsets: 0,0,256,223
+fx/outline_rim
+bounds: 1550,2,249,217
+offsets: 23,21,295,260
+fx/crack2
+bounds: 1801,2,198,220
+offsets: 24,0,256,223
+sym/K/glyph
+bounds: 1550,221,160,163
+sym/Q/glyph
+bounds: 1292,224,160,163
+sym/10/glyph
+bounds: 1712,224,160,163
+sym/J/glyph
+bounds: 1874,224,160,163
+sym/A/glyph
+bounds: 1454,386,160,163
+fx/star
+bounds: 1616,389,160,160
+fx/outline_glow
+bounds: 1778,389,147,130
+fx/crack1
+bounds: 1778,521,132,127
+offsets: 68,45,256,223
+fx/rays
+bounds: 1927,389,107,114
+offsets: 22,20,139,139
+fx/aura_halo
+bounds: 1927,505,99,91
+offsets: 1,1,101,93
+sym/10/glyph_shadow
+bounds: 1454,224,93,87
+offsets: 2,4,96,98
+sym/Q/glyph_shadow
+bounds: 1912,598,79,90
+offsets: 5,2,96,98
+sym/J/glyph_shadow
+bounds: 2,227,72,88
+offsets: 8,4,96,98
+sym/K/glyph_shadow
+bounds: 76,227,82,87
+offsets: 7,7,96,98
+sym/A/glyph_shadow
+bounds: 160,227,84,86
+offsets: 4,10,96,98
+fx/spark
+bounds: 1454,313,61,12
+offsets: 2,1,64,14
+fx/glow
+bounds: 246,227,58,59
+offsets: 2,1,61,61
+fx/dust1
+bounds: 1517,313,30,30
+offsets: 7,5,39,39
+fx/dust2
+bounds: 1454,345,27,29
+offsets: 4,6,39,39
+fx/dust0
+bounds: 1483,327,29,26
+offsets: 4,5,39,39
+fx/dot
+bounds: 1483,355,25,25
+offsets: 1,0,26,26

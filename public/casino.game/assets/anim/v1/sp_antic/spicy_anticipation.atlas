@@ -1,0 +1,193 @@
+spicy_anticipation.webp
+size: 1460,2036
+filter: Linear,Linear
+pma: true
+line
+bounds: 2,2,8,1455
+offsets: 2,0,12,1455
+fire/fire_10
+bounds: 12,2,98,640
+offsets: 19,0,134,640
+fire/fire_14
+bounds: 12,644,98,640
+offsets: 20,0,134,640
+fire/fire_16
+bounds: 12,1286,97,640
+offsets: 18,0,134,640
+fire/fire_02
+bounds: 111,1286,96,640
+offsets: 20,0,134,640
+fire/fire_07
+bounds: 112,2,96,640
+offsets: 18,0,134,640
+fire/fire_08
+bounds: 112,644,96,640
+offsets: 20,0,134,640
+fire/fire_09
+bounds: 209,1286,96,640
+offsets: 20,0,134,640
+fire/fire_15
+bounds: 210,2,96,640
+offsets: 20,0,134,640
+fire/fire_03
+bounds: 210,644,95,640
+offsets: 19,0,134,640
+fire/fire_05
+bounds: 307,644,95,640
+offsets: 18,0,134,640
+fire/fire_13
+bounds: 308,2,95,640
+offsets: 21,0,134,640
+fire/fire_17
+bounds: 307,1286,95,640
+offsets: 18,0,134,640
+fire/fire_04
+bounds: 404,644,94,640
+offsets: 20,0,134,640
+fire/fire_19
+bounds: 405,2,93,640
+offsets: 23,0,134,640
+fire/fire_00
+bounds: 404,1286,92,640
+offsets: 22,0,134,640
+fire/fire_18
+bounds: 498,1286,92,640
+offsets: 18,0,134,640
+fire/fire_01
+bounds: 500,2,91,640
+offsets: 22,0,134,640
+fire/fire_06
+bounds: 500,644,91,640
+offsets: 24,0,134,640
+fire/fire_11
+bounds: 592,1286,89,640
+offsets: 23,0,134,640
+fire/fire_12
+bounds: 593,2,89,640
+offsets: 22,0,134,640
+puff07/puff_15
+bounds: 593,644,156,145
+offsets: 3,8,161,161
+puff07/puff_14
+bounds: 593,791,156,144
+offsets: 3,9,161,161
+puff07/puff_16
+bounds: 593,937,156,144
+offsets: 3,8,161,161
+puff07/puff_17
+bounds: 593,1083,156,144
+offsets: 3,8,161,161
+puff07/puff_13
+bounds: 684,2,156,143
+offsets: 3,10,161,161
+puff07/puff_18
+bounds: 684,147,156,143
+offsets: 3,8,161,161
+puff07/puff_00
+bounds: 684,292,156,142
+offsets: 3,8,161,161
+puff07/puff_01
+bounds: 684,436,156,142
+offsets: 3,8,161,161
+puff07/puff_12
+bounds: 683,1229,156,142
+offsets: 3,11,161,161
+puff07/puff_19
+bounds: 751,580,156,142
+offsets: 3,8,161,161
+puff07/puff_02
+bounds: 751,724,156,141
+offsets: 3,9,161,161
+puff07/puff_11
+bounds: 751,867,156,141
+offsets: 3,12,161,161
+puff07/puff_03
+bounds: 751,1010,156,140
+offsets: 3,10,161,161
+puff07/puff_04
+bounds: 842,2,156,139
+offsets: 3,11,161,161
+puff07/puff_10
+bounds: 842,143,156,139
+offsets: 3,13,161,161
+puff07/puff_05
+bounds: 842,284,156,138
+offsets: 3,12,161,161
+puff07/puff_06
+bounds: 842,424,156,138
+offsets: 3,13,161,161
+puff07/puff_07
+bounds: 683,1373,156,138
+offsets: 3,13,161,161
+puff07/puff_09
+bounds: 683,1513,156,138
+offsets: 3,14,161,161
+puff07/puff_08
+bounds: 683,1653,156,137
+offsets: 3,14,161,161
+puff08/puff_02
+bounds: 683,1792,154,146
+offsets: 5,7,161,161
+puff08/puff_03
+bounds: 839,1792,154,146
+offsets: 5,7,161,161
+puff08/puff_04
+bounds: 841,1152,154,144
+offsets: 5,8,161,161
+puff08/puff_05
+bounds: 841,1298,154,143
+offsets: 5,8,161,161
+puff08/puff_06
+bounds: 841,1443,154,141
+offsets: 5,9,161,161
+puff08/puff_14
+bounds: 841,1586,153,140
+offsets: 5,11,161,161
+puff08/puff_12
+bounds: 995,1728,153,139
+offsets: 5,11,161,161
+puff08/puff_13
+bounds: 996,1586,153,139
+offsets: 5,11,161,161
+puff08/puff_00
+bounds: 995,1869,152,147
+offsets: 6,6,161,161
+puff08/puff_01
+bounds: 1149,1869,152,147
+offsets: 6,6,161,161
+puff08/puff_18
+bounds: 909,564,152,146
+offsets: 6,7,161,161
+puff08/puff_19
+bounds: 909,712,152,146
+offsets: 6,7,161,161
+puff08/puff_17
+bounds: 909,860,152,144
+offsets: 6,8,161,161
+puff08/puff_16
+bounds: 909,1006,152,143
+offsets: 6,9,161,161
+puff08/puff_15
+bounds: 997,1151,152,141
+offsets: 6,10,161,161
+puff08/puff_07
+bounds: 1150,1727,152,139
+offsets: 6,10,161,161
+puff08/puff_08
+bounds: 1303,1868,152,139
+offsets: 6,10,161,161
+puff08/puff_09
+bounds: 997,1294,152,139
+offsets: 6,10,161,161
+puff08/puff_10
+bounds: 997,1435,152,139
+offsets: 6,10,161,161
+puff08/puff_11
+bounds: 1000,2,152,138
+offsets: 6,11,161,161
+fx/spark
+bounds: 2,1940,94,94
+offsets: 1,1,96,96
+fx/art_emitter_particle0
+bounds: 98,2018,27,15
+offsets: 1,1,29,29

@@ -1,0 +1,58 @@
+coin_splash.webp
+size: 1636,132
+filter: Linear,Linear
+pma: true
+coin/f_01
+bounds: 2,2,130,128
+offsets: 12,0,154,128
+coin/f_15
+bounds: 134,2,129,128
+offsets: 12,0,154,128
+coin/f_00
+bounds: 265,2,128,128
+offsets: 13,0,154,128
+coin/f_02
+bounds: 395,2,125,128
+offsets: 15,0,154,128
+coin/f_14
+bounds: 522,2,124,128
+offsets: 15,0,154,128
+coin/f_03
+bounds: 648,2,116,128
+offsets: 19,0,154,128
+coin/f_13
+bounds: 766,2,115,128
+offsets: 19,0,154,128
+coin/f_04
+bounds: 883,2,104,128
+offsets: 25,0,154,128
+coin/f_12
+bounds: 989,2,103,128
+offsets: 25,0,154,128
+coin/f_05
+bounds: 1094,2,86,128
+offsets: 34,0,154,128
+coin/f_11
+bounds: 1182,2,85,128
+offsets: 34,0,154,128
+coin/f_06
+bounds: 1269,2,66,128
+offsets: 44,0,154,128
+coin/f_10
+bounds: 1337,2,65,128
+offsets: 44,0,154,128
+coin/f_07
+bounds: 1404,2,42,128
+offsets: 56,0,154,128
+coin/f_09
+bounds: 1448,2,41,128
+offsets: 56,0,154,128
+coin/f_08
+bounds: 1491,2,17,128
+offsets: 68,0,154,128
+fx/spark
+bounds: 1510,2,62,62
+offsets: 1,1,64,64
+fx/glow
+bounds: 1574,2,60,60
+offsets: 2,2,64,64

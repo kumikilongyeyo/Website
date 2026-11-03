@@ -1,0 +1,385 @@
+spicy_scatter_1.webp
+size: 2048,2048
+filter: Linear,Linear
+pma: true
+glow
+bounds: 2,2,527,848
+body_base
+bounds: 2,852,411,346
+body_spec
+bounds: 2,1200,411,346
+fire/fire_20
+bounds: 2,1548,201,399
+offsets: 8,0,218,399
+fire/fire_00
+bounds: 205,1548,200,399
+offsets: 8,0,218,399
+fire/fire_01
+bounds: 407,1548,200,399
+offsets: 8,0,218,399
+fire/fire_02
+bounds: 415,852,200,399
+offsets: 8,0,218,399
+fire/fire_08
+bounds: 609,1253,200,399
+offsets: 8,0,218,399
+fire/fire_09
+bounds: 531,2,200,399
+offsets: 8,0,218,399
+fire/fire_10
+bounds: 531,403,200,399
+offsets: 8,0,218,399
+fire/fire_11
+bounds: 617,804,200,399
+offsets: 8,0,218,399
+fire/fire_12
+bounds: 733,2,200,399
+offsets: 8,0,218,399
+fire/fire_16
+bounds: 733,403,200,399
+offsets: 8,0,218,399
+fire/fire_17
+bounds: 811,1205,200,399
+offsets: 8,0,218,399
+fire/fire_18
+bounds: 819,804,200,399
+offsets: 8,0,218,399
+fire/fire_19
+bounds: 811,1606,200,399
+offsets: 8,0,218,399
+fire/fire_04
+bounds: 935,2,199,399
+offsets: 8,0,218,399
+fire/fire_07
+bounds: 935,403,199,399
+offsets: 9,0,218,399
+fire/fire_15
+bounds: 1013,1205,199,399
+offsets: 9,0,218,399
+fire/fire_03
+bounds: 1021,804,198,399
+offsets: 8,0,218,399
+fire/fire_05
+bounds: 1013,1606,198,399
+offsets: 9,0,218,399
+fire/fire_06
+bounds: 1213,1606,198,399
+offsets: 9,0,218,399
+fire/fire_13
+bounds: 1214,1205,198,399
+offsets: 9,0,218,399
+fire/fire_14
+bounds: 1413,1606,198,399
+offsets: 9,0,218,399
+fire/fire_21
+bounds: 1613,2,198,399
+offsets: 9,0,218,399
+fire/fire_22
+bounds: 1136,403,198,399
+offsets: 9,0,218,399
+fire/fire_23
+bounds: 1136,2,199,398
+offsets: 8,0,218,399
+chili_glow
+bounds: 1337,2,266,268
+offsets: 5,15,272,298
+L_s
+bounds: 415,1253,147,225
+offsets: 11,24,176,267
+L_r
+bounds: 1813,2,218,219
+offsets: 24,13,253,253
+sweep/s_04
+bounds: 1414,272,131,215
+offsets: 15,34,176,267
+sweep/s_05
+bounds: 609,1654,126,215
+offsets: 13,34,176,267
+sweep/s_06
+bounds: 1813,223,119,215
+offsets: 13,34,176,267
+sweep/s_03
+bounds: 1613,403,132,212
+offsets: 27,36,176,267
+sweep/s_07
+bounds: 1934,223,105,212
+offsets: 13,35,176,267
+sweep/r_04
+bounds: 1414,489,133,208
+offsets: 104,24,253,253
+sweep/r_05
+bounds: 1747,440,128,208
+offsets: 112,24,253,253
+shade_R
+bounds: 1221,804,206,173
+shade_L
+bounds: 1221,979,206,173
+shade_B
+bounds: 1613,650,206,173
+lite_L
+bounds: 1821,650,206,173
+lite_R
+bounds: 1613,825,206,173
+lite_T
+bounds: 1821,825,206,173
+sweep/r_06
+bounds: 1877,440,116,206
+offsets: 124,24,253,253
+sweep/r_03
+bounds: 1429,699,130,203
+offsets: 94,29,253,253
+sweep/s_02
+bounds: 1429,904,113,199
+offsets: 48,43,176,267
+sweep/r_02
+bounds: 1414,1154,111,196
+offsets: 93,35,253,253
+sweep/r_07
+bounds: 1414,1352,77,189
+offsets: 163,27,253,253
+sweep/s_08
+bounds: 1547,272,63,187
+offsets: 20,47,176,267
+stem_spec
+bounds: 609,1871,180,118
+stem_base
+bounds: 1493,1352,180,118
+L_a
+bounds: 1527,1105,141,179
+offsets: 24,11,175,210
+sweep/a_06
+bounds: 1670,1000,150,178
+offsets: 20,13,175,210
+sweep/a_05
+bounds: 1822,1000,131,177
+offsets: 40,13,175,210
+sweep/a_07
+bounds: 1822,1179,147,175
+offsets: 20,15,175,210
+shimmer/sh_00
+bounds: 1675,1356,173,145
+shimmer/sh_01
+bounds: 1850,1356,173,145
+shimmer/sh_02
+bounds: 1613,1503,173,145
+shimmer/sh_03
+bounds: 1788,1503,173,145
+shimmer/sh_04
+bounds: 1613,1650,173,145
+shimmer/sh_05
+bounds: 1788,1650,173,145
+shimmer/sh_06
+bounds: 1613,1797,173,145
+shimmer/sh_07
+bounds: 1788,1797,173,145
+sweep/a_04
+bounds: 1675,1180,132,173
+offsets: 40,14,175,210
+sweep/r_01
+bounds: 1955,1000,88,173
+offsets: 93,50,253,253
+sweep/e_08
+bounds: 1561,461,48,165
+offsets: 67,7,119,190
+sweep/c_07
+bounds: 1544,904,53,149
+offsets: 10,15,132,196
+sweep/e_02
+bounds: 1963,1503,77,144
+offsets: 6,20,119,190
+sweep/r_00
+bounds: 737,1654,61,144
+offsets: 93,65,253,253
+sweep/s_00
+bounds: 1971,1175,62,141
+offsets: 99,69,176,267
+sweep/t_02
+bounds: 1493,1472,81,130
+offsets: 7,16,121,200
+sweep/c_01
+bounds: 1337,272,62,130
+offsets: 57,24,132,196
+l1
+bounds: 2,1949,126,80
+sweep/e_01
+bounds: 1336,404,54,113
+offsets: 6,28,119,190
+G_a
+bounds: 1336,519,76,107
+offsets: 32,16,122,139
+sweep/t_01
+bounds: 1336,628,63,105
+offsets: 7,25,121,200
+G_t2
+bounds: 1599,1000,66,103
+offsets: 16,12,95,132
+G_t
+bounds: 1613,1944,66,102
+offsets: 13,14,94,134
+G_e
+bounds: 1681,1944,66,101
+offsets: 14,13,94,129
+G_c
+bounds: 1749,1944,72,99
+offsets: 14,12,100,132
+sweep/t2_00
+bounds: 1963,1649,83,95
+offsets: 24,22,122,195
+fx/spark
+bounds: 130,1949,94,94
+offsets: 1,1,96,96
+sweep/a_00
+bounds: 226,1949,71,89
+offsets: 100,41,175,210
+sweep/c_00
+bounds: 564,1253,38,84
+offsets: 80,52,132,196
+l6
+bounds: 1414,1543,77,43
+sweep/t_09
+bounds: 1971,1318,75,23
+offsets: 25,150,121,200
+sweep/t_00
+bounds: 564,1339,37,73
+offsets: 7,40,121,200
+sweep/e_00
+bounds: 415,1480,22,66
+offsets: 12,46,119,190
+l5
+bounds: 299,1991,63,51
+fx/mote
+bounds: 1549,628,62,62
+offsets: 1,1,64,64
+l3
+bounds: 364,1991,60,52
+l4
+bounds: 531,804,60,42
+l2
+bounds: 617,1205,55,44
+sweep/r_08
+bounds: 1544,1055,45,48
+offsets: 193,35,253,253
+
+spicy_scatter_2.webp
+size: 2040,512
+filter: Linear,Linear
+pma: true
+shimmer/sh_08
+bounds: 2,2,173,145
+shimmer/sh_09
+bounds: 177,2,173,145
+shimmer/sh_10
+bounds: 352,2,173,145
+shimmer/sh_11
+bounds: 527,2,173,145
+shimmer/sh_12
+bounds: 702,2,173,145
+shimmer/sh_13
+bounds: 877,2,173,145
+shimmer/sh_14
+bounds: 1052,2,173,145
+sweep/e_05
+bounds: 1227,2,106,172
+offsets: 11,3,119,190
+sweep/e_06
+bounds: 1335,2,102,172
+offsets: 15,2,119,190
+sweep/e_07
+bounds: 1439,2,84,172
+offsets: 33,2,119,190
+L_t2
+bounds: 1525,2,99,170
+offsets: 14,4,122,195
+L_t
+bounds: 1626,2,98,170
+offsets: 10,8,121,200
+sweep/s_01
+bounds: 1726,2,89,170
+offsets: 72,56,176,267
+sweep/t_05
+bounds: 1817,2,106,169
+offsets: 8,10,121,200
+L_c
+bounds: 1925,2,111,168
+offsets: 10,4,132,196
+sweep/t_06
+bounds: 1925,172,106,168
+offsets: 8,11,121,200
+L_e
+bounds: 1817,173,100,168
+offsets: 10,5,119,190
+sweep/t2_05
+bounds: 1919,342,108,166
+offsets: 12,8,122,195
+sweep/e_04
+bounds: 1525,174,107,166
+offsets: 8,9,119,190
+sweep/t_04
+bounds: 1634,174,106,165
+offsets: 7,10,121,200
+sweep/a_08
+bounds: 1634,341,115,164
+offsets: 48,25,175,210
+sweep/c_04
+bounds: 1751,343,113,164
+offsets: 5,6,132,196
+sweep/c_05
+bounds: 2,149,112,164
+offsets: 4,6,132,196
+sweep/t2_06
+bounds: 116,149,108,164
+offsets: 12,10,122,195
+sweep/t2_04
+bounds: 226,149,105,164
+offsets: 15,6,122,195
+sweep/t_07
+bounds: 333,149,103,164
+offsets: 11,15,121,200
+sweep/t2_07
+bounds: 438,149,108,163
+offsets: 12,11,122,195
+sweep/c_03
+bounds: 548,149,103,162
+offsets: 16,8,132,196
+sweep/c_06
+bounds: 653,149,109,160
+offsets: 4,8,132,196
+sweep/e_03
+bounds: 764,149,96,159
+offsets: 6,14,119,190
+sweep/t_08
+bounds: 862,149,99,157
+offsets: 15,21,121,200
+sweep/a_03
+bounds: 963,149,126,156
+offsets: 46,19,175,210
+sweep/t2_08
+bounds: 1091,149,102,156
+offsets: 14,17,122,195
+sweep/t2_03
+bounds: 1195,176,103,152
+offsets: 17,6,122,195
+sweep/c_02
+bounds: 1300,176,85,152
+offsets: 34,13,132,196
+sweep/t_03
+bounds: 1387,176,98,150
+offsets: 7,12,121,200
+sweep/t2_02
+bounds: 1387,328,102,139
+offsets: 18,7,122,195
+sweep/a_02
+bounds: 1491,342,113,136
+offsets: 59,25,175,210
+G_s
+bounds: 963,307,89,125
+offsets: 14,27,122,168
+sweep/t2_01
+bounds: 862,308,98,121
+offsets: 19,11,122,195
+G_r
+bounds: 764,310,90,118
+offsets: 56,25,160,160
+sweep/a_01
+bounds: 653,311,94,114
+offsets: 78,31,175,210

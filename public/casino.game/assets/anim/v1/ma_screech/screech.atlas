@@ -1,0 +1,181 @@
+screech.webp
+size: 2044,2048
+filter: Linear,Linear
+pma: true
+ae/impact_light_06
+bounds: 2,2,308,308
+offsets: 6,6,320,320
+ae/impact_light_07
+bounds: 312,2,308,308
+offsets: 6,6,320,320
+ae/impact_light_08
+bounds: 622,2,308,308
+offsets: 6,6,320,320
+ae/impact_light_13
+bounds: 932,2,308,308
+offsets: 6,6,320,320
+ae/impact_light_09
+bounds: 1242,2,307,308
+offsets: 7,6,320,320
+ae/impact_light_12
+bounds: 1551,2,307,308
+offsets: 7,6,320,320
+ae/impact_light_14
+bounds: 2,312,307,308
+offsets: 7,6,320,320
+ae/impact_light_10
+bounds: 2,622,306,304
+offsets: 7,8,320,320
+ae/impact_light_11
+bounds: 2,928,305,304
+offsets: 8,8,320,320
+ae/impact_light_05
+bounds: 2,1234,304,304
+offsets: 8,8,320,320
+ae/impact_light_15
+bounds: 2,1540,304,304
+offsets: 8,8,320,320
+ae/impact_light_16
+bounds: 308,1234,294,294
+offsets: 13,13,320,320
+ae/impact_light_04
+bounds: 309,928,260,265
+offsets: 30,25,320,320
+ae/impact_light_03
+bounds: 310,622,241,263
+offsets: 41,27,320,320
+ae/impact_light_02
+bounds: 311,312,227,259
+offsets: 55,28,320,320
+ae/impact_light_01
+bounds: 1860,2,181,206
+offsets: 69,44,320,320
+ae/impact_light_00
+bounds: 1860,210,166,166
+offsets: 77,77,320,320
+ae/rings_08
+bounds: 540,312,305,297
+offsets: 7,12,320,320
+ae/rings_07
+bounds: 553,611,305,294
+offsets: 7,14,320,320
+ae/rings_13
+bounds: 571,907,302,303
+offsets: 10,8,320,320
+ae/rings_12
+bounds: 308,1530,301,300
+offsets: 11,9,320,320
+ae/rings_06
+bounds: 847,312,299,287
+offsets: 10,18,320,320
+ae/rings_11
+bounds: 860,601,297,295
+offsets: 12,11,320,320
+ae/rings_10
+bounds: 604,1212,290,296
+offsets: 16,10,320,320
+ae/rings_09
+bounds: 875,898,295,293
+offsets: 13,11,320,320
+ae/rings_05
+bounds: 1148,312,288,276
+offsets: 15,24,320,320
+ae/rings_04
+bounds: 1159,590,270,282
+offsets: 22,18,320,320
+ae/rings_03
+bounds: 1438,312,250,248
+offsets: 31,41,320,320
+ae/rings_02
+bounds: 1690,378,230,229
+offsets: 41,51,320,320
+ae/rings_01
+bounds: 2,1846,178,182
+offsets: 73,75,320,320
+ae/rings_00
+bounds: 1922,378,116,118
+offsets: 106,103,320,320
+ae/impact_chips_16
+bounds: 611,1510,288,216
+offsets: 18,0,320,320
+ae/impact_chips_15
+bounds: 308,1832,281,211
+offsets: 21,13,320,320
+ae/impact_chips_14
+bounds: 591,1832,275,204
+offsets: 24,27,320,320
+ae/impact_chips_13
+bounds: 896,1193,265,239
+offsets: 29,0,320,320
+ae/impact_chips_12
+bounds: 1431,590,254,229
+offsets: 34,14,320,320
+ae/impact_chips_11
+bounds: 868,1728,242,221
+offsets: 39,26,320,320
+ae/impact_chips_10
+bounds: 901,1434,232,208
+offsets: 44,40,320,320
+ae/impact_chips_09
+bounds: 1687,609,222,199
+offsets: 49,50,320,320
+ae/impact_chips_08
+bounds: 1687,810,207,185
+offsets: 55,63,320,320
+ae/impact_chips_07
+bounds: 1431,821,193,172
+offsets: 62,74,320,320
+ae/impact_chips_06
+bounds: 1172,874,175,157
+offsets: 70,84,320,320
+ae/impact_chips_05
+bounds: 1349,995,160,141
+offsets: 79,94,320,320
+ae/impact_chips_04
+bounds: 1896,810,144,129
+offsets: 86,101,320,320
+ae/impact_chips_03
+bounds: 182,1846,123,110
+offsets: 96,110,320,320
+ae/impact_chips_02
+bounds: 868,1951,100,90
+offsets: 106,120,320,320
+ae/impact_chips_01
+bounds: 1349,874,80,74
+offsets: 115,125,320,320
+ae/impact_chips_00
+bounds: 1626,821,56,52
+offsets: 129,135,320,320
+ae/wave_06
+bounds: 1112,1644,206,230
+offsets: 92,13,320,256
+ae/wave_07
+bounds: 1163,1193,206,230
+offsets: 95,13,320,256
+ae/wave_08
+bounds: 1511,997,204,230
+offsets: 99,13,320,256
+ae/wave_09
+bounds: 1717,997,204,230
+offsets: 100,13,320,256
+ae/wave_10
+bounds: 1320,1425,203,230
+offsets: 101,13,320,256
+ae/wave_05
+bounds: 1320,1657,206,229
+offsets: 88,13,320,256
+ae/wave_03
+bounds: 1525,1229,224,227
+offsets: 76,13,320,256
+ae/wave_04
+bounds: 1751,1229,205,227
+offsets: 83,13,320,256
+ae/wave_02
+bounds: 1528,1458,207,223
+offsets: 69,15,320,256
+ae/wave_01
+bounds: 1528,1683,150,218
+offsets: 119,18,320,256
+ae/wave_00
+bounds: 1163,1425,93,212
+offsets: 166,21,320,256

@@ -1,0 +1,76 @@
+coin_splash.webp
+size: 1024,1008
+filter: Linear,Linear
+pma: true
+fx/coin_flip_00
+bounds: 2,2,128,128
+fx/coin_flip_01
+bounds: 132,2,128,128
+fx/coin_flip_11
+bounds: 262,2,128,128
+fx/coin_flip_12
+bounds: 392,2,128,128
+fx/coin_flip_13
+bounds: 522,2,128,128
+fx/coin_flip_23
+bounds: 652,2,128,128
+fx/coin_flip_02
+bounds: 782,2,126,128
+offsets: 1,0,128,128
+fx/coin_flip_10
+bounds: 2,132,126,128
+offsets: 1,0,128,128
+fx/coin_flip_14
+bounds: 2,262,126,128
+offsets: 1,0,128,128
+fx/coin_flip_22
+bounds: 2,392,126,128
+offsets: 1,0,128,128
+fx/coin_flip_03
+bounds: 910,2,110,128
+offsets: 9,0,128,128
+fx/coin_flip_09
+bounds: 2,522,110,128
+offsets: 9,0,128,128
+fx/coin_flip_15
+bounds: 2,652,110,128
+offsets: 9,0,128,128
+fx/coin_flip_21
+bounds: 2,782,110,128
+offsets: 9,0,128,128
+fx/coin_flip_04
+bounds: 114,522,88,128
+offsets: 20,0,128,128
+fx/coin_flip_08
+bounds: 114,652,88,128
+offsets: 20,0,128,128
+fx/coin_flip_16
+bounds: 114,782,88,128
+offsets: 20,0,128,128
+fx/coin_flip_20
+bounds: 130,132,88,128
+offsets: 20,0,128,128
+fx/coin_flip_05
+bounds: 130,262,60,128
+offsets: 34,0,128,128
+fx/coin_flip_07
+bounds: 130,392,60,128
+offsets: 34,0,128,128
+fx/coin_flip_17
+bounds: 192,262,60,128
+offsets: 34,0,128,128
+fx/coin_flip_19
+bounds: 220,132,60,128
+offsets: 34,0,128,128
+fx/coin_flip_06
+bounds: 192,392,28,128
+offsets: 50,0,128,128
+fx/coin_flip_18
+bounds: 204,522,28,128
+offsets: 50,0,128,128
+fx/star4
+bounds: 222,392,113,112
+offsets: 8,8,128,128
+fx/spark
+bounds: 2,912,94,94
+offsets: 1,1,96,96

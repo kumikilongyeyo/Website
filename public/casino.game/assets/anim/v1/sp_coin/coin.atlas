@@ -1,0 +1,8 @@
+coin.webp
+size: 816,1840
+filter: Linear,Linear
+pma: true
+coin_rim
+bounds: 2,2,64,1024
+coin_face
+bounds: 2,1028,810,810

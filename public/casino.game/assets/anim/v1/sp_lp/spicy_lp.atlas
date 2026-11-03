@@ -1,0 +1,356 @@
+spicy_lp_1.webp
+size: 2036,2036
+filter: Linear,Linear
+pma: true
+L_K
+bounds: 2,2,287,360
+L_A
+bounds: 2,364,304,320
+L_Q
+bounds: 291,2,283,319
+L_J
+bounds: 2,686,294,313
+back_A
+bounds: 2,1001,273,280
+offsets: 24,26,322,330
+back_Q
+bounds: 2,1283,261,280
+offsets: 24,25,312,330
+back_K
+bounds: 2,1565,263,278
+offsets: 25,48,314,350
+back_J
+bounds: 265,1283,254,274
+offsets: 24,25,317,326
+fire/fire_22
+bounds: 277,1001,182,271
+offsets: 9,11,203,294
+fire/fire_06
+bounds: 298,686,182,269
+offsets: 9,13,203,294
+fire/fire_14
+bounds: 461,957,182,268
+offsets: 9,12,203,294
+fire/fire_21
+bounds: 308,323,181,268
+offsets: 9,12,203,294
+fire/fire_05
+bounds: 482,593,181,267
+offsets: 9,13,203,294
+fire/fire_13
+bounds: 491,323,181,267
+offsets: 9,13,203,294
+fire/fire_20
+bounds: 576,2,183,265
+offsets: 9,14,203,294
+fire/fire_12
+bounds: 267,1559,182,265
+offsets: 9,14,203,294
+fire/fire_04
+bounds: 451,1559,180,264
+offsets: 10,15,203,294
+fire/fire_11
+bounds: 521,1227,183,263
+offsets: 10,15,203,294
+fire/fire_19
+bounds: 645,862,183,263
+offsets: 10,15,203,294
+fire/fire_03
+bounds: 665,592,182,262
+offsets: 10,16,203,294
+fire/fire_02
+bounds: 674,269,182,259
+offsets: 10,17,203,294
+fire/fire_10
+bounds: 761,2,182,259
+offsets: 10,17,203,294
+fire/fire_18
+bounds: 633,1492,182,259
+offsets: 10,17,203,294
+fire/fire_09
+bounds: 633,1753,181,257
+offsets: 11,18,203,294
+fire/fire_17
+bounds: 816,1753,181,257
+offsets: 11,18,203,294
+fire/fire_01
+bounds: 706,1127,181,256
+offsets: 11,18,203,294
+fire/fire_23
+bounds: 830,856,179,256
+offsets: 12,18,203,294
+fire/fire_07
+bounds: 849,530,179,254
+offsets: 12,20,203,294
+fire/fire_16
+bounds: 858,263,181,253
+offsets: 11,20,203,294
+fire/fire_08
+bounds: 945,2,180,253
+offsets: 11,20,203,294
+fire/fire_00
+bounds: 817,1385,181,252
+offsets: 11,20,203,294
+fire/fire_15
+bounds: 889,1114,179,251
+offsets: 12,21,203,294
+outline/K_01
+bounds: 2,1845,157,188
+offsets: 23,30,204,240
+rim_Q
+bounds: 451,1825,164,182
+offsets: 14,14,192,210
+outline/K_02
+bounds: 161,1845,157,182
+offsets: 23,36,204,240
+outline/K_03
+bounds: 1011,786,157,182
+offsets: 23,36,204,240
+outline/K_10
+bounds: 1030,518,157,182
+offsets: 23,36,204,240
+outline/K_09
+bounds: 1041,257,156,182
+offsets: 24,36,204,240
+outline/K_18
+bounds: 1127,2,150,182
+offsets: 27,36,204,240
+rim_A
+bounds: 999,1639,175,181
+offsets: 13,16,202,210
+rim_K
+bounds: 999,1822,164,181
+offsets: 15,36,194,230
+rim_J
+bounds: 1165,1822,155,176
+offsets: 14,15,197,206
+outline/A_08
+bounds: 1000,1367,166,175
+offsets: 22,24,212,220
+outline/A_17
+bounds: 1070,970,165,175
+offsets: 23,24,212,220
+outline/Q_02
+bounds: 1070,1147,156,175
+offsets: 22,23,202,220
+outline/Q_01
+bounds: 1170,702,155,175
+offsets: 23,23,202,220
+outline/Q_08
+bounds: 1189,441,155,175
+offsets: 23,23,202,220
+outline/Q_09
+bounds: 1199,186,155,175
+offsets: 23,23,202,220
+outline/Q_17
+bounds: 1279,2,153,175
+offsets: 24,23,202,220
+outline/A_03
+bounds: 1168,1324,167,174
+offsets: 22,24,212,220
+outline/A_07
+bounds: 1228,1147,167,174
+offsets: 22,24,212,220
+outline/A_01
+bounds: 1237,879,166,174
+offsets: 22,24,212,220
+outline/A_02
+bounds: 1327,618,166,174
+offsets: 22,24,212,220
+outline/A_04
+bounds: 1346,363,166,174
+offsets: 22,24,212,220
+outline/A_09
+bounds: 1356,179,166,174
+offsets: 22,24,212,220
+outline/A_10
+bounds: 1434,2,166,174
+offsets: 22,24,212,220
+outline/A_11
+bounds: 1176,1500,166,174
+offsets: 22,24,212,220
+outline/A_18
+bounds: 1337,1323,160,174
+offsets: 25,24,212,220
+outline/Q_03
+bounds: 1397,1055,156,174
+offsets: 22,23,202,220
+outline/Q_11
+bounds: 1405,794,156,174
+offsets: 22,23,202,220
+outline/Q_04
+bounds: 1495,539,155,174
+offsets: 23,23,202,220
+outline/Q_05
+bounds: 1514,355,155,174
+offsets: 23,23,202,220
+outline/Q_06
+bounds: 1524,178,155,174
+offsets: 23,23,202,220
+outline/Q_07
+bounds: 1602,2,155,174
+offsets: 23,23,202,220
+outline/Q_10
+bounds: 1759,2,155,174
+offsets: 23,23,202,220
+outline/Q_12
+bounds: 1322,1676,155,174
+offsets: 23,23,202,220
+outline/Q_13
+bounds: 1344,1499,155,174
+offsets: 23,23,202,220
+outline/Q_14
+bounds: 1322,1852,155,174
+offsets: 23,23,202,220
+outline/Q_15
+bounds: 1499,1231,155,174
+offsets: 23,23,202,220
+outline/Q_16
+bounds: 1555,970,155,174
+offsets: 23,23,202,220
+outline/Q_18
+bounds: 1563,715,149,174
+offsets: 26,23,202,220
+outline/A_05
+bounds: 1652,531,167,173
+offsets: 22,25,212,220
+outline/A_06
+bounds: 1671,354,167,173
+offsets: 22,25,212,220
+outline/A_14
+bounds: 1681,178,167,173
+offsets: 22,25,212,220
+outline/A_12
+bounds: 1850,178,166,173
+offsets: 22,25,212,220
+outline/A_13
+bounds: 1840,353,166,173
+offsets: 22,25,212,220
+outline/A_15
+bounds: 1840,528,166,173
+offsets: 22,25,212,220
+outline/A_16
+bounds: 1821,703,165,173
+offsets: 23,25,212,220
+outline/K_04
+bounds: 1714,878,158,173
+offsets: 23,45,204,240
+outline/K_11
+bounds: 1874,878,157,173
+offsets: 23,45,204,240
+outline/K_12
+bounds: 1712,1053,157,173
+offsets: 23,45,204,240
+outline/K_05
+bounds: 1871,1053,158,172
+offsets: 23,46,204,240
+outline/K_13
+bounds: 1871,1227,158,172
+offsets: 23,46,204,240
+outline/K_14
+bounds: 1656,1228,157,172
+offsets: 24,46,204,240
+outline/K_06
+bounds: 1815,1401,156,172
+offsets: 24,46,204,240
+outline/K_07
+bounds: 1656,1402,156,172
+offsets: 24,46,204,240
+outline/K_08
+bounds: 1814,1575,156,172
+offsets: 24,46,204,240
+outline/K_15
+bounds: 1479,1749,156,172
+offsets: 24,46,204,240
+outline/K_17
+bounds: 1637,1576,155,172
+offsets: 24,46,204,240
+outline/K_16
+bounds: 1794,1749,156,171
+offsets: 24,46,204,240
+outline/J_02
+bounds: 1637,1750,155,169
+offsets: 22,23,207,216
+outline/Q_19
+bounds: 1501,1407,147,167
+offsets: 27,27,202,220
+fx/mote
+bounds: 1170,879,62,62
+offsets: 1,1,64,64
+outline/A_00
+bounds: 1234,879,1,1
+offsets: 0,219,212,220
+outline/Q_00
+bounds: 1234,882,1,1
+offsets: 0,219,202,220
+outline/K_00
+bounds: 1234,885,1,1
+offsets: 0,239,204,240
+outline/J_00
+bounds: 1234,888,1,1
+offsets: 0,215,207,216
+
+spicy_lp_2.webp
+size: 456,1884
+filter: Linear,Linear
+pma: true
+outline/A_19
+bounds: 2,2,163,170
+offsets: 22,25,212,220
+outline/K_19
+bounds: 2,174,154,169
+offsets: 23,46,204,240
+outline/J_01
+bounds: 2,345,154,169
+offsets: 23,23,207,216
+outline/J_03
+bounds: 2,516,154,169
+offsets: 23,23,207,216
+outline/J_04
+bounds: 2,687,154,169
+offsets: 23,23,207,216
+outline/J_05
+bounds: 2,858,147,169
+offsets: 23,23,207,216
+outline/J_06
+bounds: 2,1029,147,169
+offsets: 23,23,207,216
+outline/J_07
+bounds: 2,1200,147,169
+offsets: 23,23,207,216
+outline/J_08
+bounds: 2,1371,146,169
+offsets: 23,23,207,216
+outline/J_09
+bounds: 2,1542,146,169
+offsets: 23,23,207,216
+outline/J_10
+bounds: 2,1713,146,169
+offsets: 23,23,207,216
+outline/J_11
+bounds: 150,1371,146,169
+offsets: 23,23,207,216
+outline/J_18
+bounds: 150,1542,140,169
+offsets: 26,23,207,216
+outline/J_12
+bounds: 150,1713,154,168
+offsets: 23,24,207,216
+outline/J_13
+bounds: 292,1542,154,168
+offsets: 23,24,207,216
+outline/J_14
+bounds: 306,1712,147,168
+offsets: 23,24,207,216
+outline/J_15
+bounds: 151,858,147,168
+offsets: 23,24,207,216
+outline/J_17
+bounds: 151,1028,145,168
+offsets: 24,23,207,216
+outline/J_16
+bounds: 151,1198,145,167
+offsets: 24,24,207,216
+outline/J_19
+bounds: 298,1028,141,167
+offsets: 25,24,207,216

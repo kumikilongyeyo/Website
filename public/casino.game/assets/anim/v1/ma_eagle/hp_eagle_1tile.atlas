@@ -1,0 +1,63 @@
+hp_eagle_1tile.webp
+size: 2048,520
+filter: Linear,Linear
+pma: true
+eagle_1tile/body
+bounds: 2,2,253,286
+eagle_1tile/outline_rim
+bounds: 2,290,261,228
+offsets: 21,21,303,270
+eagle_1tile/frame
+bounds: 257,2,256,223
+eagle_1tile/crack3
+bounds: 515,2,256,223
+eagle_1tile/flat
+bounds: 773,2,256,223
+eagle_1tile/crack2
+bounds: 1031,2,251,223
+offsets: 5,0,256,223
+fx/star
+bounds: 1284,2,160,160
+eagle_1tile/outline_glow
+bounds: 1446,2,152,135
+eagle_1tile/crack1
+bounds: 1600,2,147,141
+offsets: 62,42,256,223
+eagle_1tile/f4
+bounds: 1446,139,119,69
+eagle_1tile/f2
+bounds: 1284,164,117,76
+fx/rays
+bounds: 1749,2,107,114
+offsets: 22,20,139,139
+eagle_1tile/f3
+bounds: 257,227,114,59
+eagle_1tile/f1
+bounds: 1858,2,103,83
+eagle_1tile/aura_halo
+bounds: 1858,87,101,93
+eagle_1tile/cast
+bounds: 1963,2,79,86
+offsets: 2,1,83,89
+eagle_1tile/beak
+bounds: 1961,90,84,78
+fx/spark
+bounds: 1961,170,61,12
+offsets: 2,1,64,14
+fx/glow
+bounds: 1749,118,58,59
+offsets: 2,1,61,61
+eagle_1tile/lowerbeak
+bounds: 1809,118,47,27
+fx/dust1
+bounds: 1567,139,30,30
+offsets: 7,5,39,39
+fx/dust2
+bounds: 1403,164,27,29
+offsets: 4,6,39,39
+fx/dust0
+bounds: 1403,195,29,26
+offsets: 4,5,39,39
+fx/dot
+bounds: 1809,147,25,25
+offsets: 1,0,26,26

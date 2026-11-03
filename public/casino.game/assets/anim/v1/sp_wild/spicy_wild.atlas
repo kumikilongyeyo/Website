@@ -1,0 +1,390 @@
+spicy_wild_1.webp
+size: 2048,2048
+filter: Linear,Linear
+pma: true
+wild/halo
+bounds: 2,2,688,702
+wild/rim_char
+bounds: 2,706,496,497
+wild/body
+bounds: 2,1205,450,452
+burst/burst_11
+bounds: 2,1659,394,183
+offsets: 11,10,415,205
+burst/burst_10
+bounds: 2,1844,393,183
+offsets: 11,10,415,205
+burst/burst_12
+bounds: 397,1844,393,178
+offsets: 11,11,415,205
+burst/burst_09
+bounds: 454,1205,388,184
+offsets: 16,10,415,205
+burst/burst_13
+bounds: 398,1659,381,172
+offsets: 10,13,415,205
+burst/burst_08
+bounds: 454,1391,366,185
+offsets: 28,10,415,205
+fx/rays
+bounds: 792,1578,336,336
+offsets: 5,5,346,346
+burst/burst_07
+bounds: 822,1391,333,183
+offsets: 41,12,415,205
+burst/burst_06
+bounds: 1130,1576,293,183
+offsets: 61,12,415,205
+fire/fire_22
+bounds: 1130,1761,182,271
+offsets: 9,11,203,294
+fire/fire_06
+bounds: 1314,1761,182,269
+offsets: 9,13,203,294
+fire/fire_14
+bounds: 500,706,182,268
+offsets: 9,12,203,294
+fire/fire_21
+bounds: 684,706,181,268
+offsets: 9,12,203,294
+fire/fire_05
+bounds: 844,976,181,267
+offsets: 9,13,203,294
+fire/fire_13
+bounds: 1498,2,181,267
+offsets: 9,13,203,294
+fire/fire_20
+bounds: 1157,2,183,265
+offsets: 9,14,203,294
+fire/fire_12
+bounds: 867,2,182,265
+offsets: 9,14,203,294
+fire/fire_04
+bounds: 1157,269,180,264
+offsets: 10,15,203,294
+fire/fire_11
+bounds: 867,269,183,263
+offsets: 10,15,203,294
+fire/fire_19
+bounds: 867,534,183,263
+offsets: 10,15,203,294
+fire/fire_03
+bounds: 1681,2,182,262
+offsets: 10,16,203,294
+fire/fire_02
+bounds: 1681,266,182,259
+offsets: 10,17,203,294
+fire/fire_10
+bounds: 1425,271,182,259
+offsets: 10,17,203,294
+fire/fire_18
+bounds: 1609,527,182,259
+offsets: 10,17,203,294
+fire/fire_09
+bounds: 1865,2,181,257
+offsets: 11,18,203,294
+fire/fire_17
+bounds: 1865,261,181,257
+offsets: 11,18,203,294
+fire/fire_01
+bounds: 1865,520,181,256
+offsets: 11,18,203,294
+fire/fire_23
+bounds: 1425,532,179,256
+offsets: 12,18,203,294
+burst/burst_05
+bounds: 1157,535,255,180
+offsets: 80,13,415,205
+fire/fire_07
+bounds: 1793,778,179,254
+offsets: 12,20,203,294
+fire/fire_16
+bounds: 1606,788,181,253
+offsets: 11,20,203,294
+fire/fire_08
+bounds: 1789,1034,180,253
+offsets: 11,20,203,294
+fire/fire_00
+bounds: 1157,1289,181,252
+offsets: 11,20,203,294
+fire/fire_15
+bounds: 1425,790,179,251
+offsets: 12,21,203,294
+wild/sh_d
+bounds: 1340,1289,205,250
+wild/sh_w
+bounds: 1052,717,245,249
+wild/sh_l
+bounds: 1027,1043,180,241
+wild/sh_i
+bounds: 500,976,141,227
+burst/burst_04
+bounds: 1547,1043,219,169
+offsets: 98,17,415,205
+wild/rim_w
+bounds: 1209,968,204,200
+wild/rim_d
+bounds: 692,2,160,200
+fx/glow
+bounds: 643,976,192,187
+offsets: 3,6,198,198
+wild/rim_l
+bounds: 1342,2,132,191
+wild/ear_l
+bounds: 1547,1214,184,149
+burst/burst_03
+bounds: 867,799,182,146
+offsets: 117,29,415,205
+wild/rim_i
+bounds: 1052,2,89,182
+shim/w_05
+bounds: 692,204,163,157
+offsets: 5,4,169,165
+shim/w_06
+bounds: 692,363,163,157
+offsets: 5,4,169,165
+shim/w_07
+bounds: 692,522,163,157
+offsets: 5,4,169,165
+wild/w
+bounds: 1425,1541,161,157
+shim/w_08
+bounds: 1547,1365,161,157
+offsets: 5,4,169,165
+shim/w_09
+bounds: 1733,1289,160,156
+offsets: 5,4,169,165
+shim/w_10
+bounds: 1710,1447,160,156
+offsets: 5,4,169,165
+shim/w_11
+bounds: 1872,1447,160,156
+offsets: 5,4,169,165
+shim/w_04
+bounds: 1498,1700,154,156
+offsets: 14,5,169,165
+shim/w_12
+bounds: 1498,1858,153,156
+offsets: 5,4,169,165
+shim/w_13
+bounds: 1895,1289,119,156
+offsets: 5,4,169,165
+wild/d
+bounds: 1588,1524,117,156
+shim/d_06
+bounds: 1299,717,117,156
+offsets: 4,5,125,165
+shim/d_07
+bounds: 1415,1043,117,156
+offsets: 4,5,125,165
+shim/d_08
+bounds: 1653,1858,117,156
+offsets: 4,5,125,165
+shim/d_09
+bounds: 1654,1682,117,156
+offsets: 4,5,125,165
+shim/d_10
+bounds: 1772,1840,117,156
+offsets: 4,5,125,165
+shim/d_11
+bounds: 1891,1605,117,156
+offsets: 4,5,125,165
+shim/d_05
+bounds: 1773,1605,116,156
+offsets: 4,5,125,165
+shim/d_12
+bounds: 1891,1763,116,156
+offsets: 5,5,125,165
+shim/d_03
+bounds: 1052,186,103,156
+offsets: 4,5,125,165
+shim/d_02
+bounds: 1052,344,87,156
+offsets: 4,5,125,165
+shim/d_14
+bounds: 1052,502,90,155
+offsets: 30,5,125,165
+shim/w_14
+bounds: 1342,195,78,155
+offsets: 5,4,169,165
+shim/d_01
+bounds: 1974,778,71,154
+offsets: 4,7,125,165
+shim/d_00
+bounds: 1793,527,54,151
+offsets: 4,9,125,165
+burst/burst_14
+bounds: 2010,1605,36,151
+offsets: 17,25,415,205
+shim/l_12
+bounds: 1609,271,46,146
+offsets: 48,4,98,155
+shim/i_01
+bounds: 844,1245,53,143
+offsets: 0,5,53,148
+shim/i_02
+bounds: 899,1245,53,143
+offsets: 0,5,53,148
+shim/i_03
+bounds: 954,1245,53,143
+offsets: 0,5,53,148
+shim/i_04
+bounds: 1974,934,53,143
+offsets: 0,5,53,148
+shim/i_05
+bounds: 1971,1079,53,143
+offsets: 0,5,53,148
+shim/i_06
+bounds: 1339,352,52,143
+offsets: 0,5,53,148
+burst/burst_02
+bounds: 1891,1921,141,121
+offsets: 134,42,415,205
+wild/ear_r
+bounds: 1209,1170,135,116
+fx/core
+bounds: 792,1916,126,126
+offsets: 3,3,132,132
+burst/burst_01
+bounds: 1009,1286,109,95
+offsets: 153,55,415,205
+fx/spark
+bounds: 920,1916,94,94
+offsets: 1,1,96,96
+fx/mote
+bounds: 1971,1224,62,62
+offsets: 1,1,64,64
+shim/i_11
+bounds: 397,2024,42,22
+offsets: 4,5,53,148
+shim/l_13
+bounds: 1009,1245,16,17
+offsets: 74,5,98,155
+shim/l_14
+bounds: 1971,1034,1,1
+offsets: 0,154,98,155
+shim/i_12
+bounds: 1971,1037,1,1
+offsets: 0,147,53,148
+shim/i_13
+bounds: 1971,1040,1,1
+offsets: 0,147,53,148
+shim/i_14
+bounds: 1971,1043,1,1
+offsets: 0,147,53,148
+burst/burst_00
+bounds: 1971,1046,1,1
+offsets: 0,204,415,205
+burst/burst_15
+bounds: 1971,1049,1,1
+offsets: 0,204,415,205
+burst/burst_16
+bounds: 1971,1052,1,1
+offsets: 0,204,415,205
+burst/burst_17
+bounds: 1971,1055,1,1
+offsets: 0,204,415,205
+burst/burst_18
+bounds: 1971,1058,1,1
+offsets: 0,204,415,205
+burst/burst_19
+bounds: 1971,1061,1,1
+offsets: 0,204,415,205
+burst/burst_20
+bounds: 1971,1064,1,1
+offsets: 0,204,415,205
+burst/burst_21
+bounds: 1971,1067,1,1
+offsets: 0,204,415,205
+burst/burst_22
+bounds: 1971,1070,1,1
+offsets: 0,204,415,205
+burst/burst_23
+bounds: 1971,1073,1,1
+offsets: 0,204,415,205
+
+spicy_wild_2.webp
+size: 284,1972
+filter: Linear,Linear
+pma: true
+shim/d_04
+bounds: 2,2,113,156
+offsets: 4,5,125,165
+shim/w_03
+bounds: 2,160,144,155
+offsets: 24,6,169,165
+wild/spoon
+bounds: 117,2,133,155
+shim/d_13
+bounds: 2,317,111,155
+offsets: 10,5,125,165
+shim/w_02
+bounds: 2,474,133,152
+offsets: 35,9,169,165
+shim/w_01
+bounds: 115,317,117,150
+offsets: 51,10,169,165
+shim/w_00
+bounds: 148,159,100,150
+offsets: 67,10,169,165
+shim/l_03
+bounds: 2,628,97,147
+offsets: 1,4,98,155
+shim/l_04
+bounds: 2,777,97,147
+offsets: 1,4,98,155
+shim/l_05
+bounds: 2,926,97,147
+offsets: 1,4,98,155
+shim/l_06
+bounds: 2,1075,97,147
+offsets: 1,4,98,155
+shim/l_02
+bounds: 2,1224,96,147
+offsets: 1,4,98,155
+shim/l_01
+bounds: 2,1373,95,147
+offsets: 1,4,98,155
+shim/l_07
+bounds: 2,1522,95,147
+offsets: 3,4,98,155
+shim/l_08
+bounds: 2,1671,94,147
+offsets: 4,4,98,155
+shim/l_09
+bounds: 2,1820,94,147
+offsets: 4,4,98,155
+shim/l_10
+bounds: 98,1671,92,147
+offsets: 4,4,98,155
+wild/l
+bounds: 98,1820,90,147
+shim/l_11
+bounds: 190,1820,90,147
+offsets: 6,4,98,155
+shim/l_00
+bounds: 99,1373,94,146
+offsets: 2,5,98,155
+shim/i_07
+bounds: 100,1224,51,143
+offsets: 0,5,53,148
+shim/i_00
+bounds: 99,1521,53,141
+offsets: 0,5,53,148
+shim/i_08
+bounds: 154,1521,49,141
+offsets: 1,5,53,148
+shim/i_09
+bounds: 192,1664,47,140
+offsets: 2,5,53,148
+shim/i_10
+bounds: 101,628,46,139
+offsets: 2,5,53,148
+wild/i
+bounds: 137,469,44,139
+flare
+bounds: 101,769,95,131
+offsets: 35,15,162,163
+fx/art_emitter_particle0
+bounds: 149,610,95,131
+offsets: 35,15,162,163

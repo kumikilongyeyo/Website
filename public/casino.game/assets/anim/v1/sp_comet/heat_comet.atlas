@@ -1,0 +1,14 @@
+heat_comet.webp
+size: 964,348
+filter: Linear,Linear
+pma: true
+fx/kit_smoke_08
+bounds: 2,2,384,344
+fx/kit_smoke_07
+bounds: 388,2,384,336
+fx/glow
+bounds: 774,2,122,122
+offsets: 3,3,128,128
+fx/mote
+bounds: 898,2,62,62
+offsets: 1,1,64,64

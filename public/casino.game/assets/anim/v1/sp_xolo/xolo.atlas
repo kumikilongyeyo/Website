@@ -1,0 +1,117 @@
+xolo_1.webp
+size: 2048,2048
+filter: Linear,Linear
+pma: true
+xolo/brim
+bounds: 2,2,1273,714
+xolo/body
+bounds: 2,718,937,473
+xolo/smoke3
+bounds: 1277,2,618,496
+xolo/knife
+bounds: 2,1193,180,562
+xolo/esmoke_r
+bounds: 1277,500,537,301
+xolo/head_spicy
+bounds: 184,1193,508,431
+xolo/head_spicy_red
+bounds: 694,1193,508,431
+xolo/fork
+bounds: 1816,500,225,502
+xolo/esmoke_l
+bounds: 941,803,484,384
+xolo/head
+bounds: 184,1626,482,411
+xolo/head_red
+bounds: 668,1626,482,411
+xolo/crown
+bounds: 1152,1626,456,287
+xolo/ear_r
+bounds: 1204,1189,453,300
+xolo/tassel_r
+bounds: 1659,1004,247,400
+xolo/tassel_l
+bounds: 1659,1406,305,370
+xolo/grit_lips
+bounds: 1610,1778,368,208
+xolo/grit_inner
+bounds: 1427,803,326,136
+xolo/grit_low
+bounds: 941,718,291,80
+xolo/grit_up
+bounds: 1152,1915,273,85
+xolo/smoke1
+bounds: 1427,941,197,191
+xolo/teeth_low
+bounds: 2,1757,179,120
+xolo/teeth_up
+bounds: 2,1879,162,62
+xolo/brow_mad_l
+bounds: 1427,1134,126,51
+xolo/brow_mad_r
+bounds: 1427,1988,123,57
+xolo/brow_r_worry
+bounds: 1152,2002,123,38
+xolo/lash_closed_l
+bounds: 1277,2002,122,43
+xolo/brow_l_worry
+bounds: 2,1943,121,91
+xolo/nose
+bounds: 1908,1004,120,89
+xolo/lash_closed_r
+bounds: 1552,1988,120,44
+xolo/lash_l
+bounds: 1908,1095,118,111
+xolo/mouth_o
+bounds: 1204,1491,93,115
+xolo/lash_r
+bounds: 1908,1208,112,106
+xolo/white_l
+bounds: 1299,1491,108,96
+xolo/brow_l
+bounds: 1427,1915,105,68
+xolo/white_r
+bounds: 1409,1491,104,99
+xolo/brow_r
+bounds: 1674,1988,99,55
+xolo/iris_l
+bounds: 1966,1316,75,81
+xolo/iris_r
+bounds: 1966,1399,71,76
+xolo/drop1
+bounds: 1626,941,30,63
+xolo/drop8
+bounds: 1658,941,34,61
+xolo/drop6
+bounds: 1555,1134,26,50
+xolo/drop5
+bounds: 1583,1134,25,47
+xolo/drop2
+bounds: 2022,1208,23,46
+xolo/drop7
+bounds: 1401,2002,24,44
+xolo/drop4
+bounds: 2022,1256,24,36
+xolo/drop3
+bounds: 1299,1592,35,30
+
+xolo_2.webp
+size: 1912,476
+filter: Linear,Linear
+pma: true
+xolo/ear_r_hot
+bounds: 2,2,453,300
+xolo/ear_l
+bounds: 457,2,440,273
+xolo/ear_l_hot
+bounds: 899,2,440,273
+xolo/mouth
+bounds: 1341,2,370,276
+xolo/smoke2
+bounds: 1713,2,186,196
+xolo/tongue
+bounds: 1713,200,195,189
+xolo/hand_r
+bounds: 457,277,188,186
+xolo/hand_l
+bounds: 2,304,184,170

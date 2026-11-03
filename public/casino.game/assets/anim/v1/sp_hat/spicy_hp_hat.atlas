@@ -1,0 +1,94 @@
+spicy_hp_hat.webp
+size: 2024,1928
+filter: Linear,Linear
+pma: true
+hat/hat
+bounds: 2,2,1000,897
+hat/halo
+bounds: 1004,2,736,678
+hat/rim_hat
+bounds: 1004,682,544,490
+fire/fire_22
+bounds: 1742,2,182,271
+offsets: 9,11,203,294
+fire/fire_06
+bounds: 1742,275,182,269
+offsets: 9,13,203,294
+fire/fire_14
+bounds: 1742,546,182,268
+offsets: 9,12,203,294
+fire/fire_21
+bounds: 1550,682,181,268
+offsets: 9,12,203,294
+fire/fire_05
+bounds: 1733,816,181,267
+offsets: 9,13,203,294
+fire/fire_13
+bounds: 1550,952,181,267
+offsets: 9,13,203,294
+fire/fire_20
+bounds: 1733,1085,183,265
+offsets: 9,14,203,294
+fire/fire_12
+bounds: 2,1352,182,265
+offsets: 9,14,203,294
+fire/fire_04
+bounds: 2,1619,180,264
+offsets: 10,15,203,294
+fire/fire_11
+bounds: 184,1619,183,263
+offsets: 10,15,203,294
+fire/fire_19
+bounds: 186,1352,183,263
+offsets: 10,15,203,294
+fire/fire_03
+bounds: 369,1617,182,262
+offsets: 10,16,203,294
+fire/fire_02
+bounds: 371,1352,182,259
+offsets: 10,17,203,294
+fire/fire_10
+bounds: 553,1613,182,259
+offsets: 10,17,203,294
+fire/fire_18
+bounds: 555,1352,182,259
+offsets: 10,17,203,294
+fire/fire_09
+bounds: 739,901,181,257
+offsets: 11,18,203,294
+fire/fire_17
+bounds: 739,1160,181,257
+offsets: 11,18,203,294
+fire/fire_01
+bounds: 737,1613,181,256
+offsets: 11,18,203,294
+fire/fire_23
+bounds: 2,901,179,256
+offsets: 12,18,203,294
+fire/fire_07
+bounds: 183,901,179,254
+offsets: 12,20,203,294
+fire/fire_16
+bounds: 364,901,181,253
+offsets: 11,20,203,294
+fire/fire_08
+bounds: 547,901,180,253
+offsets: 11,20,203,294
+fire/fire_00
+bounds: 920,1419,181,252
+offsets: 11,20,203,294
+fire/fire_15
+bounds: 920,1673,179,251
+offsets: 12,21,203,294
+flare
+bounds: 1926,2,95,131
+offsets: 35,15,162,163
+fx/art_emitter_particle0
+bounds: 1926,135,95,131
+offsets: 35,15,162,163
+fx/spark
+bounds: 1926,268,94,94
+offsets: 1,1,96,96
+fx/mote
+bounds: 922,1352,62,62
+offsets: 1,1,64,64

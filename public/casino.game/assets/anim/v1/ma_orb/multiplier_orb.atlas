@@ -1,0 +1,877 @@
+multiplier_orb_1.webp
+size: 2046,2046
+filter: MipMapLinearLinear,Linear
+pma: true
+ae/gather2_23
+bounds: 569,994,162,136
+offsets: 7,39,186,186
+ae/gather2_08
+bounds: 405,994,162,136
+offsets: 7,38,186,186
+ae/gather2_14
+bounds: 761,552,160,147
+offsets: 12,8,186,186
+ae/gather2_29
+bounds: 923,552,160,147
+offsets: 13,8,186,186
+ae/gather2_01
+bounds: 144,1407,160,133
+offsets: 20,9,186,186
+ae/gather2_16
+bounds: 558,1406,160,133
+offsets: 20,9,186,186
+ae/gather2_22
+bounds: 761,701,159,143
+offsets: 14,32,186,186
+ae/gather2_04
+bounds: 1660,388,137,159
+offsets: 41,17,186,186
+ae/gather2_07
+bounds: 1085,698,159,143
+offsets: 14,32,186,186
+ae/gather2_15
+bounds: 430,851,159,141
+offsets: 15,8,186,186
+ae/gather2_19
+bounds: 1334,390,137,159
+offsets: 41,17,186,186
+ae/gather2_00
+bounds: 883,846,158,141
+offsets: 15,8,186,186
+ae/gather2_27
+bounds: 1799,536,136,157
+offsets: 8,7,186,186
+ae/gather2_09
+bounds: 855,1410,157,132
+offsets: 7,41,186,186
+ae/gather2_24
+bounds: 558,1541,157,132
+offsets: 7,41,186,186
+ae/gather2_12
+bounds: 1002,393,136,157
+offsets: 8,7,186,186
+ae/gather2_03
+bounds: 663,394,146,156
+offsets: 33,13,186,186
+ae/gather2_18
+bounds: 811,394,146,156
+offsets: 33,13,186,186
+ae/gather2_20
+bounds: 1660,549,130,155
+offsets: 47,22,186,186
+ae/gather2_05
+bounds: 1330,551,130,154
+offsets: 47,22,186,186
+ae/gather2_17
+bounds: 672,1811,154,129
+offsets: 26,11,186,186
+ae/gather2_02
+bounds: 1418,1557,154,128
+offsets: 26,11,186,186
+ae/gather2_28
+bounds: 461,396,130,153
+offsets: 10,7,186,186
+ae/gather2_13
+bounds: 329,396,130,153
+offsets: 10,7,186,186
+ae/gather2_11
+bounds: 329,551,144,152
+offsets: 8,16,186,186
+fx/burst_rays
+bounds: 1841,189,174,174
+offsets: 3,3,179,179
+fx/glow2_deep
+bounds: 1627,0,212,214
+offsets: 8,7,228,228
+fx/ring2_core
+bounds: 1627,216,170,170
+offsets: 18,18,205,205
+fx/glow2_core
+bounds: 1169,391,159,159
+offsets: 35,35,228,228
+fx/shine_band
+bounds: 2008,1148,38,102
+fx/numglow2_deep
+bounds: 1319,1942,62,48
+offsets: 9,10,80,67
+fx/star
+bounds: 1987,1943,56,56
+offsets: 1,1,58,58
+fx/numglow2_core
+bounds: 436,226,53,38
+offsets: 14,15,80,67
+number/green
+bounds: 159,432,9,8
+number/red
+bounds: 159,452,9,8
+number/blue
+bounds: 1471,1135,9,8
+number/violet
+bounds: 159,462,9,8
+number/max
+bounds: 159,442,9,8
+ae/gather2_26
+bounds: 159,552,143,152
+offsets: 8,16,186,186
+ae/gather2_10
+bounds: 989,1546,150,131
+offsets: 7,41,186,186
+ae/gather2_25
+bounds: 1420,1424,150,131
+offsets: 7,41,186,186
+ae/gather2_06
+bounds: 0,588,134,149
+offsets: 40,27,186,186
+ae/gather2_21
+bounds: 475,551,134,149
+offsets: 41,27,186,186
+ae/ripple_a_02
+bounds: 1464,851,137,140
+offsets: 4,2,143,143
+ae/ripple_a_32
+bounds: 434,1269,140,135
+offsets: 2,4,143,143
+ae/ripple_a_31
+bounds: 713,1133,140,135
+offsets: 2,4,143,143
+ae/ripple_a_03
+bounds: 1625,1004,138,139
+offsets: 3,2,143,143
+ae/ripple_a_01
+bounds: 1486,1004,137,139
+offsets: 4,2,143,143
+ae/ripple_a_04
+bounds: 1902,1008,137,138
+offsets: 4,2,143,143
+ae/ripple_a_16
+bounds: 1155,1276,138,137
+offsets: 2,4,143,143
+ae/ripple_a_15
+bounds: 0,1026,138,136
+offsets: 2,4,143,143
+ae/ripple_a_17
+bounds: 1868,1287,138,136
+offsets: 2,4,143,143
+ae/ripple_a_18
+bounds: 294,1132,138,136
+offsets: 2,4,143,143
+ae/ripple_a_00
+bounds: 1765,1008,135,138
+offsets: 4,2,143,143
+ae/ripple_a_33
+bounds: 276,1270,138,135
+offsets: 2,4,143,143
+ae/ripple_a_30
+bounds: 715,1270,138,134
+offsets: 2,4,143,143
+ae/ripple_a_14
+bounds: 434,1132,138,135
+offsets: 3,5,143,143
+ae/ripple_a_19
+bounds: 574,1132,137,135
+offsets: 3,4,143,143
+ae/ripple_a_34
+bounds: 855,1274,137,134
+offsets: 3,4,143,143
+ae/ripple_a_29
+bounds: 1014,1412,137,132
+offsets: 3,6,143,143
+ae/ripple_a_05
+bounds: 1860,1148,135,137
+offsets: 4,4,143,143
+ae/ripple_a_13
+bounds: 576,1270,137,134
+offsets: 4,6,143,143
+ae/ripple_a_44
+bounds: 140,1134,134,136
+offsets: 6,4,143,143
+ae/ripple_a_12
+bounds: 0,1439,135,133
+offsets: 4,6,143,143
+ae/ripple_a_28
+bounds: 133,1815,135,131
+offsets: 4,6,143,143
+ae/ripple_a_20
+bounds: 717,1541,134,132
+offsets: 5,6,143,143
+ae/ripple_a_35
+bounds: 853,1544,134,132
+offsets: 5,6,143,143
+ae/ripple_a_11
+bounds: 403,1814,134,130
+offsets: 6,7,143,143
+ae/ripple_a_27
+bounds: 1705,1556,134,129
+offsets: 5,7,143,143
+ae/ripple_a_43
+bounds: 144,1272,130,133
+offsets: 7,6,143,143
+ae/ripple_a_06
+bounds: 415,1674,132,130
+offsets: 6,7,143,143
+ae/ripple_a_10
+bounds: 1122,1682,131,128
+offsets: 7,8,143,143
+ae/ripple_a_26
+bounds: 1642,1687,130,126
+offsets: 6,9,143,143
+ae/ripple_a_42
+bounds: 1289,1549,127,130
+offsets: 9,7,143,143
+ae/ripple_a_41
+bounds: 1642,1815,122,126
+offsets: 11,10,143,143
+maxhue/hue_1
+bounds: 1462,551,157,154
+maxhue/hue_2
+bounds: 1621,706,157,154
+maxhue/hue_3
+bounds: 1780,852,157,154
+maxhue/hue_4
+bounds: 170,396,157,154
+maxhue/hue_5
+bounds: 0,432,157,154
+orb/green
+bounds: 719,0,225,223
+offsets: 1,0,226,223
+ae/gather2c_14
+bounds: 143,996,149,136
+offsets: 18,12,186,186
+ae/gather2c_29
+bounds: 1717,1287,149,136
+offsets: 18,12,186,186
+ae/gather2c_04
+bounds: 1499,225,126,147
+offsets: 48,23,186,186
+ae/gather2c_19
+bounds: 475,702,126,147
+offsets: 48,23,186,186
+ae/gather2c_12
+bounds: 304,705,124,146
+offsets: 13,12,186,186
+ae/gather2c_27
+bounds: 136,706,124,146
+offsets: 13,12,186,186
+ae/gather2c_07
+bounds: 1141,1549,146,131
+offsets: 22,39,186,186
+ae/gather2c_22
+bounds: 0,1682,146,131
+offsets: 22,39,186,186
+ae/gather2c_00
+bounds: 828,1811,145,129
+offsets: 21,13,186,186
+ae/gather2c_15
+bounds: 975,1811,145,129
+offsets: 21,13,186,186
+ae/gather2c_05
+bounds: 0,739,118,142
+offsets: 54,28,186,186
+ae/gather2c_20
+bounds: 1246,707,118,142
+offsets: 54,28,186,186
+ae/gather2c_03
+bounds: 603,703,135,142
+offsets: 40,19,186,186
+ae/gather2c_18
+bounds: 922,701,135,142
+offsets: 40,19,186,186
+ae/gather2c_13
+bounds: 143,854,117,140
+offsets: 15,12,186,186
+ae/gather2c_28
+bounds: 1345,851,117,140
+offsets: 15,12,186,186
+ae/gather2c_11
+bounds: 1170,1136,132,138
+offsets: 12,24,186,186
+ae/gather2c_26
+bounds: 1021,1272,132,138
+offsets: 12,24,186,186
+ae/gather2c_06
+bounds: 1612,1145,122,137
+offsets: 49,34,186,186
+ae/gather2c_21
+bounds: 1736,1148,122,137
+offsets: 49,34,186,186
+orb/red
+bounds: 1173,0,225,223
+offsets: 1,0,226,223
+fx/ring2_deep
+bounds: 1841,0,187,187
+offsets: 9,9,205,205
+ae/puff_00
+bounds: 137,1542,131,131
+offsets: 1,1,133,133
+ae/puff_23
+bounds: 0,1815,131,131
+offsets: 1,1,133,133
+ae/puff_22
+bounds: 282,1682,131,130
+offsets: 1,1,133,133
+ae/puff_21
+bounds: 270,1815,131,130
+offsets: 1,2,133,133
+ae/puff_01
+bounds: 1572,1424,131,131
+offsets: 1,1,133,133
+ae/puff_02
+bounds: 270,1542,130,130
+offsets: 1,1,133,133
+ae/puff_03
+bounds: 402,1542,130,130
+offsets: 1,1,133,133
+ae/puff_04
+bounds: 1705,1425,129,129
+offsets: 2,2,133,133
+ae/puff_20
+bounds: 1836,1425,129,129
+offsets: 2,2,133,133
+ae/puff_05
+bounds: 1574,1557,128,128
+offsets: 2,2,133,133
+ae/puff_19
+bounds: 1289,1681,127,128
+offsets: 3,2,133,133
+ae/puff_18
+bounds: 1515,1687,125,127
+offsets: 4,3,133,133
+ae/puff_06
+bounds: 1515,1816,125,126
+offsets: 4,4,133,133
+ae/puff_08
+bounds: 539,1938,108,108
+offsets: 12,12,133,133
+ae/puff_12
+bounds: 1386,1941,105,105
+offsets: 15,14,133,133
+ae/puff_11
+bounds: 403,1946,99,100
+offsets: 18,16,133,133
+ae/puff_10
+bounds: 0,1948,97,98
+offsets: 18,18,133,133
+ae/puff_09
+bounds: 99,1948,97,97
+offsets: 18,18,133,133
+ae/ripple_b_15
+bounds: 1366,707,142,142
+offsets: 1,1,143,143
+ae/ripple_b_14
+bounds: 1059,843,141,142
+offsets: 1,1,143,143
+ae/ripple_b_27
+bounds: 1043,987,142,141
+offsets: 1,1,143,143
+ae/ripple_b_25
+bounds: 1026,1130,142,140
+offsets: 1,2,143,143
+ae/ripple_b_26
+bounds: 877,1132,142,140
+offsets: 1,2,143,143
+ae/ripple_b_24
+bounds: 1573,1285,142,137
+offsets: 1,3,143,143
+ae/ripple_b_16
+bounds: 740,846,141,142
+offsets: 1,1,143,143
+ae/ripple_b_23
+bounds: 0,1302,142,135
+offsets: 1,4,143,143
+ae/ripple_b_13
+bounds: 591,851,141,141
+offsets: 1,1,143,143
+ae/ripple_b_17
+bounds: 262,853,141,141
+offsets: 1,1,143,143
+ae/ripple_b_18
+bounds: 0,883,141,141
+offsets: 1,1,143,143
+ae/ripple_b_19
+bounds: 1202,851,141,141
+offsets: 1,1,143,143
+ae/ripple_b_28
+bounds: 883,989,141,141
+offsets: 1,1,143,143
+ae/ripple_b_29
+bounds: 734,990,141,141
+offsets: 1,1,143,143
+ae/ripple_b_00
+bounds: 1603,862,141,140
+offsets: 1,2,143,143
+ae/ripple_b_22
+bounds: 416,1406,140,134
+offsets: 2,6,143,143
+ae/ripple_b_20
+bounds: 1187,994,140,140
+offsets: 2,2,143,143
+ae/ripple_b_01
+bounds: 1329,1135,140,139
+offsets: 2,2,143,143
+ae/ripple_b_12
+bounds: 1345,993,139,140
+offsets: 2,2,143,143
+ae/ripple_b_21
+bounds: 1471,1145,139,138
+offsets: 2,2,143,143
+ae/ripple_b_02
+bounds: 1295,1276,138,137
+offsets: 2,3,143,143
+ae/ripple_b_11
+bounds: 1435,1285,136,137
+offsets: 4,3,143,143
+ae/ripple_b_10
+bounds: 720,1406,133,133
+offsets: 6,6,143,143
+ae/ripple_b_03
+bounds: 539,1806,131,130
+offsets: 6,7,143,143
+ae/ripple_b_09
+bounds: 1122,1812,128,128
+offsets: 8,9,143,143
+fx/rim_deep
+bounds: 0,0,264,260
+offsets: 22,23,307,307
+ae/ripple_ac_43
+bounds: 549,1675,121,124
+offsets: 11,10,143,143
+ae/ripple_ac_16
+bounds: 306,1407,108,111
+offsets: 18,16,143,143
+ae/ripple_ac_39
+bounds: 1939,852,104,110
+offsets: 20,18,143,143
+ae/ripple_ac_32
+bounds: 1510,707,107,108
+offsets: 18,18,143,143
+ae/ripple_ac_06
+bounds: 0,1574,105,105
+offsets: 20,19,143,143
+ae/ripple_ac_22
+bounds: 1593,1944,104,99
+offsets: 21,24,143,143
+ae/ripple_ac_38
+bounds: 649,1942,98,104
+offsets: 23,21,143,143
+ae/ripple_ac_05
+bounds: 270,1947,98,99
+offsets: 23,22,143,143
+ae/ripple_ac_03
+bounds: 1235,552,93,98
+offsets: 25,26,143,143
+ae/ripple_ac_21
+bounds: 1699,1943,98,95
+offsets: 23,25,143,143
+ae/ripple_ac_37
+bounds: 170,262,94,98
+offsets: 25,23,143,143
+ae/ripple_ac_17
+bounds: 1950,643,96,97
+offsets: 21,20,143,143
+ae/ripple_ac_04
+bounds: 1418,1687,93,95
+offsets: 25,25,143,143
+ae/ripple_bc_13
+bounds: 1286,1415,132,132
+offsets: 6,6,143,143
+ae/ripple_bc_23
+bounds: 1252,1812,132,128
+offsets: 6,8,143,143
+ae/ripple_bc_22
+bounds: 1774,1687,132,126
+offsets: 6,9,143,143
+ae/ripple_bc_12
+bounds: 1153,1415,131,132
+offsets: 6,6,143,143
+ae/ripple_bc_14
+bounds: 148,1682,132,131
+offsets: 6,6,143,143
+ae/ripple_bc_24
+bounds: 803,1678,132,130
+offsets: 6,7,143,143
+ae/ripple_bc_25
+bounds: 937,1679,131,130
+offsets: 6,7,143,143
+ae/ripple_bc_11
+bounds: 672,1675,129,130
+offsets: 7,7,143,143
+ae/ripple_bc_15
+bounds: 1841,1556,130,129
+offsets: 7,7,143,143
+ae/ripple_bc_26
+bounds: 1386,1811,127,128
+offsets: 7,8,143,143
+ae/ripple_bc_10
+bounds: 1766,1815,126,126
+offsets: 9,9,143,143
+ae/ripple_bc_07
+bounds: 294,996,109,109
+offsets: 18,17,143,143
+ae/ripple_bc_00
+bounds: 1937,536,104,105
+offsets: 20,19,143,143
+ae/ripple_bc_06
+bounds: 1493,1944,98,101
+offsets: 24,21,143,143
+ae/ripple_bc_05
+bounds: 1893,1943,92,95
+offsets: 26,24,143,143
+ae/ripple_bc_04
+bounds: 1799,1943,92,95
+offsets: 26,25,143,143
+ae/ripple_bc_03
+bounds: 1950,742,91,95
+offsets: 27,25,143,143
+ae/comet_00
+bounds: 749,1942,283,94
+offsets: 13,0,302,94
+ae/comet_01
+bounds: 1034,1942,283,94
+offsets: 14,0,302,94
+ae/smoke_ring_00
+bounds: 1799,365,169,169
+offsets: 1,1,172,172
+ae/smoke_ring_15
+bounds: 492,225,169,169
+offsets: 1,1,172,172
+ae/smoke_ring_14
+bounds: 831,225,169,167
+offsets: 1,3,172,172
+ae/smoke_ring_01
+bounds: 266,226,168,168
+offsets: 2,2,172,172
+ae/smoke_ring_02
+bounds: 0,262,168,168
+offsets: 2,2,172,172
+ae/smoke_ring_03
+bounds: 663,225,166,167
+offsets: 3,3,172,172
+ae/smoke_ring_13
+bounds: 1002,225,165,166
+offsets: 3,3,172,172
+ae/smoke_ring_12
+bounds: 1169,225,163,164
+offsets: 5,4,172,172
+ae/smoke_ring_04
+bounds: 1334,225,163,163
+offsets: 5,5,172,172
+ae/smoke_ring_11
+bounds: 1499,388,159,161
+offsets: 7,5,172,172
+ae/smoke_ring_10
+bounds: 1792,695,156,155
+offsets: 9,9,172,172
+ae/smoke_ring_05
+bounds: 611,552,148,149
+offsets: 11,11,172,172
+ae/smoke_ring_09
+bounds: 1085,552,148,144
+offsets: 15,14,172,172
+ae/smoke_ring_08
+bounds: 0,1164,136,136
+offsets: 20,18,172,172
+ae/smoke_ring_07
+bounds: 1894,1815,126,126
+offsets: 24,22,172,172
+ae/smoke_ring_06
+bounds: 1908,1687,125,126
+offsets: 24,24,172,172
+fx/rimcore_core
+bounds: 266,0,224,224
+offsets: 43,42,307,307
+orb/blue
+bounds: 492,0,225,223
+offsets: 1,0,226,223
+orb/violet
+bounds: 1400,0,225,223
+offsets: 1,0,226,223
+orb/max
+bounds: 946,0,225,223
+offsets: 1,0,226,223
+
+multiplier_orb_2.webp
+size: 2044,812
+filter: MipMapLinearLinear,Linear
+pma: true
+fx/spark2_deep
+bounds: 631,698,130,28
+offsets: 13,5,148,37
+fx/spark2_core
+bounds: 1547,584,123,20
+offsets: 16,8,148,37
+ae/ripple_a_25
+bounds: 1683,0,127,122
+offsets: 7,11,143,143
+ae/ripple_a_09
+bounds: 126,0,127,125
+offsets: 10,9,143,143
+ae/ripple_a_24
+bounds: 616,249,124,117
+offsets: 10,13,143,143
+ae/ripple_a_36
+bounds: 936,0,123,123
+offsets: 11,11,143,143
+ae/ripple_a_21
+bounds: 1435,0,123,122
+offsets: 10,11,143,143
+ae/ripple_a_08
+bounds: 122,127,123,121
+offsets: 12,11,143,143
+ae/ripple_a_07
+bounds: 1311,0,122,122
+offsets: 11,11,143,143
+ae/ripple_a_22
+bounds: 1560,0,121,122
+offsets: 11,10,143,143
+ae/ripple_a_37
+bounds: 1812,0,119,122
+offsets: 12,11,143,143
+ae/ripple_a_40
+bounds: 1311,124,117,122
+offsets: 13,12,143,143
+ae/ripple_a_23
+bounds: 496,249,118,117
+offsets: 14,14,143,143
+ae/ripple_a_39
+bounds: 1933,0,111,117
+offsets: 16,14,143,143
+ae/ripple_a_38
+bounds: 235,603,111,112
+offsets: 17,16,143,143
+ae/gather2c_08
+bounds: 255,0,151,124
+offsets: 12,46,186,186
+ae/gather2c_23
+bounds: 408,0,151,124
+offsets: 12,46,186,186
+ae/gather2c_01
+bounds: 1060,125,149,121
+offsets: 26,14,186,186
+ae/gather2c_16
+bounds: 255,126,149,121
+offsets: 26,14,186,186
+ae/gather2c_09
+bounds: 1801,368,146,119
+offsets: 12,49,186,186
+ae/gather2c_24
+bounds: 1801,489,146,119
+offsets: 12,49,186,186
+ae/gather2c_02
+bounds: 617,368,143,115
+offsets: 32,16,186,186
+ae/gather2c_17
+bounds: 762,368,143,115
+offsets: 32,16,186,186
+ae/gather2c_10
+bounds: 121,370,139,116
+offsets: 12,50,186,186
+ae/gather2c_25
+bounds: 262,370,139,116
+offsets: 12,50,186,186
+ae/puff_17
+bounds: 0,0,124,125
+offsets: 5,4,133,133
+ae/puff_16
+bounds: 812,0,122,123
+offsets: 6,5,133,133
+ae/puff_07
+bounds: 0,127,120,121
+offsets: 7,7,133,133
+ae/puff_15
+bounds: 1683,124,120,120
+offsets: 8,7,133,133
+ae/puff_14
+bounds: 116,488,117,114
+offsets: 10,10,133,133
+ae/puff_13
+bounds: 1147,369,112,110
+offsets: 12,12,133,133
+ae/ripple_b_08
+bounds: 1061,0,124,123
+offsets: 10,11,143,143
+ae/ripple_b_04
+bounds: 812,125,122,122
+offsets: 11,11,143,143
+ae/ripple_b_05
+bounds: 936,125,122,122
+offsets: 11,11,143,143
+ae/ripple_b_06
+bounds: 1678,368,121,120
+offsets: 12,11,143,143
+ae/ripple_b_07
+bounds: 860,249,117,117
+offsets: 14,14,143,143
+ae/ripple_ac_44
+bounds: 561,0,121,124
+offsets: 11,9,143,143
+ae/ripple_ac_28
+bounds: 527,126,123,121
+offsets: 10,11,143,143
+ae/ripple_ac_11
+bounds: 1683,246,123,120
+offsets: 11,12,143,143
+ae/ripple_ac_12
+bounds: 1808,246,123,120
+offsets: 10,12,143,143
+ae/ripple_ac_27
+bounds: 1430,247,123,120
+offsets: 10,12,143,143
+ae/ripple_ac_10
+bounds: 1805,124,122,120
+offsets: 11,12,143,143
+ae/ripple_ac_26
+bounds: 1304,248,122,119
+offsets: 11,12,143,143
+ae/ripple_ac_29
+bounds: 1555,247,121,120
+offsets: 11,12,143,143
+ae/ripple_ac_00
+bounds: 406,126,119,121
+offsets: 11,11,143,143
+ae/ripple_ac_13
+bounds: 1060,248,121,119
+offsets: 11,12,143,143
+ae/ripple_ac_42
+bounds: 652,126,118,121
+offsets: 12,12,143,143
+ae/ripple_ac_25
+bounds: 1025,369,120,115
+offsets: 11,14,143,143
+ae/ripple_ac_14
+bounds: 1183,248,119,119
+offsets: 12,12,143,143
+ae/ripple_ac_09
+bounds: 121,250,119,118
+offsets: 13,13,143,143
+ae/ripple_ac_30
+bounds: 247,249,118,119
+offsets: 12,12,143,143
+ae/ripple_ac_41
+bounds: 1929,124,114,118
+offsets: 14,14,143,143
+ae/ripple_ac_01
+bounds: 742,249,116,117
+offsets: 13,14,143,143
+ae/ripple_ac_08
+bounds: 907,368,116,115
+offsets: 15,14,143,143
+ae/ripple_ac_15
+bounds: 0,371,114,116
+offsets: 16,14,143,143
+ae/ripple_ac_24
+bounds: 860,485,116,111
+offsets: 13,16,143,143
+ae/ripple_ac_31
+bounds: 617,485,114,115
+offsets: 14,14,143,143
+ae/ripple_ac_40
+bounds: 1933,244,110,115
+offsets: 17,15,143,143
+ae/ripple_ac_02
+bounds: 0,489,111,113
+offsets: 15,15,143,143
+ae/ripple_ac_07
+bounds: 122,604,111,111
+offsets: 17,16,143,143
+ae/ripple_ac_23
+bounds: 1261,369,111,105
+offsets: 17,20,143,143
+ae/ripple_ac_36
+bounds: 519,487,93,93
+offsets: 25,24,143,143
+ae/ripple_ac_20
+bounds: 1832,610,93,93
+offsets: 24,25,143,143
+ae/ripple_ac_35
+bounds: 1927,610,93,93
+offsets: 25,24,143,143
+ae/ripple_ac_19
+bounds: 1949,456,93,92
+offsets: 25,25,143,143
+ae/ripple_ac_34
+bounds: 1656,490,93,92
+offsets: 25,25,143,143
+ae/ripple_ac_18
+bounds: 348,604,92,92
+offsets: 25,25,143,143
+ae/ripple_ac_33
+bounds: 1211,125,92,92
+offsets: 25,25,143,143
+ae/ripple_bc_21
+bounds: 1551,124,130,121
+offsets: 7,12,143,143
+ae/ripple_bc_20
+bounds: 367,249,127,118
+offsets: 9,14,143,143
+ae/ripple_bc_16
+bounds: 684,0,126,124
+offsets: 9,10,143,143
+ae/ripple_bc_19
+bounds: 733,485,125,112
+offsets: 10,16,143,143
+ae/ripple_bc_27
+bounds: 1187,0,122,123
+offsets: 10,11,143,143
+ae/ripple_bc_09
+bounds: 1430,124,119,121
+offsets: 12,12,143,143
+ae/ripple_bc_18
+bounds: 0,604,120,112
+offsets: 12,15,143,143
+ae/ripple_bc_17
+bounds: 0,250,119,119
+offsets: 11,12,143,143
+ae/ripple_bc_28
+bounds: 496,368,119,117
+offsets: 12,12,143,143
+ae/ripple_bc_08
+bounds: 403,487,114,115
+offsets: 15,15,143,143
+ae/ripple_bc_29
+bounds: 235,488,113,113
+offsets: 15,14,143,143
+ae/ripple_bc_02
+bounds: 403,369,91,94
+offsets: 27,25,143,143
+ae/ripple_bc_01
+bounds: 1949,361,90,93
+offsets: 27,26,143,143
+ae/comet_13
+bounds: 1428,706,284,94
+offsets: 12,0,302,94
+ae/comet_05
+bounds: 1262,561,283,94
+offsets: 13,0,302,94
+ae/comet_06
+bounds: 860,598,283,94
+offsets: 12,0,302,94
+ae/comet_07
+bounds: 519,602,283,94
+offsets: 14,0,302,94
+ae/comet_08
+bounds: 1547,610,283,94
+offsets: 14,0,302,94
+ae/comet_02
+bounds: 1374,369,282,94
+offsets: 14,0,302,94
+ae/comet_04
+bounds: 978,486,282,94
+offsets: 14,0,302,94
+ae/comet_14
+bounds: 1714,706,282,94
+offsets: 14,0,302,94
+ae/comet_12
+bounds: 0,718,281,94
+offsets: 15,0,302,94
+ae/comet_09
+bounds: 1145,657,281,94
+offsets: 16,0,302,94
+ae/comet_10
+bounds: 804,694,281,94
+offsets: 16,0,302,94
+ae/comet_11
+bounds: 348,698,281,94
+offsets: 16,0,302,94
+ae/comet_03
+bounds: 1374,465,280,94
+offsets: 16,0,302,94

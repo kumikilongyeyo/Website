@@ -1,0 +1,167 @@
+spicy_hp_medal_1.webp
+size: 2048,2048
+filter: Linear,Linear
+pma: true
+medal/lanyard
+bounds: 2,2,563,955
+medal/medal
+bounds: 2,959,717,818
+medal/halo
+bounds: 567,2,692,709
+medal/rim_medal
+bounds: 1261,2,400,450
+fire/fire_22
+bounds: 1663,2,182,271
+offsets: 9,11,203,294
+fire/fire_06
+bounds: 1847,2,182,269
+offsets: 9,13,203,294
+fire/fire_14
+bounds: 1847,273,182,268
+offsets: 9,12,203,294
+fire/fire_21
+bounds: 1663,275,181,268
+offsets: 9,12,203,294
+fire/fire_05
+bounds: 2,1779,181,267
+offsets: 9,13,203,294
+fire/fire_13
+bounds: 185,1779,181,267
+offsets: 9,13,203,294
+fire/fire_20
+bounds: 368,1779,183,265
+offsets: 9,14,203,294
+fire/fire_12
+bounds: 553,1779,182,265
+offsets: 9,14,203,294
+fire/fire_04
+bounds: 1846,543,180,264
+offsets: 10,15,203,294
+fire/fire_11
+bounds: 1261,454,183,263
+offsets: 10,15,203,294
+fire/fire_19
+bounds: 1446,454,183,263
+offsets: 10,15,203,294
+fire/fire_03
+bounds: 1631,545,182,262
+offsets: 10,16,203,294
+fire/fire_02
+bounds: 737,713,182,259
+offsets: 10,17,203,294
+fire/fire_10
+bounds: 921,713,182,259
+offsets: 10,17,203,294
+fire/fire_18
+bounds: 1105,719,182,259
+offsets: 10,17,203,294
+fire/fire_09
+bounds: 1289,719,181,257
+offsets: 11,18,203,294
+fire/fire_17
+bounds: 737,974,181,257
+offsets: 11,18,203,294
+fire/fire_01
+bounds: 920,974,181,256
+offsets: 11,18,203,294
+fire/fire_23
+bounds: 721,1233,179,256
+offsets: 12,18,203,294
+fire/fire_07
+bounds: 721,1491,179,254
+offsets: 12,20,203,294
+fire/fire_16
+bounds: 737,1747,181,253
+offsets: 11,20,203,294
+fire/fire_08
+bounds: 902,1233,180,253
+offsets: 11,20,203,294
+fire/fire_00
+bounds: 902,1488,181,252
+offsets: 11,20,203,294
+fire/fire_15
+bounds: 1084,1232,179,251
+offsets: 12,21,203,294
+medal/ring_a/ring_a_01
+bounds: 1103,980,196,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_02
+bounds: 920,1742,196,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_03
+bounds: 1085,1485,196,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_04
+bounds: 1265,1203,196,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_05
+bounds: 1301,978,195,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_06
+bounds: 1118,1708,195,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_12
+bounds: 1283,1426,195,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_13
+bounds: 1463,1201,195,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_14
+bounds: 1498,809,195,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_15
+bounds: 1695,809,195,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_16
+bounds: 1315,1649,195,221
+offsets: 12,11,219,244
+medal/ring_a/ring_a_07
+bounds: 1480,1424,196,220
+offsets: 12,12,219,244
+medal/ring_a/ring_a_17
+bounds: 1660,1032,196,220
+offsets: 12,12,219,244
+medal/ring_a/ring_a_08
+bounds: 1678,1254,196,219
+offsets: 12,12,219,244
+medal/ring_a/ring_a_09
+bounds: 1678,1475,196,219
+offsets: 12,12,219,244
+medal/ring_a/ring_a_10
+bounds: 1512,1696,196,219
+offsets: 12,12,219,244
+medal/ring_a/ring_a_11
+bounds: 1710,1696,196,219
+offsets: 12,12,219,244
+medal/ring_a/ring_a_21
+bounds: 1858,1032,187,211
+offsets: 16,16,219,244
+flare
+bounds: 1498,1032,95,131
+offsets: 35,15,162,163
+fx/art_emitter_particle0
+bounds: 1315,1872,95,131
+offsets: 35,15,162,163
+fx/spark
+bounds: 1412,1872,94,94
+offsets: 1,1,96,96
+fx/mote
+bounds: 1595,1032,62,62
+offsets: 1,1,64,64
+medal/ring_a/ring_a_00
+bounds: 1480,1646,1,1
+offsets: 0,243,219,244
+
+spicy_hp_medal_2.webp
+size: 200,656
+filter: Linear,Linear
+pma: true
+medal/ring_a/ring_a_18
+bounds: 2,2,196,219
+offsets: 12,12,219,244
+medal/ring_a/ring_a_19
+bounds: 2,223,196,216
+offsets: 12,14,219,244
+medal/ring_a/ring_a_20
+bounds: 2,441,195,212
+offsets: 12,16,219,244

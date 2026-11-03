@@ -1,0 +1,160 @@
+spicy_fire_1.webp
+size: 2048,2044
+filter: Linear,Linear
+pma: true
+fire/fire_19
+bounds: 2,2,449,330
+offsets: 47,51,545,428
+fire/fire_20
+bounds: 453,2,449,329
+offsets: 47,54,545,428
+fire/fire_18
+bounds: 904,2,446,329
+offsets: 49,51,545,428
+fire/fire_12
+bounds: 1352,2,444,332
+offsets: 56,53,545,428
+fire/fire_11
+bounds: 453,333,443,333
+offsets: 56,54,545,428
+fire/fire_10
+bounds: 2,334,441,332
+offsets: 58,55,545,428
+fire/fire_03
+bounds: 898,333,441,330
+offsets: 55,50,545,428
+fire/fire_17
+bounds: 1341,336,441,326
+offsets: 51,52,545,428
+fire/fire_02
+bounds: 1341,664,440,328
+offsets: 54,51,545,428
+fire/fire_09
+bounds: 898,665,440,328
+offsets: 59,57,545,428
+fire/fire_21
+bounds: 1340,994,440,326
+offsets: 52,58,545,428
+fire/fire_04
+bounds: 2,1322,439,328
+offsets: 56,51,545,428
+fire/fire_13
+bounds: 443,668,438,327
+offsets: 58,55,545,428
+fire/fire_01
+bounds: 2,668,437,325
+offsets: 55,53,545,428
+fire/fire_05
+bounds: 2,995,435,324
+offsets: 58,53,545,428
+fire/fire_16
+bounds: 439,997,435,323
+offsets: 54,53,545,428
+fire/fire_08
+bounds: 883,995,434,324
+offsets: 62,59,545,428
+fire/fire_00
+bounds: 876,1321,433,321
+offsets: 56,55,545,428
+fire/fire_15
+bounds: 443,1322,430,320
+offsets: 57,54,545,428
+fire/fire_22
+bounds: 2,1652,430,320
+offsets: 59,59,545,428
+fire/fire_14
+bounds: 434,1652,429,320
+offsets: 60,56,545,428
+fire/fire_23
+bounds: 865,1644,429,319
+offsets: 57,57,545,428
+fire/fire_07
+bounds: 1296,1644,428,320
+offsets: 65,61,545,428
+fire/fire_06
+bounds: 1311,1322,426,320
+offsets: 64,59,545,428
+glow_q
+bounds: 1726,1644,319,299
+offsets: 5,5,329,308
+ae/flash_13
+bounds: 1798,2,242,242
+offsets: 7,7,256,256
+ae/flash_14
+bounds: 1798,246,242,242
+offsets: 7,7,256,256
+ae/flash_15
+bounds: 1784,490,242,242
+offsets: 7,7,256,256
+ae/flash_16
+bounds: 1783,734,242,242
+offsets: 7,7,256,256
+ae/flash_12
+bounds: 1783,978,241,241
+offsets: 8,7,256,256
+ae/flash_08
+bounds: 1782,1221,240,240
+offsets: 8,8,256,256
+ae/flash_03
+bounds: 1739,1463,172,172
+offsets: 42,42,256,256
+ae/flash_00
+bounds: 1913,1463,106,106
+offsets: 75,75,256,256
+fx/spark
+bounds: 1726,1945,94,94
+offsets: 1,1,96,96
+fx/mote
+bounds: 1913,1571,62,62
+offsets: 1,1,64,64
+
+spicy_fire_2.webp
+size: 1984,792
+filter: Linear,Linear
+pma: true
+fx/kit_smoke_08
+bounds: 2,2,384,344
+fx/kit_smoke_07
+bounds: 388,2,384,336
+ae/flash_09
+bounds: 774,2,240,240
+offsets: 8,8,256,256
+ae/flash_10
+bounds: 1016,2,240,240
+offsets: 8,8,256,256
+ae/flash_11
+bounds: 1258,2,240,240
+offsets: 8,8,256,256
+ae/flash_17
+bounds: 1500,2,240,240
+offsets: 8,8,256,256
+ae/flash_07
+bounds: 1742,2,238,238
+offsets: 9,9,256,256
+ae/flash_18
+bounds: 1742,242,238,238
+offsets: 9,9,256,256
+ae/flash_06
+bounds: 774,244,233,233
+offsets: 12,11,256,256
+ae/flash_19
+bounds: 388,340,230,230
+offsets: 13,13,256,256
+ae/flash_05
+bounds: 2,348,220,220
+offsets: 18,18,256,256
+ae/flash_20
+bounds: 2,570,220,220
+offsets: 18,18,256,256
+ae/flash_04
+bounds: 1009,244,196,196
+offsets: 30,30,256,256
+ae/flash_21
+bounds: 1207,244,189,189
+offsets: 34,33,256,256
+ae/flash_02
+bounds: 620,340,152,152
+offsets: 52,52,256,256
+ae/flash_01
+bounds: 224,348,136,136
+offsets: 60,60,256,256

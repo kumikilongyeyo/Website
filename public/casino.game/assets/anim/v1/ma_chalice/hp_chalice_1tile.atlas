@@ -1,0 +1,227 @@
+hp_chalice_1tile.webp
+size: 2048,2048
+filter: Linear,Linear
+pma: true
+chalice_1tile/base
+bounds: 2,2,264,264
+chalice_1tile/head
+bounds: 268,2,264,176
+chalice_1tile/outline_rim
+bounds: 534,2,261,228
+offsets: 21,21,303,270
+chalice_1tile/crack3
+bounds: 268,180,256,231
+chalice_1tile/flat
+bounds: 2,268,256,231
+chalice_1tile/frame
+bounds: 797,2,256,223
+chalice_1tile/crack2
+bounds: 1055,2,251,231
+offsets: 5,0,256,231
+fx/sweep_a_00
+bounds: 797,227,240,240
+fx/sweep_a_01
+bounds: 526,232,240,240
+fx/sweep_a_02
+bounds: 260,413,240,240
+fx/sweep_a_03
+bounds: 2,501,240,240
+fx/sweep_a_04
+bounds: 1308,2,240,240
+fx/sweep_a_05
+bounds: 1039,235,240,240
+fx/sweep_a_06
+bounds: 768,469,240,240
+fx/sweep_a_07
+bounds: 502,474,240,240
+fx/sweep_a_08
+bounds: 244,655,240,240
+fx/sweep_a_09
+bounds: 2,743,240,240
+fx/sweep_a_10
+bounds: 1550,2,240,240
+fx/sweep_a_11
+bounds: 1792,2,240,240
+fx/sweep_a_12
+bounds: 1281,244,240,240
+fx/sweep_a_13
+bounds: 1010,477,240,240
+fx/sweep_a_14
+bounds: 744,711,240,240
+fx/sweep_a_15
+bounds: 486,716,240,240
+fx/sweep_b_00
+bounds: 244,897,240,240
+fx/sweep_b_01
+bounds: 2,985,240,240
+fx/sweep_b_02
+bounds: 1523,244,240,240
+fx/sweep_b_03
+bounds: 1765,244,240,240
+fx/sweep_b_04
+bounds: 1252,486,240,240
+fx/sweep_b_05
+bounds: 986,719,240,240
+fx/sweep_b_06
+bounds: 728,953,240,240
+fx/sweep_b_07
+bounds: 486,958,240,240
+fx/sweep_b_08
+bounds: 244,1139,240,240
+fx/sweep_b_09
+bounds: 2,1227,240,240
+fx/sweep_b_10
+bounds: 1494,486,240,240
+fx/sweep_b_11
+bounds: 1736,486,240,240
+fx/sweep_b_12
+bounds: 2,1469,240,240
+fx/sweep_b_13
+bounds: 2,1711,240,240
+fx/sweep_b_14
+bounds: 244,1381,240,240
+fx/sweep_b_15
+bounds: 244,1623,240,240
+fx/sweep_b_16
+bounds: 1228,728,240,240
+fx/sweep_b_17
+bounds: 970,961,240,240
+fx/sweep_b_18
+bounds: 728,1195,240,240
+fx/sweep_b_19
+bounds: 486,1200,240,240
+fx/sweep_b_20
+bounds: 1470,728,240,240
+fx/sweep_b_21
+bounds: 1712,728,240,240
+fx/sweep_b_22
+bounds: 486,1442,240,240
+fx/sweep_b_23
+bounds: 486,1684,240,240
+fx/sweep_b_24
+bounds: 728,1437,240,240
+fx/sweep_b_25
+bounds: 728,1679,240,240
+fx/sweep_b_26
+bounds: 1212,970,240,240
+fx/sweep_b_27
+bounds: 970,1203,240,240
+fx/sweep_b_28
+bounds: 1454,970,240,240
+fx/sweep_b_29
+bounds: 1696,970,240,240
+fx/sweep_b_30
+bounds: 970,1445,240,240
+fx/sweep_b_31
+bounds: 970,1687,240,240
+fx/sweep_b_32
+bounds: 1212,1212,240,240
+fx/sweep_b_33
+bounds: 1454,1212,240,240
+fx/sweep_b_34
+bounds: 1696,1212,240,240
+fx/sweep_b_35
+bounds: 1212,1454,240,240
+chalice_1tile/cuphead
+bounds: 728,1921,231,61
+fx/star
+bounds: 244,1865,160,160
+chalice_1tile/outline_glow
+bounds: 1212,1696,152,135
+chalice_1tile/crack1
+bounds: 1212,1833,147,141
+offsets: 62,50,256,231
+fx/sparkle_14
+bounds: 1938,970,108,140
+offsets: 62,22,170,170
+chalice_1tile/ornament
+bounds: 961,1929,140,107
+fx/sparkle_10
+bounds: 1361,1833,117,138
+offsets: 45,19,170,170
+fx/sparkle_15
+bounds: 1938,1112,93,138
+offsets: 77,23,170,170
+fx/sparkle_11
+bounds: 1454,1454,117,137
+offsets: 48,24,170,170
+fx/sparkle_13
+bounds: 1454,1593,115,137
+offsets: 55,25,170,170
+fx/sparkle_12
+bounds: 1480,1732,117,136
+offsets: 50,27,170,170
+fx/sparkle_09
+bounds: 1571,1593,113,136
+offsets: 42,16,170,170
+fx/sparkle_16
+bounds: 1573,1454,75,136
+offsets: 95,23,170,170
+fx/sparkle_08
+bounds: 1650,1454,102,134
+offsets: 42,15,170,170
+fx/sparkle_17
+bounds: 1366,1696,72,133
+offsets: 97,24,170,170
+fx/sparkle_18
+bounds: 406,1865,70,128
+offsets: 98,26,170,170
+fx/sparkle_19
+bounds: 1978,486,65,124
+offsets: 101,27,170,170
+fx/sparkle_07
+bounds: 1954,728,89,123
+offsets: 40,15,170,170
+fx/rays
+bounds: 1103,1929,107,114
+offsets: 22,20,139,139
+fx/sparkle_20
+bounds: 1978,612,61,114
+offsets: 104,31,170,170
+fx/sparkle_06
+bounds: 1954,853,87,112
+offsets: 39,17,170,170
+fx/sparkle_05
+bounds: 478,1926,88,110
+offsets: 40,22,170,170
+fx/sparkle_21
+bounds: 568,1926,48,106
+offsets: 115,33,170,170
+fx/sparkle_04
+bounds: 618,1926,87,104
+offsets: 41,28,170,170
+chalice_1tile/aura_halo
+bounds: 2,1953,101,93
+fx/sparkle_03
+bounds: 1938,1252,84,100
+offsets: 44,33,170,170
+chalice_1tile/cast
+bounds: 105,1953,86,89
+offsets: 2,1,90,91
+fx/sparkle_02
+bounds: 1212,1976,81,68
+offsets: 47,64,170,170
+fx/sparkle_01
+bounds: 707,1984,73,62
+offsets: 53,66,170,170
+fx/spark
+bounds: 568,2034,61,12
+offsets: 2,1,64,14
+fx/glow
+bounds: 782,1984,58,59
+offsets: 2,1,61,61
+fx/sparkle_00
+bounds: 842,1984,50,53
+offsets: 72,71,170,170
+fx/dust1
+bounds: 1440,1732,30,30
+offsets: 7,5,39,39
+fx/dust2
+bounds: 768,232,27,29
+offsets: 4,6,39,39
+fx/dust0
+bounds: 1440,1764,29,26
+offsets: 4,5,39,39
+fx/dot
+bounds: 768,263,25,25
+offsets: 1,0,26,26

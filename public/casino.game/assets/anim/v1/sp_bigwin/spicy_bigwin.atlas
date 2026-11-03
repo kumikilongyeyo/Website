@@ -1,0 +1,243 @@
+spicy_bigwin_1.webp
+size: 2048,2048
+filter: Linear,Linear
+pma: true
+stars
+bounds: 2,2,807,1076
+offsets: 2,14,811,1095
+text
+bounds: 811,2,1051,415
+char
+bounds: 2,1080,854,821
+offsets: 0,12,854,833
+num_placeholder
+bounds: 858,419,765,170
+haze
+bounds: 811,591,610,350
+offsets: 14,5,637,359
+char_glow
+bounds: 1423,591,512,507
+kit/shine_band
+bounds: 1864,2,110,512
+offsets: 9,0,128,512
+ring_still
+bounds: 858,943,504,502
+offsets: 68,70,640,640
+rays
+bounds: 858,1447,482,467
+offsets: 6,22,495,495
+ring/ring_01
+bounds: 1342,1447,480,480
+kit/glow_soft
+bounds: 1364,1100,256,256
+kit/flare_star
+bounds: 1622,1100,256,256
+fx/coin_flip_00
+bounds: 2,1916,128,128
+fx/coin_flip_01
+bounds: 132,1916,128,128
+fx/coin_flip_11
+bounds: 262,1916,128,128
+fx/coin_flip_12
+bounds: 392,1916,128,128
+fx/coin_flip_13
+bounds: 522,1916,128,128
+fx/coin_flip_23
+bounds: 652,1916,128,128
+fx/coin_flip_02
+bounds: 782,1916,126,128
+offsets: 1,0,128,128
+fx/coin_flip_10
+bounds: 910,1916,126,128
+offsets: 1,0,128,128
+fx/coin_flip_14
+bounds: 1038,1916,126,128
+offsets: 1,0,128,128
+fx/coin_flip_22
+bounds: 1166,1916,126,128
+offsets: 1,0,128,128
+fx/coin_flip_03
+bounds: 1625,419,110,128
+offsets: 9,0,128,128
+fx/coin_flip_09
+bounds: 1737,419,110,128
+offsets: 9,0,128,128
+fx/coin_flip_15
+bounds: 1880,1100,110,128
+offsets: 9,0,128,128
+fx/coin_flip_21
+bounds: 1880,1230,110,128
+offsets: 9,0,128,128
+fx/coin_flip_04
+bounds: 1937,516,88,128
+offsets: 20,0,128,128
+fx/coin_flip_08
+bounds: 1937,646,88,128
+offsets: 20,0,128,128
+fx/coin_flip_16
+bounds: 1937,776,88,128
+offsets: 20,0,128,128
+fx/coin_flip_20
+bounds: 1937,906,88,128
+offsets: 20,0,128,128
+fx/coin_flip_05
+bounds: 1976,2,60,128
+offsets: 34,0,128,128
+fx/coin_flip_07
+bounds: 1976,132,60,128
+offsets: 34,0,128,128
+fx/coin_flip_17
+bounds: 1976,262,60,128
+offsets: 34,0,128,128
+fx/coin_flip_19
+bounds: 1824,1360,60,128
+offsets: 34,0,128,128
+fx/coin_flip_06
+bounds: 1294,1916,28,128
+offsets: 50,0,128,128
+fx/coin_flip_18
+bounds: 811,943,28,128
+offsets: 50,0,128,128
+fx/spark
+bounds: 1324,1929,94,94
+offsets: 1,1,96,96
+dots/d1
+bounds: 1420,1929,89,89
+dots/d3
+bounds: 1364,1358,84,87
+offsets: 3,0,87,87
+dots/d0
+bounds: 1450,1358,84,84
+offsets: 1,0,85,85
+dots/d2
+bounds: 1536,1358,83,84
+offsets: 1,0,84,84
+dots/d5
+bounds: 1621,1358,80,80
+dots/d4
+bounds: 1703,1358,79,80
+offsets: 1,0,80,80
+confetti/f69
+bounds: 1976,392,69,30
+confetti/f22
+bounds: 1976,424,65,47
+confetti/f94
+bounds: 1937,1036,62,54
+confetti/f71
+bounds: 1364,943,56,36
+confetti/f75
+bounds: 1992,1092,53,35
+confetti/f24
+bounds: 1992,1129,51,36
+confetti/f67
+bounds: 1420,2020,50,25
+confetti/f04
+bounds: 1625,549,48,39
+confetti/f34
+bounds: 2001,1036,45,27
+confetti/f96
+bounds: 811,419,43,36
+confetti/f89
+bounds: 1784,1358,37,42
+confetti/f13
+bounds: 1784,1402,33,29
+confetti/f43
+bounds: 1472,2020,33,26
+confetti/f16
+bounds: 1675,549,32,31
+confetti/f87
+bounds: 2001,1065,24,22
+confetti/f26
+bounds: 1784,1433,24,12
+confetti/f40
+bounds: 1324,2025,21,20
+confetti/f07
+bounds: 1347,2025,18,21
+confetti/f63
+bounds: 1367,2025,21,15
+confetti/f17
+bounds: 1390,2025,20,17
+confetti/f98
+bounds: 1507,2020,20,17
+confetti/f97
+bounds: 1709,549,20,16
+confetti/f01
+bounds: 1709,567,20,15
+confetti/f86
+bounds: 811,457,20,14
+confetti/f57
+bounds: 833,457,20,13
+confetti/f78
+bounds: 2027,1065,19,13
+confetti/f37
+bounds: 2027,473,18,15
+confetti/f25
+bounds: 2027,490,17,15
+
+spicy_bigwin_2.webp
+size: 1932,1932
+filter: Linear,Linear
+pma: true
+ring/ring_02
+bounds: 2,2,480,480
+ring/ring_03
+bounds: 484,2,480,480
+ring/ring_04
+bounds: 966,2,480,480
+ring/ring_05
+bounds: 1448,2,480,480
+ring/ring_06
+bounds: 2,484,480,480
+ring/ring_07
+bounds: 2,966,480,480
+ring/ring_08
+bounds: 2,1448,480,480
+ring/ring_09
+bounds: 484,484,480,480
+ring/ring_10
+bounds: 966,484,480,480
+ring/ring_11
+bounds: 1448,484,480,480
+ring/ring_12
+bounds: 484,966,480,480
+ring/ring_13
+bounds: 484,1448,480,480
+ring/ring_18
+bounds: 966,966,480,480
+ring/ring_19
+bounds: 1448,966,480,480
+ring/ring_14
+bounds: 966,1448,480,479
+offsets: 0,1,480,480
+ring/ring_20
+bounds: 1448,1448,480,478
+offsets: 0,2,480,480
+
+spicy_bigwin_3.webp
+size: 1932,1384
+filter: Linear,Linear
+pma: true
+ring/ring_22
+bounds: 2,2,480,478
+offsets: 0,2,480,480
+ring/ring_23
+bounds: 484,2,480,477
+offsets: 0,3,480,480
+ring/ring_00
+bounds: 966,2,480,476
+offsets: 0,4,480,480
+ring/ring_17
+bounds: 1448,2,480,476
+offsets: 0,4,480,480
+ring/ring_21
+bounds: 966,480,480,476
+offsets: 0,4,480,480
+ring/ring_15
+bounds: 484,481,480,473
+offsets: 0,7,480,480
+ring/ring_16
+bounds: 2,482,480,471
+offsets: 0,9,480,480
+bg_glow
+bounds: 2,955,277,427
+offsets: 2,19,281,458

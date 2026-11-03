@@ -1,0 +1,144 @@
+flamethrower.webp
+size: 2040,2004
+filter: Linear,Linear
+pma: true
+jet/loop_05
+bounds: 2,2,495,189
+offsets: 0,0,512,192
+jet/loop_06
+bounds: 499,2,493,185
+offsets: 0,0,512,192
+jet/loop_04
+bounds: 994,2,492,191
+offsets: 0,0,512,192
+jet/loop_03
+bounds: 499,189,489,191
+offsets: 0,0,512,192
+jet/loop_07
+bounds: 2,193,489,185
+offsets: 2,0,512,192
+jet/loop_02
+bounds: 2,380,484,191
+offsets: 0,0,512,192
+jet/loop_08
+bounds: 1488,2,481,184
+offsets: 6,0,512,192
+jet/out_01
+bounds: 1488,188,477,192
+offsets: 2,0,512,192
+jet/loop_20
+bounds: 990,195,477,181
+offsets: 5,11,512,192
+jet/loop_09
+bounds: 990,378,477,179
+offsets: 9,0,512,192
+jet/loop_19
+bounds: 488,382,477,175
+offsets: 6,17,512,192
+jet/out_02
+bounds: 1469,382,476,192
+offsets: 15,0,512,192
+jet/loop_21
+bounds: 488,559,476,183
+offsets: 5,8,512,192
+jet/loop_18
+bounds: 2,573,476,172
+offsets: 8,20,512,192
+jet/loop_12
+bounds: 966,559,475,184
+offsets: 11,4,512,192
+jet/loop_13
+bounds: 480,744,475,177
+offsets: 10,13,512,192
+jet/loop_01
+bounds: 2,747,474,191
+offsets: 2,0,512,192
+jet/loop_11
+bounds: 1443,576,474,185
+offsets: 11,0,512,192
+jet/loop_14
+bounds: 957,745,474,177
+offsets: 10,15,512,192
+jet/loop_17
+bounds: 478,923,474,177
+offsets: 9,15,512,192
+jet/loop_16
+bounds: 2,940,474,174
+offsets: 10,17,512,192
+jet/loop_10
+bounds: 1433,763,473,181
+offsets: 11,0,512,192
+jet/loop_15
+bounds: 954,924,473,173
+offsets: 9,15,512,192
+jet/loop_22
+bounds: 1429,946,472,187
+offsets: 4,3,512,192
+jet/in_06
+bounds: 954,1099,470,192
+offsets: 4,0,512,192
+jet/in_07
+bounds: 478,1102,469,192
+offsets: 2,0,512,192
+jet/loop_00
+bounds: 2,1116,469,191
+offsets: 1,0,512,192
+jet/out_00
+bounds: 1426,1135,469,191
+offsets: 1,0,512,192
+jet/loop_23
+bounds: 949,1293,469,188
+offsets: 2,1,512,192
+jet/in_05
+bounds: 473,1296,451,174
+offsets: 5,12,512,192
+jet/out_03
+bounds: 2,1309,431,192
+offsets: 69,0,512,192
+jet/in_04
+bounds: 435,1472,403,120
+offsets: 5,39,512,192
+jet/out_04
+bounds: 2,1503,388,192
+offsets: 119,0,512,192
+jet/out_05
+bounds: 2,1697,361,192
+offsets: 151,0,512,192
+jet/in_03
+bounds: 2,1891,346,108
+offsets: 6,43,512,192
+jet/out_06
+bounds: 365,1697,313,192
+offsets: 199,0,512,192
+jet/in_02
+bounds: 392,1594,296,98
+offsets: 8,46,512,192
+jet/out_07
+bounds: 680,1694,286,192
+offsets: 226,0,512,192
+jet/out_08
+bounds: 840,1483,204,192
+offsets: 308,0,512,192
+jet/out_09
+bounds: 968,1677,176,192
+offsets: 336,0,512,192
+jet/in_01
+bounds: 350,1891,166,74
+offsets: 9,56,512,192
+glow
+bounds: 1908,763,128,128
+fx/spark
+bounds: 690,1594,94,94
+offsets: 1,1,96,96
+fx/mote
+bounds: 1971,2,62,62
+offsets: 1,1,64,64
+jet/in_00
+bounds: 1426,1099,1,1
+offsets: 0,191,512,192
+jet/out_10
+bounds: 1426,1102,1,1
+offsets: 0,191,512,192
+jet/out_11
+bounds: 1426,1105,1,1
+offsets: 0,191,512,192

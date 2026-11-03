@@ -110,6 +110,15 @@
 /casino.game/casino-page.js
   Cache-Control: no-cache, no-store, must-revalidate
 
+/casino.game/anim.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/casino.game/anim.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/casino.game/vendor/*
+  Cache-Control: public, max-age=604800
+
 /casino.game/assets/*
   Cache-Control: public, max-age=604800
 
