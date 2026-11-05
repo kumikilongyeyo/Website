@@ -20,7 +20,7 @@
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const slugify = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-  const DEMO_KEYS = ['demo2', 'demo', 'demo3'];          // page order on /casino.game
+  const DEMO_KEYS = ['demo3', 'demo2', 'demo'];          // page order on /casino.game
   const DEMO_CHIPS = { demo: [['ex', 'EX NUDGE'], ['mega', 'MEGA WIN'], ['wheel', 'Bonus wheel']] };
   const STATS = [['rtp', 'RTP'], ['volatility', 'Volatility'], ['maxWin', 'Max multiplier'], ['reels', 'Reels'], ['released', 'Release date']];
   const def = (window.STUDIO_PAGE && window.STUDIO_PAGE.G && window.STUDIO_PAGE.G.casino) || {};
@@ -48,7 +48,7 @@
     if (!key) { location.replace('/casino.game/#works'); return; }
     game = all[key];
     const name = game.name || 'Game';
-    document.title = `${name} — playable demo · Klyde Sosa`;
+    document.title = `${name} — playable prototype · Klyde Sosa`;
     $('.gp-crumb-name').textContent = name;
     $('.gp-title').textContent = name;
     $('#gp-play-title').textContent = `Play ${name}`;
@@ -95,7 +95,7 @@
     if (frame) return;
     const f = document.createElement('iframe');
     f.src = game.url; f.dataset.src = game.url;
-    f.title = `${game.name || 'Game'}: playable demo`;
+    f.title = `${game.name || 'Game'}: playable prototype`;
     f.allow = 'autoplay; fullscreen';
     f.setAttribute('allowfullscreen', '');
     f.addEventListener('load', () => setTimeout(() => reveal(f), 250), { once: true });
@@ -193,7 +193,7 @@
     const label = $('span', btn);
     label.textContent = ok ? 'Link copied' : url;
     btn.classList.toggle('done', ok);
-    clearTimeout(btn._t); btn._t = setTimeout(() => { label.textContent = 'Copy demo link'; btn.classList.remove('done'); }, 2200);
+    clearTimeout(btn._t); btn._t = setTimeout(() => { label.textContent = 'Copy link'; btn.classList.remove('done'); }, 2200);
   }
 
   document.addEventListener('click', e => {

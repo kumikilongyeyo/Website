@@ -84,75 +84,79 @@
        (the card below, in a modal) and "Play game" (the same modal, game started).
        casino.js builds the tiles from the cards, in page order. -->
   <div class="cz-wrap">
-    <div class="cz-dtiles" role="list" aria-label="Playable demos"></div>
+    <p class="cz-proto-note" data-node="Prototype note" data-id="cz-proto-note" data-type="text"><b>Prototypes for showcase only.</b> These games are not commercial products. I built them to show how my art, animation and effects are implemented in a working game. The math (RTP, volatility, payouts) is placeholder and not the focus.</p>
+    <div class="cz-dtiles" role="list" aria-label="Playable prototypes"></div>
   </div>
   <div class="cz-dmodal" role="dialog" aria-modal="true" aria-label="Playable demo" hidden>
   <div class="cz-dmodal-backdrop" data-dmodal-close></div>
   <div class="cz-dmodal-box">
   <button type="button" class="cz-dmodal-close" data-dmodal-close aria-label="Close">×</button>
-  <!-- Mayan Empire (G.casino.demo2) comes first; Jeepney Jackpot (G.casino.demo) is the mirrored card under it; Spice Rush (G.casino.demo3) last. -->
-  <div class="cz-wrap">
-    <article class="cz-demo" data-demo="demo2" aria-labelledby="cz-demo2-title">
-      <div class="cz-demo-copy">
-        <p class="cz-demo-kick" data-node="Demo 2 kicker" data-id="cz-demo2-kick" data-type="text">PLAYABLE DEMO</p>
-        <h3 class="cz-demo-title" id="cz-demo2-title" data-node="Demo 2 title" data-id="cz-demo2-title" data-type="text">MAYAN<br> EMPIRE</h3>
-        <p class="cz-demo-body" data-node="Demo 2 text" data-id="cz-demo2-body" data-type="text">A ways slot I made the art and animation for: the symbols, the frame and UI, the Spine animations and the effects. Spin it right here.</p>
-        <ul class="cz-demo-feats" aria-label="Game features"></ul>
-        <ul class="cz-demo-tags" aria-label="My role"></ul>
-        <div class="cz-demo-actions">
-          <button type="button" class="cz-demo-btn" data-demo-play>Play demo</button>
-          <button type="button" class="cz-demo-btn ghost" data-demo-full>Full screen</button>
-        </div>
-        <div class="cz-demo-try">
-          <p class="cz-demo-try-label">Jump straight to a feature</p>
-          <div class="cz-demo-chips" role="group" aria-label="Play a feature"></div>
-        </div>
-      </div>
-      <div class="cz-demo-device">
-        <div class="cz-demo-screen">
-          <img class="cz-demo-poster" alt="" width="720" height="1280" loading="lazy" decoding="async">
-          <button type="button" class="cz-demo-veil" data-demo-play><span class="cz-demo-play" aria-hidden="true"></span><span class="cz-demo-hint">Tap to play · sound on</span></button>
-        </div>
-      </div>
-    </article>
-  </div>
-
-  <div class="cz-wrap">
-    <article class="cz-demo flip" data-demo="demo" aria-labelledby="cz-demo-title">
-      <div class="cz-demo-copy">
-        <p class="cz-demo-kick" data-node="Demo kicker" data-id="cz-demo-kick" data-type="text">PLAYABLE DEMO</p>
-        <h3 class="cz-demo-title" id="cz-demo-title" data-node="Demo title" data-id="cz-demo-title" data-type="text">JEEPNEY<br> JACKPOT</h3>
-        <p class="cz-demo-body" data-node="Demo text" data-id="cz-demo-body" data-type="text">A playable slot I made the art for: the key art, every symbol, the UI and the Spine win animations. Spin it right here.</p>
-        <ul class="cz-demo-feats" aria-label="Game features"></ul>
-        <ul class="cz-demo-tags" aria-label="My role"></ul>
-        <div class="cz-demo-actions">
-          <button type="button" class="cz-demo-btn" data-demo-play>Play demo</button>
-          <button type="button" class="cz-demo-btn ghost" data-demo-full>Full screen</button>
-        </div>
-        <div class="cz-demo-try">
-          <p class="cz-demo-try-label">Jump straight to a feature</p>
-          <div class="cz-demo-chips" role="group" aria-label="Play a feature"></div>
-        </div>
-      </div>
-      <div class="cz-demo-device">
-        <div class="cz-demo-screen">
-          <img class="cz-demo-poster" alt="" width="720" height="1280" loading="lazy" decoding="async">
-          <button type="button" class="cz-demo-veil" data-demo-play><span class="cz-demo-play" aria-hidden="true"></span><span class="cz-demo-hint">Tap to play · sound on</span></button>
-        </div>
-      </div>
-    </article>
-  </div>
-
+  <!-- Spice Rush (G.casino.demo3) comes first, then Mayan Empire (G.casino.demo2, mirrored), then Jeepney Jackpot (G.casino.demo). -->
   <div class="cz-wrap">
     <article class="cz-demo" data-demo="demo3" aria-labelledby="cz-demo3-title">
       <div class="cz-demo-copy">
-        <p class="cz-demo-kick" data-node="Demo 3 kicker" data-id="cz-demo3-kick" data-type="text">PLAYABLE DEMO</p>
+        <p class="cz-demo-kick" data-node="Demo 3 kicker" data-id="cz-demo3-kick" data-type="text">PLAYABLE PROTOTYPE</p>
         <h3 class="cz-demo-title" id="cz-demo3-title" data-node="Demo 3 title" data-id="cz-demo3-title" data-type="text">SPICE<br> RUSH</h3>
-        <p class="cz-demo-body" data-node="Demo 3 text" data-id="cz-demo3-body" data-type="text">A cascading slot I made the art and animation for: Xolo, the symbols, the UI, the Spine animations and the effects. Spin it right here.</p>
+        <p class="cz-demo-body" data-node="Demo 3 text" data-id="cz-demo3-body" data-type="text">A cascading slot prototype I made the art and animation for: Xolo, the symbols, the UI, the Spine animations and the effects. Built to show how the assets work in a live game.</p>
+        <p class="cz-demo-note">Showcase prototype, not a released product. The math (RTP, payouts) is placeholder.</p>
         <ul class="cz-demo-feats" aria-label="Game features"></ul>
         <ul class="cz-demo-tags" aria-label="My role"></ul>
         <div class="cz-demo-actions">
-          <button type="button" class="cz-demo-btn" data-demo-play>Play demo</button>
+          <button type="button" class="cz-demo-btn" data-demo-play>Play prototype</button>
+          <button type="button" class="cz-demo-btn ghost" data-demo-full>Full screen</button>
+        </div>
+        <div class="cz-demo-try">
+          <p class="cz-demo-try-label">Jump straight to a feature</p>
+          <div class="cz-demo-chips" role="group" aria-label="Play a feature"></div>
+        </div>
+      </div>
+      <div class="cz-demo-device">
+        <div class="cz-demo-screen">
+          <img class="cz-demo-poster" alt="" width="720" height="1280" loading="lazy" decoding="async">
+          <button type="button" class="cz-demo-veil" data-demo-play><span class="cz-demo-play" aria-hidden="true"></span><span class="cz-demo-hint">Tap to play · sound on</span></button>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="cz-wrap">
+    <article class="cz-demo flip" data-demo="demo2" aria-labelledby="cz-demo2-title">
+      <div class="cz-demo-copy">
+        <p class="cz-demo-kick" data-node="Demo 2 kicker" data-id="cz-demo2-kick" data-type="text">PLAYABLE PROTOTYPE</p>
+        <h3 class="cz-demo-title" id="cz-demo2-title" data-node="Demo 2 title" data-id="cz-demo2-title" data-type="text">MAYAN<br> EMPIRE</h3>
+        <p class="cz-demo-body" data-node="Demo 2 text" data-id="cz-demo2-body" data-type="text">A ways slot prototype I made the art and animation for: the symbols, the frame and UI, the Spine animations and the effects. Built to show how the assets work in a live game.</p>
+        <p class="cz-demo-note">Showcase prototype, not a released product. The math (RTP, payouts) is placeholder.</p>
+        <ul class="cz-demo-feats" aria-label="Game features"></ul>
+        <ul class="cz-demo-tags" aria-label="My role"></ul>
+        <div class="cz-demo-actions">
+          <button type="button" class="cz-demo-btn" data-demo-play>Play prototype</button>
+          <button type="button" class="cz-demo-btn ghost" data-demo-full>Full screen</button>
+        </div>
+        <div class="cz-demo-try">
+          <p class="cz-demo-try-label">Jump straight to a feature</p>
+          <div class="cz-demo-chips" role="group" aria-label="Play a feature"></div>
+        </div>
+      </div>
+      <div class="cz-demo-device">
+        <div class="cz-demo-screen">
+          <img class="cz-demo-poster" alt="" width="720" height="1280" loading="lazy" decoding="async">
+          <button type="button" class="cz-demo-veil" data-demo-play><span class="cz-demo-play" aria-hidden="true"></span><span class="cz-demo-hint">Tap to play · sound on</span></button>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="cz-wrap">
+    <article class="cz-demo" data-demo="demo" aria-labelledby="cz-demo-title">
+      <div class="cz-demo-copy">
+        <p class="cz-demo-kick" data-node="Demo kicker" data-id="cz-demo-kick" data-type="text">PLAYABLE PROTOTYPE</p>
+        <h3 class="cz-demo-title" id="cz-demo-title" data-node="Demo title" data-id="cz-demo-title" data-type="text">JEEPNEY<br> JACKPOT</h3>
+        <p class="cz-demo-body" data-node="Demo text" data-id="cz-demo-body" data-type="text">A slot prototype I made the art for: the key art, every symbol, the UI and the Spine win animations. Built to show how the assets work in a live game.</p>
+        <p class="cz-demo-note">Showcase prototype, not a released product. The math (RTP, payouts) is placeholder.</p>
+        <ul class="cz-demo-feats" aria-label="Game features"></ul>
+        <ul class="cz-demo-tags" aria-label="My role"></ul>
+        <div class="cz-demo-actions">
+          <button type="button" class="cz-demo-btn" data-demo-play>Play prototype</button>
           <button type="button" class="cz-demo-btn ghost" data-demo-full>Full screen</button>
         </div>
         <div class="cz-demo-try">

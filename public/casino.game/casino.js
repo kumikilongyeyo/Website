@@ -583,7 +583,7 @@
       if (!card || card.hidden) return '';
       const name = d.name || ($('.cz-demo-title', card) || {}).textContent || 'Game';
       return `<div class="cz-dtile" role="listitem" data-tile="${esc(o.key)}">
-        <div class="cz-dtile-art">${d.poster ? `<img src="${esc(d.poster)}" alt="${esc(name)}" loading="lazy" decoding="async">` : ''}<span class="cz-dtile-badge">Demo</span></div>
+        <div class="cz-dtile-art">${d.poster ? `<img src="${esc(d.poster)}" alt="${esc(name)}" loading="lazy" decoding="async">` : ''}<span class="cz-dtile-badge">Prototype</span></div>
         <div class="cz-dtile-info">
           <p class="cz-dtile-name">${esc(name)}</p>
           <div class="cz-dtile-btns">
@@ -922,9 +922,9 @@
         <label class="file-btn" style="padding:0 8px">Add screenshots<input type="file" accept="image/*" multiple data-demo-gallery-add="${key}" hidden></label>
       </details>`;
     };
-    box.innerHTML = demoPanel('demo2', 'Playable demo: Mayan Empire', 'The first card at the top of Works.') +
-      demoPanel('demo', 'Playable demo: Jeepney Jackpot', 'The second (mirrored) card under it.') +
-      demoPanel('demo3', 'Playable demo: Spice Rush', 'The third card.') + LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
+    box.innerHTML = demoPanel('demo3', 'Playable prototype: Spice Rush', 'The first card at the top of Works.') +
+      demoPanel('demo2', 'Playable prototype: Mayan Empire', 'The second (mirrored) card.') +
+      demoPanel('demo', 'Playable prototype: Jeepney Jackpot', 'The third card.') + LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
         <summary>${l.label} (${c[l.key].length})</summary>
         <p class="cz-note">${l.note} Click to select, Shift-click for a range, ⌘/Ctrl-click to add one, then drag to reorder. Delete removes the selection.</p>
         <div class="cz-selbar" data-selbar="${l.key}" hidden></div>
@@ -1082,7 +1082,7 @@
   });
 
   /* ---------------------------------------- finding the right controls */
-  const JUMPS = [['demo2', 'Mayan demo'], ['demo', 'Jeepney demo'], ['demo3', 'Spice Rush demo'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
+  const JUMPS = [['demo3', 'Spice Rush demo'], ['demo2', 'Mayan demo'], ['demo', 'Jeepney demo'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
   function openSection(key) {
     const tab = $('.inspect-tab[data-tab="site"]'); if (tab && !tab.classList.contains('active')) tab.click();
     mountPanel();

@@ -587,7 +587,7 @@ window.STUDIO_PAGE = {
         // The game's own info page (/casino.game/game/?g=<slug>): "Find out
         // more" on the tile goes there. Stats are free text, shown as typed.
         "slug": "jeepney-jackpot",
-        "about": "A playable slot I made the art for: the key art, every symbol, the UI and the Spine win animations. A 4×3 reel set with a multiplier reel beside it, EX NUDGE coins that collect their neighbours, and a bonus wheel with a 1,000× Grand.",
+        "about": "A slot prototype I made the art for: the key art, every symbol, the UI and the Spine win animations. A 4×3 reel set with a multiplier reel beside it, EX NUDGE coins that collect their neighbours, and a bonus wheel with a 1,000× Grand.",
         "rtp": "95.3%",
         "volatility": "Medium",
         "maxWin": "1,000×",
@@ -614,7 +614,7 @@ window.STUDIO_PAGE = {
         "chips": true,
         "chipList": [["screech", "Screech Wild"], ["fs18", "Free spins x18"], ["fs36", "Free spins x36"]],
         "slug": "mayan-empire",
-        "about": "A ways slot I made the art and animation for: the symbols, the frame and UI, the Spine animations and the effects. Screech Wilds throw more Wilds onto the reels, and every one of them feeds a multiplier orb that keeps doubling, all the way to ×1024 in free spins.",
+        "about": "A ways slot prototype I made the art and animation for: the symbols, the frame and UI, the Spine animations and the effects. Screech Wilds throw more Wilds onto the reels, and every one of them feeds a multiplier orb that keeps doubling, all the way to ×1024 in free spins.",
         "rtp": "96.2%",
         "volatility": "High",
         "maxWin": "1,024×",
@@ -641,7 +641,7 @@ window.STUDIO_PAGE = {
         "tags": ["Key art", "Symbols", "UI / UX", "Spine animation"],
         "chips": false,
         "slug": "spice-rush",
-        "about": "A cascading slot I made the art and animation for: Xolo the hairless dog, the symbols, the UI and the Spine animations and effects. Winning golden frames turn Wild and send their ×N up to Xolo, where they add up for the whole chain; every win heats him up until he breathes fire and gilds a whole reel.",
+        "about": "A cascading slot prototype I made the art and animation for: Xolo the hairless dog, the symbols, the UI and the Spine animations and effects. Winning golden frames turn Wild and send their ×N up to Xolo, where they add up for the whole chain; every win heats him up until he breathes fire and gilds a whole reel.",
         "rtp": "96.5%",
         "volatility": "High",
         "maxWin": "5,000×",

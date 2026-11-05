@@ -87,6 +87,8 @@ body.gp {
 .gp-stats dt { margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--gp-muted); }
 .gp-stats dd { margin: 0; font-size: clamp(22px, 2.3vw, 30px); font-weight: 700; line-height: 1.15; letter-spacing: .01em; overflow-wrap: anywhere; }
 
+.gp-proto-note { margin: -12px 0 26px; padding: 12px 16px; border-left: 3px solid var(--gp-acc); border-radius: 0 10px 10px 0; background: color-mix(in srgb, var(--gp-acc) 7%, transparent); font-size: 14px; line-height: 1.5; color: var(--gp-muted); }
+.gp-proto-note b { color: var(--gp-ink); }
 .gp-pills { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0 0 22px; padding: 0; }
 .gp-pills li { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; color: var(--gp-ink); background: var(--gp-paper); border: 1px solid var(--gp-line); }
 .gp-pills li.buy { color: var(--gp-blue); border-color: rgba(47, 107, 255, .45); background: rgba(47, 107, 255, .06); }

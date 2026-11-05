@@ -7,8 +7,8 @@
 <meta name="theme-color" content="#f6f5fb">
 <!-- Link-only like /casino.game: kept out of search results. -->
 <meta name="robots" content="noindex, nofollow">
-<title>Playable demo — Klyde Sosa</title>
-<meta name="description" content="A playable slot demo with art and animation by Klyde Jerrel Sosa.">
+<title>Playable prototype — Klyde Sosa</title>
+<meta name="description" content="A playable slot prototype with art and animation by Klyde Jerrel Sosa, made to show how the assets are implemented.">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Manrope:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="/casino.game/game/game.css">
@@ -30,7 +30,7 @@
 <main class="gp-main" id="main">
   <ol class="gp-crumbs" aria-label="Breadcrumb">
     <li><a href="/casino.game/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg>Home</a></li>
-    <li><a href="/casino.game/#works">Playable demos</a></li>
+    <li><a href="/casino.game/#works">Playable prototypes</a></li>
     <li aria-current="page" class="gp-crumb-name"></li>
   </ol>
 
@@ -40,20 +40,21 @@
            Play now) take the visitor down to the player in #play. -->
       <div class="gp-stage">
         <img class="gp-shot" alt="" width="506" height="900" decoding="async">
-        <button type="button" class="gp-stage-play" data-play aria-label="Play the demo"><span aria-hidden="true"></span></button>
+        <button type="button" class="gp-stage-play" data-play aria-label="Play the prototype"><span aria-hidden="true"></span></button>
       </div>
       <ul class="gp-thumbs" aria-label="Screenshots"></ul>
     </div>
 
     <div class="gp-info">
-      <p class="gp-kick">PLAYABLE DEMO</p>
+      <p class="gp-kick">PLAYABLE PROTOTYPE</p>
       <div class="gp-head">
         <h1 class="gp-title" id="gp-title"></h1>
-        <span class="gp-badge">Demo</span>
+        <span class="gp-badge">Prototype</span>
       </div>
       <span class="gp-rule" aria-hidden="true"></span>
 
       <dl class="gp-stats"></dl>
+      <p class="gp-proto-note"><b>Showcase prototype, not a released product.</b> It is here to show how the art, animation and effects are implemented in a working game. The numbers above are placeholder prototype math, not the focus.</p>
 
       <ul class="gp-pills" aria-label="Features"></ul>
 
@@ -70,7 +71,7 @@
 
       <div class="gp-actions">
         <button type="button" class="gp-btn play" data-play>Play now<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10a5 5 0 0 1 4.9 6l-.8 4a2.6 2.6 0 0 1-4.6 1.1L15 16H9l-1.5 2.1A2.6 2.6 0 0 1 2.9 17l-.8-4A5 5 0 0 1 7 7zm0 3v1.5H5.5V13H7v1.5h1.5V13H10v-1.5H8.5V10zm9.3.2a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm2 2.2a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg></button>
-        <button type="button" class="gp-btn copy" data-copy><span>Copy demo link</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7-1.5-1.5L13 12 7.5 6.5z"/></svg></button>
+        <button type="button" class="gp-btn copy" data-copy><span>Copy link</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7-1.5-1.5L13 12 7.5 6.5z"/></svg></button>
       </div>
     </div>
   </section>
@@ -80,7 +81,7 @@
   <section class="gp-play" id="play" aria-labelledby="gp-play-title">
     <div class="gp-play-head">
       <p class="gp-kick">PLAY IN YOUR BROWSER</p>
-      <h2 id="gp-play-title">Play the demo</h2>
+      <h2 id="gp-play-title">Play the prototype</h2>
       <p>Free to play, nothing to install, no sign-up. The credits are pretend.</p>
     </div>
     <div class="gp-cabinet">
@@ -94,13 +95,13 @@
       </div>
       <div class="gp-player">
         <img class="gp-player-poster" alt="" width="720" height="1280" loading="lazy" decoding="async">
-        <button type="button" class="gp-player-start" data-start aria-label="Play the demo here"><span class="gp-player-ring" aria-hidden="true"></span><b>Play</b></button>
+        <button type="button" class="gp-player-start" data-start aria-label="Play the prototype here"><span class="gp-player-ring" aria-hidden="true"></span><b>Play</b></button>
         <button type="button" class="gp-player-close" data-stop aria-label="Close the game">×</button>
         <p class="gp-player-hint">Loading the game…</p>
       </div>
       <div class="gp-play-side gp-try">
         <h3>Jump straight to a feature</h3>
-        <p>Starts the demo with that feature on the next spin.</p>
+        <p>Starts the prototype with that feature on the next spin.</p>
         <div class="gp-chips" role="group" aria-label="Play a feature"></div>
         <div class="gp-controls" role="group" aria-label="Game controls">
           <button type="button" class="gp-ctl" data-full><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v2H5v5H3zm11 0h7v7h-2V5h-5zM3 14h2v5h5v2H3zm16 0h2v7h-7v-2h5z"/></svg>Full screen</button>
