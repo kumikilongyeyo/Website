@@ -583,7 +583,7 @@
       if (!card || card.hidden) return '';
       const name = d.name || ($('.cz-demo-title', card) || {}).textContent || 'Game';
       return `<div class="cz-dtile" role="listitem" data-tile="${esc(o.key)}">
-        <div class="cz-dtile-art">${d.poster ? `<img src="${esc(d.poster)}" alt="${esc(name)}" loading="lazy" decoding="async">` : ''}<span class="cz-dtile-badge">Prototype</span></div>
+        <div class="cz-dtile-art">${d.tileVideo ? `<video src="${esc(d.tileVideo)}"${d.tilePoster ? ` poster="${esc(d.tilePoster)}"` : ''} autoplay muted loop playsinline preload="auto" disablepictureinpicture aria-label="${esc(name)}"></video>` : d.poster ? `<img src="${esc(d.poster)}" alt="${esc(name)}" loading="lazy" decoding="async">` : ''}<span class="cz-dtile-badge">Prototype</span></div>
         <div class="cz-dtile-info">
           <p class="cz-dtile-name">${esc(name)}</p>
           <div class="cz-dtile-btns">
@@ -593,6 +593,8 @@
         </div>
       </div>`;
     }).join('');
+    // Tile clips (innerHTML): set muted as a property too so autoplay is allowed, then start them.
+    $$('video', dtiles).forEach(v => { v.muted = true; const p = v.play(); if (p) p.catch(() => {}); });
   }
   function openDemo(key, start) {
     const o = Demos.find(x => x.key === key);

@@ -639,6 +639,9 @@ window.STUDIO_PAGE = {
         "name": "Mayan Empire",
         "url": "https://jeepney-jackpot.pages.dev/mwt-5eb90827e29c/",
         "poster": "/casino.game/assets/demo/mayan-wild-throw-start.webp",
+        // The lobby tile plays this looping clip (muted) instead of the poster; tilePoster shows until it loads.
+        "tileVideo": "/casino.game/assets/demo/mayan-empire-tile-loop.mp4",
+        "tilePoster": "/casino.game/assets/demo/mayan-empire-tile.webp",
         "features": ["5x4 reels of ways + a top reel", "Screech Wilds that make Wilds", "Multiplier doubles to x1024", "Free spins from x18 / x36"],
         "tags": ["Symbols", "Frame & UI", "Spine animation", "VFX"],
         "chips": true,

@@ -525,7 +525,7 @@ body.editing:not(.cz-replaying) .cz-card-copy > * { opacity: 1 !important; trans
 .cz-dtiles { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(18px, 3cqw, 36px); margin: 0 auto clamp(40px, 6cqw, 72px); }
 .cz-dtile { cursor: pointer; position: relative; width: clamp(220px, 24cqw, 280px); border-radius: 22px; padding: 8px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 20px 40px rgba(0, 0, 0, .3); transition: transform .3s cubic-bezier(.2, .8, .2, 1), background .3s, border-color .3s, box-shadow .3s; }
 .cz-dtile-art { position: relative; aspect-ratio: 3 / 4; border-radius: 16px; overflow: hidden; background: #090b18; }
-.cz-dtile-art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+.cz-dtile-art img, .cz-dtile-art video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
 .cz-dtile-badge { position: absolute; top: 10px; right: 10px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--cz-deep); background: #7ef0a8; padding: 4px 9px; border-radius: 999px; box-shadow: 0 0 14px rgba(126, 240, 168, .6); }
 /* The strip sits inside the art, over its lower part: a dimmed, blurred gradient with the name and buttons on it. */
 .cz-dtile-info { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 2; padding: 64px 12px 12px; border-radius: 0 0 16px 16px; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
@@ -542,7 +542,7 @@ body.editing:not(.cz-replaying) .cz-card-copy > * { opacity: 1 !important; trans
 .cz-dtile:hover, .cz-dtile:focus-within { z-index: 3; transform: translateY(-10px); background: #1f1c48; border-color: rgba(57, 230, 255, .55); box-shadow: 0 30px 60px rgba(0, 0, 0, .45), 0 0 40px rgba(57, 230, 255, .25); }
 .cz-dtile:hover .cz-dtile-info, .cz-dtile:focus-within .cz-dtile-info { opacity: 1; pointer-events: auto; }
 .cz-dtile:hover .cz-dtile-info > *, .cz-dtile:focus-within .cz-dtile-info > * { transform: none; }
-.cz-dtile:hover .cz-dtile-art img, .cz-dtile:focus-within .cz-dtile-art img { transform: scale(1.05); }
+.cz-dtile:hover .cz-dtile-art img, .cz-dtile:focus-within .cz-dtile-art img, .cz-dtile:hover .cz-dtile-art video, .cz-dtile:focus-within .cz-dtile-art video { transform: scale(1.05); }
 /* Touch screens have no hover: the strip is always open, over the art. */
 @media (hover: none) {
   .cz-dtile-info { opacity: 1; pointer-events: auto; } .cz-dtile-info > * { transform: none; }
