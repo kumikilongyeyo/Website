@@ -670,6 +670,9 @@ window.STUDIO_PAGE = {
         "name": "Chili Loco Wins",
         "url": "https://spice-rush.jeepney-jackpot.pages.dev/",
         "poster": "/casino.game/assets/demo/chili-loco-wins-start.webp",
+        // The lobby tile plays this looping clip (muted) instead of the poster; tilePoster shows until it loads.
+        "tileVideo": "/casino.game/assets/demo/chili-loco-wins-tile-loop.mp4",
+        "tilePoster": "/casino.game/assets/demo/chili-loco-wins-tile.webp",
         "features": ["5×3 reels, 20 lines, cascades", "Golden frames turn Wild and carry ×N", "Xolo's fire breath gilds a whole reel", "Charged spins: Xolo spews fire onto up to 5 reels", "Free spins from 3 Scatters"],
         "tags": ["Key art", "Symbols", "UI / UX", "Spine animation"],
         "chips": false,
