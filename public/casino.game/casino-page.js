@@ -659,14 +659,14 @@ window.STUDIO_PAGE = {
           "/casino.game/assets/games/mayan-empire/free-spins-win.webp"
         ]
       },
-      // The third card: Spice Rush (Cocos Creator), on its own branch of the
+      // The third card: Chili Loco Wins (working name Spice Rush, Cocos Creator), on its own branch of the
       // same Pages project, so frame-src lists spice-rush.jeepney-jackpot.pages.dev.
       // No embed bridge in this game: no feature chips.
       "demo3": {
         "on": true,
-        "name": "Spice Rush",
+        "name": "Chili Loco Wins",
         "url": "https://spice-rush.jeepney-jackpot.pages.dev/",
-        "poster": "/casino.game/assets/demo/spice-rush-start.webp",
+        "poster": "/casino.game/assets/demo/chili-loco-wins-start.webp",
         "features": ["5×3 reels, 20 lines, cascades", "Golden frames turn Wild and carry ×N", "Xolo's fire breath gilds a whole reel", "Charged spins: Xolo spews fire onto up to 5 reels", "Free spins from 3 Scatters"],
         "tags": ["Key art", "Symbols", "UI / UX", "Spine animation"],
         "chips": false,

@@ -56,7 +56,7 @@
   };
   const clone = o => JSON.parse(JSON.stringify(o));
   // The playable demo cards: G.casino.demo2 (Mayan Empire, first on the page), G.casino.demo (Jeepney Jackpot) and
-  // G.casino.demo3 (Spice Rush).
+  // G.casino.demo3 (Chili Loco Wins).
   const DEMO_KEYS = ['demo', 'demo2', 'demo3'];
   const ADDITIONS = [
     ['tech:claude', (c, def) => {
@@ -922,7 +922,7 @@
         <label class="file-btn" style="padding:0 8px">Add screenshots<input type="file" accept="image/*" multiple data-demo-gallery-add="${key}" hidden></label>
       </details>`;
     };
-    box.innerHTML = demoPanel('demo3', 'Playable prototype: Spice Rush', 'The first card at the top of Works.') +
+    box.innerHTML = demoPanel('demo3', 'Playable prototype: Chili Loco Wins', 'The first card at the top of Works.') +
       demoPanel('demo2', 'Playable prototype: Mayan Empire', 'The second (mirrored) card.') +
       demoPanel('demo', 'Playable prototype: Jeepney Jackpot', 'The third card.') + LISTS.map(l => `<details data-key="${l.key}"${openKeys.includes(l.key) ? ' open' : ''}>
         <summary>${l.label} (${c[l.key].length})</summary>
@@ -1082,7 +1082,7 @@
   });
 
   /* ---------------------------------------- finding the right controls */
-  const JUMPS = [['demo3', 'Spice Rush demo'], ['demo2', 'Mayan demo'], ['demo', 'Jeepney demo'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
+  const JUMPS = [['demo3', 'Chili Loco Wins demo'], ['demo2', 'Mayan demo'], ['demo', 'Jeepney demo'], ['logos', 'Logos'], ['screens', 'Screens'], ['icons', 'Icons'], ['tech', 'Tools'], ['slots', 'Service art'], ['cardAnim', 'Card animation'], ['hero', 'Hero framing'], ['heroAnim', 'Hero animation'], ['board', 'Board size'], ['wall', 'Wall motion'], ['decor', 'Decorations']];
   function openSection(key) {
     const tab = $('.inspect-tab[data-tab="site"]'); if (tab && !tab.classList.contains('active')) tab.click();
     mountPanel();

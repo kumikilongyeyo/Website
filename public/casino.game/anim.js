@@ -29,7 +29,7 @@
   const HOLD = 1.1;           // seconds a finished state rests before it replays
   const FADE = 0.16;          // fade-in when a state replays from its first frame
   const KEEP_VIEWS = 2;       // views whose textures stay loaded (the current one + the last)
-  const MAYAN = 'Mayan Wild Throw', SPICY = 'Spice Rush';
+  const MAYAN = 'Mayan Wild Throw', SPICY = 'Chili Loco Wins';
   const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   /* ------------------------------------------------------------ the catalogue */
