@@ -810,7 +810,7 @@
       e.target.classList.add('in');
       io.unobserve(e.target);
     }), { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
-    const targets = '.cz-card, .cz-board, .cz-spin, .cz-tech, .cz-connect-title';
+    const targets = '.cz-card, .cz-board, .cz-pay, .cz-spin, .cz-tech, .cz-connect-title';
     $$(targets).forEach(el => io.observe(el));
     // Anything already on screen at load (a deep link, a refresh mid-page)
     // must not wait for a scroll to appear.

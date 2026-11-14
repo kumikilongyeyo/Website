@@ -686,3 +686,46 @@ body.light.cz-body {
 .light .cz-hero-pin { background: #15123a; }
 /* The tool marks are mint art made for the dark page: a shade deeper on paper. */
 .light .cz-tech img { filter: brightness(.72) saturate(1.25); }
+
+/* ---------------------------------------------------------------------------
+   Icons & symbols: game pay-table (Mayan Empire + Chili Loco Wins), above the
+   free-form board. Tiers are rows, games are columns; on phones each tier
+   shows the games one under the other. Static stills from the games' Spine rigs.
+--------------------------------------------------------------------------- */
+.cz-pay { container-type: inline-size; display: grid; grid-template-columns: 9% 1fr 1fr; margin-bottom: clamp(14px, 2cqw, 28px); padding: clamp(16px, 2.4cqw, 32px); border-radius: 28px; background: rgba(255, 255, 255, .035); border: 1px solid rgba(255, 255, 255, .08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+.cz-pay > * { margin: 0; padding-block: 2.2cqw; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.cz-pay > :nth-child(-n+3) { padding-top: 0; }
+.cz-pay > :nth-child(n+4) { border-top: 1px solid var(--cz-line); }
+.cz-pay-cell + .cz-pay-cell { border-left: 1px solid var(--cz-line); }
+.cz-pay-game { text-align: center; font-family: var(--display); font-weight: 400; letter-spacing: .04em; font-size: clamp(22px, 2.6cqw, 32px); line-height: 1.1; color: var(--cz-ink); }
+.cz-pay-lab { font-size: 11px; font-weight: 800; letter-spacing: .16em; line-height: 1.5; text-transform: uppercase; color: var(--cz-violet); }
+.cz-pay-row { display: flex; justify-content: center; align-items: center; gap: clamp(4px, 1.4cqw, 14px); }
+.cz-pay-t { flex: none; position: relative; display: block; }
+.cz-pay-t img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .4)); }
+.cz-pay-sp .cz-pay-t { width: 16cqw; height: 18cqw; }
+.cz-pay-hp .cz-pay-t { width: 9.6cqw; height: 9cqw; }
+.cz-pay-lp .cz-pay-t { width: 7.6cqw; height: 7cqw; }
+.cz-pay-letters .cz-pay-t img { inset: 7%; width: 86%; height: 86%; }
+.cz-pay-cell::before { display: none; }
+@container cz (max-width: 720px) {
+  .cz-pay { grid-template-columns: 1fr; padding: 16px 12px; border-radius: 18px; }
+  .cz-pay > * { padding-block: 10px; }
+  .cz-pay-game, .cz-pay-corner { display: none !important; }
+  .cz-pay > :nth-child(n+4) { border-top: 0; }
+  .cz-pay-cell + .cz-pay-cell { border-left: 0; }
+  .cz-pay-lab { flex-direction: row; align-items: center; gap: 12px; padding-block: 14px 2px; }
+  .cz-pay-lab br { display: none; }
+  .cz-pay-lab::before, .cz-pay-lab::after { content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--cz-violet) 30%, transparent); }
+  .cz-pay-cell::before { content: attr(data-game); display: block; margin-bottom: 6px; text-align: center; font-family: var(--display); font-size: 15px; letter-spacing: .04em; color: var(--cz-ink); }
+  .cz-pay-sp .cz-pay-t { width: 34cqw; height: 38cqw; }
+  .cz-pay-hp .cz-pay-t { width: 21.5cqw; height: 19cqw; }
+  .cz-pay-lp .cz-pay-t { width: 16.5cqw; height: 14.5cqw; }
+  .cz-pay-t img { filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .4)); }
+}
+.cz-anim .cz-pay .cz-pay-t { opacity: 0; transform: translateY(18px) scale(.86); transition: opacity .45s ease var(--d, 0ms), transform .6s cubic-bezier(.18, 1.3, .4, 1) var(--d, 0ms); }
+.cz-anim .cz-pay.in .cz-pay-t { opacity: 1; transform: none; }
+body.editing .cz-pay .cz-pay-t { opacity: 1 !important; transform: none !important; }
+.light .cz-pay { background: var(--cz-paper); border-color: var(--cz-line); box-shadow: var(--cz-soft); }
+.light .cz-pay-t img { filter: drop-shadow(0 8px 12px rgba(21, 18, 58, .22)); }
+.light .cz-pay-lab { color: var(--cz-violet); }
+@container cz (max-width: 720px) { .light .cz-pay-t img { filter: drop-shadow(0 3px 5px rgba(21, 18, 58, .22)); } }
